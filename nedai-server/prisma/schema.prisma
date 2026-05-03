@@ -1,0 +1,196 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [vector]
+}
+
+enum UserRole {
+  STUDENT
+  LECTURER
+}
+
+enum DocumentStatus {
+  UPLOADED
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum DocumentVisibility {
+  PRIVATE
+  GLOBAL
+}
+
+enum DocumentOrigin {
+  USER_UPLOAD
+  DEFAULT_CORPUS
+}
+
+enum SourceType {
+  PDF
+  DOCX
+  DOC
+}
+
+enum Weekday {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+model User {
+  id                  String   @id @default(uuid())
+  email               String   @unique
+  passwordHash        String
+  fullName            String
+  preferredName       String?
+  aboutMe             String?  @db.Text
+  likes               String[] @default([])
+  dislikes            String[] @default([])
+  learningPreferences Json?
+  role                UserRole @default(STUDENT)
+  institution         String?
+  department          String?
+  matricNumber        String?
+  staffId             String?
+  studentAcademicLevel String?
+  dateOfBirth         DateTime? @db.Date
+  lecturerHighestQualification String?
+  lecturerCurrentAcademicStage String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  documents          Documents[]
+  chats              Chat[]
+  chunks             DocumentChunk[]
+  timetableActivities TimetableActivity[]
+  passwordResetToken   String?
+  passwordResetExpires DateTime?
+
+  @@map("users")
+}
+
+model Documents {
+  id               String             @id @default(uuid())
+  // PRIVATE rows must have userId set; GLOBAL rows must leave userId null.
+  userId           String?
+  visibility       DocumentVisibility @default(PRIVATE)
+  origin           DocumentOrigin     @default(USER_UPLOAD)
+  title            String
+  originalFilename String
+  mimeType         String
+  storagePath      String
+  status           DocumentStatus     @default(UPLOADED)
+  sourceType       SourceType
+  subject          String?
+  byteSize         Int                @default(0)
+  contentHash      String?
+  chunkCount       Int                @default(0)
+  processingError  String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  user     User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chunks   DocumentChunk[]
+  messages Message[]
+
+  @@index([visibility])
+  @@index([subject, visibility])
+  @@index([userId, visibility])
+  @@index([userId, contentHash])
+  @@map("documents")
+}
+
+model DocumentChunk {
+  id         String             @id @default(uuid())
+  documentId String
+  // Must match the parent document ownership semantics.
+  userId     String?
+  visibility DocumentVisibility @default(PRIVATE)
+  chunkIndex Int
+  text       String             @db.Text
+  tokenCount Int
+  pageStart  Int?
+  pageEnd    Int?
+  heading    String?
+  // Use Unsupported for vector since Prisma doesn't natively support it yet
+  // Xenova/bge-small-en-v1.5 uses 384 dimensions
+  embedding  Unsupported("vector(384)")?
+  createdAt  DateTime           @default(now())
+
+  document Documents @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user     User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@index([visibility])
+  @@index([userId, visibility])
+  @@index([documentId, visibility])
+  @@map("document_chunks")
+}
+
+model Chat {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  isPinned  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@index([userId])
+  @@index([isPinned])
+  @@map("chats")
+}
+
+model Message {
+  id            String      @id @default(uuid())
+  chatId        String
+  role          MessageRole
+  content       String      @db.Text
+  citationsJson Json?
+  documentId    String?
+  createdAt     DateTime    @default(now())
+
+  chat     Chat       @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  document Documents? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+
+  @@index([chatId])
+  @@map("messages")
+}
+
+model TimetableActivity {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  dayOfWeek Weekday
+  startTime String
+  endTime   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, dayOfWeek, startTime])
+  @@map("timetable_activities")
+}
