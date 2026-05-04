@@ -1,5 +1,5 @@
 import { FileText, Sparkles } from "lucide-react";
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import { MarkdownMessage } from "@/components/MarkdownMessage";
 import { TypingBubble } from "@/components/TypingBubble";

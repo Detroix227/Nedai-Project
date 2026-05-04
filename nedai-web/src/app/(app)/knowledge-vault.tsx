@@ -192,7 +192,7 @@ export default function KnowledgeVaultScreen() {
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1 mr-4">
-                      {document.sourceType === 'IMAGE' && (document as any).storagePath ? (
+                      {(document.sourceType as string) === 'IMAGE' && (document as any).storagePath ? (
                         <img
                           src={(document as any).storagePath}
                           alt={document.title}
@@ -212,7 +212,7 @@ export default function KnowledgeVaultScreen() {
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-50">
-                        {document.sourceType === 'IMAGE'
+                        {(document.sourceType as string) === 'IMAGE'
                           ? <Image size={16} className="text-purple-500" />
                           : <FileText size={16} className="text-blue-500" />}
                       </div>

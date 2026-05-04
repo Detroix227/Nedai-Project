@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export function TypingBubble() {
-  const [dots, setDots] = useState("");
+  const [, setDots] = useState("");
 
   useEffect(() => {
     const interval = setInterval(() => {

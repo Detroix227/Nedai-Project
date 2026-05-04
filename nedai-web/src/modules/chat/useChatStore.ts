@@ -555,7 +555,7 @@ export const useChatStore = create<ChatStore>()(
     {
       name: "nedai-chat-store",
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
+      partialize: () => ({
         // We purposefully don't persist activeThreadId to ensure that the app
         // starts with a fresh chat session on every cold start.
       }),

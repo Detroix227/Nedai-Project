@@ -58,7 +58,6 @@ export function pinChat(token: string, chatId: string, isPinned: boolean) {
   });
 }
 
-type StreamEventType = "init" | "chunk" | "done";
 
 type StreamEvent =
   | { type: "init"; chat: any; userMessage: any; assistantMessage: any; contextUsage: number }
