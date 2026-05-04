@@ -22,8 +22,13 @@ function deriveUploadThingUrl(serverOrigin: string, apiBaseUrl: string) {
   return "";
 }
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim() ?? "";
-export const SERVER_ORIGIN = trimTrailingSlashes(
-  import.meta.env.VITE_SERVER_ORIGIN?.trim() ?? deriveServerOrigin(API_BASE_URL),
-);
+export const API_BASE_URL = import.meta.env.PROD 
+  ? "https://nedai-server-yrta.onrender.com/api/v1" 
+  : (import.meta.env.VITE_API_BASE_URL?.trim() ?? "");
+
+export const SERVER_ORIGIN = import.meta.env.PROD
+  ? "https://nedai-server-yrta.onrender.com"
+  : trimTrailingSlashes(
+      import.meta.env.VITE_SERVER_ORIGIN?.trim() ?? deriveServerOrigin(API_BASE_URL),
+    );
 export const UPLOADTHING_URL = deriveUploadThingUrl(SERVER_ORIGIN, API_BASE_URL);
