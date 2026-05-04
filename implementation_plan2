@@ -1,0 +1,51 @@
+# Deploying the Nedia Web Application
+
+This document outlines the plan to deploy the `nedai-web` application (Vite + React) so it is publicly accessible on the internet.
+
+## User Review Required
+
+> [!IMPORTANT]
+> **Please review and choose a deployment platform:**
+> 
+> **Option 1: Vercel (Recommended)**
+> Vercel is highly optimized for Vite and React applications. It provides excellent performance, automatic CI/CD from GitHub, and a very generous free tier.
+> 
+> **Option 2: Render**
+> Since your backend (`nedai-server-yrta.onrender.com`) is already hosted on Render, you could host the frontend there as a "Static Site" to keep all your infrastructure in one place.
+> 
+> **Option 3: Netlify / Cloudflare Pages**
+> Similar to Vercel, these are great for static sites.
+> 
+> *Which platform do you prefer to use?*
+
+## Open Questions
+
+> [!WARNING]
+> **Source Control (Git)**:
+> Is your `Nedia-project` repository pushed to GitHub? The easiest way to deploy to Vercel or Render is by connecting your GitHub repository. If it's not on GitHub, we can deploy it directly from your terminal using the Vercel CLI (`npx vercel`), but connecting GitHub is better for long-term updates.
+
+## Proposed Changes
+
+To prepare for production deployment, we need to handle the environment variables correctly. 
+
+During local development, `nedai-web` uses a Vite proxy (`/api`) to avoid CORS issues and connect to your local backend. In production, we don't use this proxy.
+
+### 1. Environment Variables Configuration
+We will need to set the production environment variables in your deployment platform dashboard (Vercel or Render):
+
+- `VITE_API_BASE_URL`: **`https://nedai-server-yrta.onrender.com/api/v1`** (Instead of the local `/api/v1`)
+- `VITE_SERVER_ORIGIN`: **`https://nedai-server-yrta.onrender.com`**
+
+### 2. No Code Changes Needed
+No code changes are strictly necessary right now, as your `src/lib/http.ts` and `src/lib/env.ts` are already set up to consume `VITE_API_BASE_URL`. We just need to make sure the environment variables are injected correctly during the build process on the chosen platform.
+
+## Verification Plan
+
+### Automated Tests
+- Run `npm run build` locally to verify the production build succeeds without TypeScript or bundling errors.
+
+### Manual Verification
+- Deploy the application.
+- Visit the public URL provided by the deployment platform.
+- Ensure the application loads correctly.
+- Test logging in or fetching data to verify that the frontend correctly communicates with the Render backend API without CORS issues.

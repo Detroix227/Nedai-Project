@@ -1,27 +1,85 @@
-import { generateReactHelpers } from "@uploadthing/react";
-import type { FileRouter } from "uploadthing/types";
+import { request } from "@/lib/http";
 
-import { UPLOADTHING_URL } from "@/lib/env";
-
-export const DOCUMENT_UPLOAD_ENDPOINT = "documentUploader" as const;
-type UploadRouter = {
-  documentUploader: FileRouter[string];
+export type PresignResponse = {
+  uploadUrl: string;
+  fileKey: string;
+  publicUrl: string;
 };
 
-const { uploadFiles: uploadDocumentFiles } =
-  generateReactHelpers<UploadRouter>();
+export type ConfirmResponse = {
+  document: {
+    id: string;
+    title: string;
+    status: string;
+  };
+};
 
-function assertUploadThingUrl() {
-  if (!UPLOADTHING_URL) {
-    throw new Error(
-      "Missing UploadThing endpoint. Set EXPO_PUBLIC_SERVER_URL or EXPO_PUBLIC_API_URL and restart Expo.",
-    );
-  }
+/** Step 1 — Ask the server for a presigned R2 upload URL. */
+export function presignUpload(
+  token: string,
+  opts: { fileName: string; mimeType: string; fileSize: number },
+) {
+  return request<{ uploadUrl: string; fileKey: string; publicUrl: string }>(
+    "/documents/presign",
+    {
+      method: "POST",
+      token,
+      body: opts,
+    },
+  );
 }
 
-export function uploadFiles(
-  ...args: Parameters<typeof uploadDocumentFiles>
+/** Step 2 — Upload the file directly to R2 using the presigned URL. */
+export async function uploadToR2(
+  presignedUrl: string,
+  file: File,
+  onProgress?: (pct: number) => void,
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("PUT", presignedUrl, true);
+    xhr.setRequestHeader("Content-Type", file.type);
+
+    if (onProgress) {
+      xhr.upload.addEventListener("progress", (e) => {
+        if (e.lengthComputable) {
+          onProgress(Math.round((e.loaded / e.total) * 100));
+        }
+      });
+    }
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve();
+      } else {
+        reject(new Error(`R2 upload failed with status ${xhr.status}`));
+      }
+    };
+    xhr.onerror = () => reject(new Error("R2 upload network error"));
+    xhr.send(file);
+  });
+}
+
+/** Step 3 — Confirm the upload with the server to create the DB record. */
+export function confirmUpload(
+  token: string,
+  opts: {
+    title?: string;
+    file: {
+      name: string;
+      size: number;
+      type: string;
+      key: string;
+      publicUrl: string;
+    };
+  },
 ) {
-  assertUploadThingUrl();
-  return uploadDocumentFiles(...args);
+  return request<{ document: { id: string; title: string; status: string } }>(
+    "/documents/confirm",
+    {
+      method: "POST",
+      token,
+      body: opts,
+    },
+  );
 }

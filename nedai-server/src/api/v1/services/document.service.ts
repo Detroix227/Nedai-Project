@@ -16,8 +16,8 @@ import {
 import UserDocumentIngestion from "@/api/v1/services/user-document-ingestion.service";
 import DocumentParser from "@/api/v1/services/document-parser.service";
 import DocumentStorage from "@/api/v1/services/document-storage.service";
-import { deleteUploadThingFileByUrl } from "@/uploadthing/utapi";
-import { isRemoteFileUrl } from "@/uploadthing/utils";
+import { deleteR2FileByUrl, generatePresignedUploadUrl, getR2PublicUrl } from "@/lib/r2";
+import { isRemoteFileUrl } from "@/utils/url.util";
 
 function buildDefaultTitle(filename: string) {
   const parsed = path.parse(filename);
@@ -79,6 +79,98 @@ export class DocumentServiceImpl {
     throw new ApiError(410, "Use the UploadThing upload flow");
   }
 
+  public async presignUpload(options: {
+    userId: string;
+    fileName: string;
+    mimeType: string;
+    fileSize: number;
+  }) {
+    const { MAX_FILE_BYTES } = await import("@/api/v1/services/document.constants");
+
+    if (options.fileSize > MAX_FILE_BYTES) {
+      throw new ApiError(413, "The file exceeds the 20 MB upload limit");
+    }
+
+    const quota = await this.getQuota(options.userId);
+
+    if (quota.usedDocuments >= quota.maxDocuments) {
+      throw new ApiError(409, "You have reached the document limit");
+    }
+
+    if (quota.usedBytes + options.fileSize > quota.maxBytes) {
+      throw new ApiError(409, "This upload would exceed your storage quota");
+    }
+
+    // Build a unique object key: uploads/{userId}/{uuid}-{filename}
+    const ext = path.extname(options.fileName);
+    const key = `uploads/${options.userId}/${crypto.randomUUID()}${ext}`;
+    const uploadUrl = await generatePresignedUploadUrl(key, options.mimeType);
+    const publicUrl = getR2PublicUrl(key);
+
+    return { uploadUrl, fileKey: key, publicUrl };
+  }
+
+  public async confirmUpload(options: {
+    userId: string;
+    title?: string;
+    file: {
+      name: string;
+      size: number;
+      type: string;
+      key: string;      // R2 object key
+      publicUrl: string;
+      contentHash?: string;
+    };
+  }) {
+    const sourceType = DocumentParser.getSourceType(options.file.name);
+    await DocumentParser.assertUploadSupported(sourceType);
+
+    const quota = await this.getQuota(options.userId);
+
+    if (quota.usedDocuments >= quota.maxDocuments) {
+      throw new ApiError(409, "You have reached the document limit");
+    }
+
+    if (quota.usedBytes + options.file.size > quota.maxBytes) {
+      throw new ApiError(409, "This upload would exceed your storage quota");
+    }
+
+    if (options.file.contentHash) {
+      const duplicate = await prisma.documents.findFirst({
+        where: { userId: options.userId, contentHash: options.file.contentHash },
+        select: { id: true },
+      });
+      if (duplicate) {
+        // Clean up the R2 file we just received since it's a duplicate
+        await deleteR2FileByUrl(options.file.publicUrl);
+        throw new ApiError(409, "This document has already been uploaded");
+      }
+    }
+
+    const document = await prisma.documents.create({
+      data: {
+        userId: options.userId,
+        visibility: DocumentVisibility.PRIVATE,
+        origin: DocumentOrigin.USER_UPLOAD,
+        title:
+          typeof options.title === "string" && options.title.trim().length > 0
+            ? options.title.trim()
+            : buildDefaultTitle(options.file.name),
+        originalFilename: options.file.name,
+        mimeType: options.file.type || "application/octet-stream",
+        storagePath: options.file.publicUrl, // public R2 URL
+        status: DocumentStatus.UPLOADED,
+        sourceType,
+        byteSize: options.file.size,
+        contentHash: options.file.contentHash ?? null,
+      },
+    });
+
+    UserDocumentIngestion.queue(document.id);
+
+    return serializeDocument(document);
+  }
+
   public async deleteDocument(userId: string, documentId: string) {
     const document = await this.getOwnedDocument(userId, documentId);
 
@@ -87,7 +179,7 @@ export class DocumentServiceImpl {
     });
 
     if (isRemoteFileUrl(document.storagePath)) {
-      await deleteUploadThingFileByUrl(document.storagePath);
+      await deleteR2FileByUrl(document.storagePath);
       return;
     }
 
@@ -222,7 +314,9 @@ export class DocumentServiceImpl {
             ? "application/pdf"
             : sourceType === "DOCX"
               ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-              : "application/msword"),
+              : sourceType === "IMAGE"
+                ? "image/png"
+                : "application/msword"),
         storagePath: options.file.ufsUrl,
         status: DocumentStatus.UPLOADED,
         sourceType,

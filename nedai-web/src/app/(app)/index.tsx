@@ -1,6 +1,5 @@
-import { Sparkles, FileText, Upload } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import React, {
-  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -88,7 +87,6 @@ export default function HomeScreen() {
     useShallow((state) => state.messagesForActiveThread()),
   );
   const loadChats = useChatStore((state) => state.loadChats);
-  const startFreshChat = useChatStore((state) => state.startFreshChat);
   const sendMessage = useChatStore((state) => state.sendMessage);
   const contextUsageByChatId = useChatStore(
     (state) => state.contextUsageByChatId,
@@ -112,6 +110,7 @@ export default function HomeScreen() {
   const isSending = status === "sending";
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const activeMention = useMemo(
     () => getActiveDocumentMention(composerText),
@@ -307,32 +306,41 @@ export default function HomeScreen() {
     event.target.value = '';
   }
 
-  async function handleAttachFile(file: File, token: string) {
+  async function handleAttachFile(file: File, token: string, isImage = false) {
     try {
-      // Basic mime type approximation
       const mimeType = file.type || 
         (file.name.toLowerCase().endsWith(".pdf") 
           ? "application/pdf"
-          : "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+          : file.name.toLowerCase().match(/\.(png|jpg|jpeg|webp)$/)
+            ? "image/png"
+            : "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
 
-      // We pass standard File object explicitly
       await uploadDocument(token, {
-        uri: URL.createObjectURL(file), // temporary local uri just to satisfy the type interface
+        uri: URL.createObjectURL(file),
         name: file.name,
         file: file,
         mimeType,
       });
       setHelperState({
-        text: "Upload accepted. Tag it with @ after processing completes.",
+        text: isImage
+          ? "Image uploading. AI will describe it and make it searchable."
+          : "Upload accepted. Tag it with @ after processing completes.",
         tone: "success",
       });
     } catch (error) {
       setHelperState({
         text:
-          error instanceof Error ? error.message : "Document upload failed.",
+          error instanceof Error ? error.message : "Upload failed.",
         tone: "error",
       });
     }
+  }
+
+  function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file || !token) return;
+    handleAttachFile(file, token, true);
+    event.target.value = '';
   }
 
   function handleSelectDocument(document: DocumentSummary) {
@@ -393,7 +401,7 @@ export default function HomeScreen() {
           )}
         </div>
 
-        {/* Hidden File Input */}
+        {/* Hidden File Inputs */}
         <input 
           type="file" 
           ref={fileInputRef}
@@ -401,12 +409,20 @@ export default function HomeScreen() {
           onChange={handleFileChange}
           accept="application/pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         />
+        <input
+          type="file"
+          ref={imageInputRef}
+          style={{ display: 'none' }}
+          onChange={handleImageChange}
+          accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
+        />
 
         <ChatInput
           disabled={isSending}
           value={composerText}
           onChangeText={setComposerDraft}
           onAttach={() => fileInputRef.current?.click()}
+          onAttachImage={() => imageInputRef.current?.click()}
           onSend={handleSend}
           helperText={helperText}
           helperTone={helperTone}

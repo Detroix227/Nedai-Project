@@ -1,4 +1,5 @@
 import type { Context } from "hono";
+import { stream } from "hono/streaming";
 
 import type { AppBindings } from "@/middleware/auth";
 import { getJwtPayload } from "@/middleware/auth";
@@ -35,34 +36,46 @@ export async function streamMessage(c: Context<AppBindings>) {
   const payload = getJwtPayload(c);
   const body = await c.req.json();
 
-  const result = await ChatService.sendMessage(payload.sub, body);
+  let result: Awaited<ReturnType<typeof ChatService.sendMessage>>;
+  try {
+    result = await ChatService.sendMessage(payload.sub, body);
+  } catch (error: any) {
+    console.error("[streamMessage] sendMessage failed:", error?.message ?? error);
+    throw error; // Let Hono's error handler return 500/4xx
+  }
 
   c.header("Content-Type", "text/event-stream");
   c.header("Cache-Control", "no-cache");
   c.header("Connection", "keep-alive");
 
-  return c.stream(async (stream) => {
-    // Send initial message data
-    const initialData = JSON.stringify({
-      type: "init",
-      chat: result.chat,
-      userMessage: result.userMessage,
-      assistantMessage: result.assistantMessage,
-      contextUsage: result.contextUsage,
-    });
-    await stream.write(`data: ${initialData}\n\n`);
+  return stream(c, async (s) => {
+    try {
+      // Send initial message data
+      const initialData = JSON.stringify({
+        type: "init",
+        chat: result.chat,
+        userMessage: result.userMessage,
+        assistantMessage: result.assistantMessage,
+        contextUsage: result.contextUsage,
+      });
+      await s.write(`data: ${initialData}\n\n`);
 
-    // Stream the AI response chunks
-    if (result.stream) {
-      for await (const chunk of result.stream) {
-        const data = JSON.stringify({ type: "chunk", content: chunk });
-        await stream.write(`data: ${data}\n\n`);
+      // Stream the AI response chunks
+      if (result.stream) {
+        for await (const chunk of result.stream) {
+          const data = JSON.stringify({ type: "chunk", content: chunk });
+          await s.write(`data: ${data}\n\n`);
+        }
       }
-    }
 
-    // Send completion
-    const doneData = JSON.stringify({ type: "done" });
-    await stream.write(`data: ${doneData}\n\n`);
+      // Send completion
+      const doneData = JSON.stringify({ type: "done" });
+      await s.write(`data: ${doneData}\n\n`);
+    } catch (error: any) {
+      console.error("[streamMessage] stream error:", error?.message ?? error);
+      const errorData = JSON.stringify({ type: "error", message: "Streaming failed" });
+      await s.write(`data: ${errorData}\n\n`).catch(() => {});
+    }
   });
 }
 

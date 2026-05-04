@@ -1,9 +1,7 @@
-import { useState } from "react";
-import { LogOut, User, Key, Trash2, Bell, Shield, Palette } from "lucide-react";
+import { LogOut, User, Key, Bell, Shield, Palette } from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
 import { useAuthStore } from "@/modules/auth/useAuthStore";
-import { useChatStore } from "@/modules/chat/useChatStore";
 
 function Section({
   title,
@@ -61,17 +59,6 @@ function SettingItem({
 
 export default function SettingsScreen() {
   const logout = useAuthStore((state) => state.logout);
-  const clearChatHistory = useChatStore((state) => state.clearChatHistory);
-  const [showClearChatConfirm, setShowClearChatConfirm] = useState(false);
-
-  function handleClearChatHistory() {
-    setShowClearChatConfirm(true);
-  }
-
-  function confirmClearChatHistory() {
-    clearChatHistory();
-    setShowClearChatConfirm(false);
-  }
 
   function handleLogout() {
     logout();
@@ -138,18 +125,7 @@ export default function SettingsScreen() {
           />
         </Section>
 
-        {/* Data Management */}
-        <Section title="Data Management">
-          <SettingItem
-            icon={Trash2}
-            title="Clear Chat History"
-            description="Remove every saved conversation from this account"
-            danger={true}
-            onClick={handleClearChatHistory}
-          />
-        </Section>
 
-        {/* Account Actions */}
         <Section title="Account Actions">
           <SettingItem
             icon={LogOut}
@@ -159,33 +135,6 @@ export default function SettingsScreen() {
           />
         </Section>
 
-        {/* Clear Chat History Confirmation Modal */}
-        {showClearChatConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-2xl p-6 max-w-md mx-4">
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                Clear chat history
-              </h3>
-              <p className="text-sm text-slate-600 mb-6">
-                This will permanently delete your chat history from the device and server.
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowClearChatConfirm(false)}
-                  className="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={confirmClearChatHistory}
-                  className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition"
-                >
-                  Clear
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </AppShell>
   );

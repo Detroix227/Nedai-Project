@@ -38,6 +38,18 @@ export const uploadRouter = {
         maxFileSize: "8MB",
         maxFileCount: 1,
       },
+      "image/png": {
+        maxFileSize: "8MB",
+        maxFileCount: 1,
+      },
+      "image/jpeg": {
+        maxFileSize: "8MB",
+        maxFileCount: 1,
+      },
+      "image/webp": {
+        maxFileSize: "8MB",
+        maxFileCount: 1,
+      },
     },
     {
       awaitServerData: true,

@@ -39,6 +39,7 @@ enum SourceType {
   PDF
   DOCX
   DOC
+  IMAGE
 }
 
 enum Weekday {

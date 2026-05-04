@@ -10,7 +10,8 @@ import { DocumentOrigin, SourceType } from "@prisma/client";
 
 import { ApiError } from "@/lib/api-error";
 import { sanitizeExtractedText } from "@/utils/knowledge-source.util";
-import { isRemoteFileUrl } from "@/uploadthing/utils";
+import { isRemoteFileUrl } from "@/utils/url.util";
+import { getGeminiClient } from "@/lib/gemini";
 
 const execFileAsync = promisify(execFile);
 const DOC_UPLOAD_ERROR =
@@ -34,7 +35,19 @@ export class DocumentParserService {
       return SourceType.PDF;
     }
 
-    throw new ApiError(415, "Only .pdf, .docx and .doc files are supported");
+    if (
+      extension === ".png" ||
+      extension === ".jpg" ||
+      extension === ".jpeg" ||
+      extension === ".webp"
+    ) {
+      return SourceType.IMAGE;
+    }
+
+    throw new ApiError(
+      415,
+      "Only .pdf, .docx, .doc, .png, .jpg, .jpeg, and .webp files are supported",
+    );
   }
 
   public async assertUploadSupported(sourceType: SourceType) {
@@ -91,7 +104,51 @@ export class DocumentParserService {
       return this.extractTextFromBuffer(fileBuffer, sourceType);
     }
 
+    if (sourceType === SourceType.IMAGE) {
+      const fileBuffer = await this.downloadRemoteFile(location);
+      return this.extractTextFromImage(fileBuffer);
+    }
+
     return this.extractTextFromDocument(location, sourceType);
+  }
+
+  public async extractTextFromImage(imageBuffer: Buffer): Promise<string> {
+    try {
+      const client = getGeminiClient();
+      const model = client.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+      const base64Image = imageBuffer.toString("base64");
+
+      const result = await model.generateContent([
+        {
+          inlineData: {
+            mimeType: "image/png", // Gemini accepts png/jpeg/webp all fine
+            data: base64Image,
+          },
+        },
+        {
+          text: [
+            "You are a study assistant AI.",
+            "Describe this image in full detail as study notes for a student.",
+            "Include: all visible text (transcribe it word-for-word), diagrams, charts, equations, labels, captions, and any other relevant academic content.",
+            "Format your response as clear, structured study notes in plain text.",
+          ].join(" "),
+        },
+      ]);
+
+      const description = result.response.text()?.trim();
+
+      if (!description) {
+        throw new Error("Gemini returned an empty description");
+      }
+
+      return sanitizeExtractedText(description);
+    } catch (error: any) {
+      console.error("[image-parser] Gemini Vision failed:", error?.message);
+      throw new Error(
+        `Image description failed: ${error?.message ?? "unknown error"}`,
+      );
+    }
   }
 
   public async hasLegacyDocSupport() {
@@ -143,6 +200,10 @@ export class DocumentParserService {
     buffer: Buffer,
     sourceType: SourceType,
   ): Promise<string> {
+    if (sourceType === SourceType.IMAGE) {
+      return this.extractTextFromImage(buffer);
+    }
+
     if (sourceType === SourceType.DOCX) {
       const result = await mammoth.extractRawText({ buffer });
       return sanitizeExtractedText(result.value);

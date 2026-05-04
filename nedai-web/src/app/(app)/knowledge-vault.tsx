@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Upload, FileText, Trash2 } from "lucide-react";
+import { FileText, Trash2, Image, FileUp, ImageIcon } from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
 import { useAuthStore } from "@/modules/auth/useAuthStore";
@@ -29,6 +29,7 @@ export default function KnowledgeVaultScreen() {
   const uploadProgress = useDocumentStore((state) => state.uploadProgress);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (token) {
@@ -56,12 +57,26 @@ export default function KnowledgeVaultScreen() {
       console.error("Upload failed:", error);
     }
     
-    // reset input to allow re-upload of same file
     event.target.value = '';
   }
 
-  function handleUpload() {
-    fileInputRef.current?.click();
+  async function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file || !token) return;
+
+    try {
+      const mimeType = file.type || "image/png";
+      await uploadDocument(token, {
+        uri: URL.createObjectURL(file),
+        name: file.name,
+        file: file,
+        mimeType,
+      });
+    } catch (error) {
+      console.error("Image upload failed:", error);
+    }
+    
+    event.target.value = '';
   }
 
   async function handleDelete(documentId: string) {
@@ -78,13 +93,20 @@ export default function KnowledgeVaultScreen() {
       title="Knowledge Vault"
     >
       <div className="flex flex-col w-full max-w-6xl mx-auto p-6">
-        {/* Hidden File Input */}
+        {/* Hidden File Inputs */}
         <input 
           type="file" 
           ref={fileInputRef}
           style={{ display: 'none' }}
           onChange={handleFileChange}
           accept="application/pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        />
+        <input
+          type="file"
+          ref={imageInputRef}
+          style={{ display: 'none' }}
+          onChange={handleImageChange}
+          accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
         />
 
         {/* Header Section */}
@@ -93,7 +115,7 @@ export default function KnowledgeVaultScreen() {
             Uploaded files
           </h1>
           <p className="text-sm leading-6 text-slate-300 mb-4">
-            Upload PDF or DOCX files and manage them from one list.
+            Upload PDF, DOCX, or image files (PNG, JPG, WEBP). Images are automatically described by AI and become searchable in chat.
           </p>
           {quota && (
             <p className="text-sm text-slate-200">
@@ -103,31 +125,54 @@ export default function KnowledgeVaultScreen() {
           )}
         </div>
 
-        {/* Upload Button */}
-        <button
-          onClick={handleUpload}
-          disabled={status === "uploading"}
-          className={`mb-6 overflow-hidden rounded-2xl px-6 py-4 flex items-center justify-center transition ${
-            status === "uploading" 
-              ? "bg-slate-300 cursor-not-allowed" 
-              : "bg-blue-600 hover:bg-blue-700"
-          }`}
-        >
-          {status === "uploading" && (
-            <div 
-              className="absolute inset-0 bg-blue-600 transition-all duration-300"
-              style={{ width: `${uploadProgress}%` }}
-            />
-          )}
-          <div className="relative flex items-center">
-            <Upload size={20} className="text-white" />
-            <span className="ml-2 text-base font-semibold text-white">
-              {status === "uploading"
-                ? `Uploading ${uploadProgress}%`
-                : "Upload File"}
-            </span>
-          </div>
-        </button>
+        {/* Upload Buttons */}
+        <div className="mb-6 flex gap-3">
+          {/* Upload Document */}
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={status === "uploading"}
+            className={`flex-1 relative overflow-hidden rounded-2xl px-5 py-4 flex items-center gap-3 transition border ${
+              status === "uploading"
+                ? "bg-slate-100 border-slate-200 cursor-not-allowed opacity-60"
+                : "bg-white border-blue-200 hover:bg-blue-50 hover:border-blue-300"
+            }`}
+          >
+            <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+              <FileUp size={20} className="text-blue-600" />
+            </div>
+            <div className="text-left">
+              <p className="text-sm font-bold text-slate-800">
+                {status === "uploading" ? `Uploading ${uploadProgress}%` : "Upload Document"}
+              </p>
+              <p className="text-xs text-slate-500 mt-0.5">PDF or DOCX file</p>
+            </div>
+            {status === "uploading" && (
+              <div
+                className="absolute bottom-0 left-0 h-1 bg-blue-500 rounded-full transition-all duration-300"
+                style={{ width: `${uploadProgress}%` }}
+              />
+            )}
+          </button>
+
+          {/* Upload Image */}
+          <button
+            onClick={() => imageInputRef.current?.click()}
+            disabled={status === "uploading"}
+            className={`flex-1 relative overflow-hidden rounded-2xl px-5 py-4 flex items-center gap-3 transition border ${
+              status === "uploading"
+                ? "bg-slate-100 border-slate-200 cursor-not-allowed opacity-60"
+                : "bg-white border-purple-200 hover:bg-purple-50 hover:border-purple-300"
+            }`}
+          >
+            <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
+              <ImageIcon size={20} className="text-purple-600" />
+            </div>
+            <div className="text-left">
+              <p className="text-sm font-bold text-slate-800">Upload Image</p>
+              <p className="text-xs text-slate-500 mt-0.5">PNG, JPG or WEBP</p>
+            </div>
+          </button>
+        </div>
 
         {/* Error Message */}
         {errorMessage && (
@@ -147,6 +192,14 @@ export default function KnowledgeVaultScreen() {
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1 mr-4">
+                      {document.sourceType === 'IMAGE' && (document as any).storagePath ? (
+                        <img
+                          src={(document as any).storagePath}
+                          alt={document.title}
+                          className="w-full max-w-[200px] h-28 object-cover rounded-xl mb-3 border border-slate-100"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                        />
+                      ) : null}
                       <h3 className="text-base font-semibold text-slate-900 mb-1">
                         {document.title}
                       </h3>
@@ -158,6 +211,11 @@ export default function KnowledgeVaultScreen() {
                       </p>
                     </div>
                     <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-50">
+                        {document.sourceType === 'IMAGE'
+                          ? <Image size={16} className="text-purple-500" />
+                          : <FileText size={16} className="text-blue-500" />}
+                      </div>
                       <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                         document.status === 'READY' 
                           ? 'bg-green-100 text-green-700'
@@ -192,7 +250,7 @@ export default function KnowledgeVaultScreen() {
             <div className="rounded-2xl border border-dashed border-slate-200 px-6 py-8 text-center">
               <FileText size={48} className="text-slate-300 mx-auto mb-4" />
               <p className="text-sm text-slate-500">
-                Your uploaded PDFs and DOCX files will appear here.
+                Your uploaded PDFs, DOCX, and image files will appear here.
               </p>
             </div>
           )}

@@ -12,7 +12,7 @@ import {
   DocumentVisibility,
   MessageRole,
 } from "@prisma/client";
-import type Groq from "groq-sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 import { ApiError } from "@/lib/api-error";
 import prisma from "@/lib/prisma";
@@ -34,7 +34,7 @@ import {
   buildTimetableContextBlock,
   buildUserContextBlock,
 } from "@/api/v1/services/user-context.service";
-import { getGroqClient } from "@/lib/groq";
+import { getGeminiClient, GEMINI_CHAT_MODEL } from "@/lib/gemini";
 import { isAssessmentRequest } from "@/utils/assessment-intent.util";
 
 type PrismaLike = Pick<
@@ -42,7 +42,7 @@ type PrismaLike = Pick<
   "chat" | "message" | "user" | "documents" | "timetableActivity"
 >;
 
-type GroqClientLike = Pick<Groq, "chat">;
+type GeminiClientLike = GoogleGenerativeAI;
 
 type SendMessagePayload = {
   chatId?: string;
@@ -85,7 +85,7 @@ type AssistantMetadata = {
 type ChatServiceOptions = {
   prisma?: PrismaLike;
   retrievalService?: ChatRetrievalServiceLike;
-  getGroqClient?: () => GroqClientLike;
+  getGeminiClient?: () => GeminiClientLike;
   historyLimit?: number;
   chatModel?: string;
   topK?: number;
@@ -183,7 +183,7 @@ type SelectedDocument = Pick<
 export class ChatServiceImpl {
   private readonly prisma: PrismaLike;
   private readonly retrievalService: ChatRetrievalServiceLike;
-  private readonly getGroqClient: () => GroqClientLike;
+  private readonly getGeminiClient: () => GeminiClientLike;
   private readonly historyLimit: number;
   private readonly chatModel: string;
   private readonly topK: number;
@@ -192,9 +192,9 @@ export class ChatServiceImpl {
   constructor(options: ChatServiceOptions = {}) {
     this.prisma = options.prisma ?? prisma;
     this.retrievalService = options.retrievalService ?? ChatRetrievalService;
-    this.getGroqClient = options.getGroqClient ?? getGroqClient;
+    this.getGeminiClient = options.getGeminiClient ?? getGeminiClient;
+    this.chatModel = options.chatModel ?? GEMINI_CHAT_MODEL;
     this.historyLimit = options.historyLimit ?? env.CHAT_HISTORY_LIMIT;
-    this.chatModel = options.chatModel ?? env.GROQ_CHAT_MODEL;
     this.topK = options.topK ?? env.CHAT_RETRIEVAL_TOP_K;
     this.minScore = options.minScore ?? env.CHAT_RETRIEVAL_MIN_SCORE;
   }
@@ -373,7 +373,7 @@ export class ChatServiceImpl {
       }),
     ]);
 
-    const client = this.getGroqClient();
+    const client = this.getGeminiClient();
     const promptMessages = [
       {
         role: "system" as const,
@@ -475,23 +475,37 @@ export class ChatServiceImpl {
   }
 
   private async *streamAIResponse(
-    client: GroqClientLike,
+    client: GeminiClientLike,
     promptMessages: any[],
     messageId: string,
   ): AsyncGenerator<string, void, unknown> {
     try {
-      const stream = await client.chat.completions.create({
+      const model = client.getGenerativeModel({
         model: this.chatModel,
-        stream: true,
-        temperature: 0.2,
-        max_tokens: 800,
-        messages: promptMessages,
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 800,
+        },
+      });
+
+      // Convert messages to Gemini format
+      const history = promptMessages.slice(0, -1).map((msg: any) => ({
+        role: msg.role === "assistant" ? "model" : "user",
+        parts: [{ text: msg.content }],
+      }));
+
+      const lastMessage = promptMessages[promptMessages.length - 1];
+
+      const chat = model.startChat({
+        history,
       });
 
       let fullContent = "";
 
-      for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content || "";
+      const result = await chat.sendMessageStream(lastMessage.content);
+
+      for await (const chunk of result.stream) {
+        const content = chunk.text() || "";
         if (content) {
           fullContent += content;
           yield content;

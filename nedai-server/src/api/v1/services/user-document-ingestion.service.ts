@@ -12,7 +12,7 @@ import {
   sanitizeExtractedText,
   toVectorLiteral,
 } from "@/utils/knowledge-source.util";
-import { isRemoteFileUrl } from "@/uploadthing/utils";
+import { isRemoteFileUrl } from "@/utils/url.util";
 
 type PoolLike = Pick<Pool, "query" | "end">;
 

@@ -14,6 +14,7 @@ import {
 } from "@/api/v1/app/schemas/user.schema";
 import { serializeUser } from "@/api/v1/serializers/user.serializer";
 import { UserRole, type Prisma, type User } from "@prisma/client";
+import { sendPasswordResetEmail } from "@/lib/email";
 
 function normalizeNullableString(value: string | null | undefined) {
   if (value === undefined) {
@@ -244,9 +245,14 @@ export class AuthServiceImpl {
       },
     });
 
-    // TODO: Send email with reset link
-    // For now, log the token for development
-    console.log(`Password reset token for ${email}: ${resetToken}`);
+    // Send reset email (non-blocking — if email fails we still return success to avoid leaking user existence)
+    sendPasswordResetEmail({
+      to: user.email,
+      name: user.fullName || user.email.split("@")[0],
+      resetToken,
+    }).catch((err) => {
+      console.error("[auth] Failed to send password reset email:", err);
+    });
 
     return { message: "If an account exists, a reset link has been sent" };
   }

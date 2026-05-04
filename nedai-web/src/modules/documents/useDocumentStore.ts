@@ -4,8 +4,9 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { isApiClientError } from "@/lib/http";
 import * as DocumentApi from "@/modules/documents/document.api";
 import {
-  DOCUMENT_UPLOAD_ENDPOINT,
-  uploadFiles,
+  confirmUpload,
+  presignUpload,
+  uploadToR2,
 } from "@/modules/documents/uploadthing";
 import type { DocumentQuota, DocumentSummary } from "@/modules/contracts";
 
@@ -44,18 +45,6 @@ function getErrorMessage(error: unknown) {
   }
 
   return "Something went wrong. Please try again.";
-}
-
-async function buildUploadFile(file: {
-  uri: string;
-  name: string;
-  mimeType: string;
-  file?: File;
-}) {
-  if (file.file instanceof File) {
-    return file.file;
-  }
-  throw new Error("Missing File object.");
 }
 
 export const useDocumentStore = create<DocumentStore>()(
@@ -98,21 +87,35 @@ export const useDocumentStore = create<DocumentStore>()(
         set({ status: "uploading", uploadProgress: 0, errorMessage: null });
 
         try {
-          const uploadFile = await buildUploadFile(file);
+          const uploadFile = file.file instanceof File
+            ? file.file
+            : (() => { throw new Error("Missing File object."); })();
 
-          await uploadFiles(DOCUMENT_UPLOAD_ENDPOINT, {
-            files: [uploadFile],
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            onUploadProgress: (p) => {
-              // Ensure we extract the percentage number from the progress object
-              const progressCount = typeof p === 'number' ? p : (p as any).progress;
-              set({ uploadProgress: Math.round(progressCount || 0) });
+          // Step 1 — get presigned R2 URL from our server
+          const { uploadUrl, fileKey, publicUrl } = await presignUpload(token, {
+            fileName: uploadFile.name,
+            mimeType: uploadFile.type || file.mimeType,
+            fileSize: uploadFile.size,
+          });
+
+          // Step 2 — upload directly to R2 (with progress)
+          await uploadToR2(uploadUrl, uploadFile, (pct) => {
+            set({ uploadProgress: pct });
+          });
+
+          // Step 3 — confirm with our server to create the DB record
+          await confirmUpload(token, {
+            file: {
+              name: uploadFile.name,
+              size: uploadFile.size,
+              type: uploadFile.type || file.mimeType,
+              key: fileKey,
+              publicUrl,
             },
           });
+
           await get().loadDocuments(token);
-          set({ uploadProgress: 0 });
+          set({ uploadProgress: 0, status: "idle" });
         } catch (error) {
           set({
             status: "error",

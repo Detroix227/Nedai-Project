@@ -1,5 +1,5 @@
-import { ArrowUp, FileText, Plus, X } from "lucide-react";
-import React, { useRef, useEffect } from "react";
+import { ArrowUp, FileText, Plus, X, ImageIcon, FileUp } from "lucide-react";
+import { useRef, useEffect, useState } from "react";
 
 import type { DocumentSummary } from "@/modules/contracts";
 
@@ -14,6 +14,7 @@ type Props = {
   onChangeText: (message: string) => void;
   onSend?: () => void;
   onAttach?: () => void;
+  onAttachImage?: () => void;
   selectedDocument?: DocumentSummary | null;
   onClearSelectedDocument?: () => void;
   showDocumentSuggestions?: boolean;
@@ -44,6 +45,7 @@ export function ChatInput({
   onChangeText,
   onSend,
   onAttach,
+  onAttachImage,
   selectedDocument,
   onClearSelectedDocument,
   showDocumentSuggestions = false,
@@ -56,6 +58,7 @@ export function ChatInput({
   const hasSendableText = value.trim().length > 0 && !disabled;
   const hasSuggestions = documentSuggestions.length > 0;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [showAttachMenu, setShowAttachMenu] = useState(false);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -168,13 +171,58 @@ export function ChatInput({
           </div>
         )}
 
-        <div className="flex flex-row items-end gap-3 w-full">
+        <div className="flex flex-row items-end gap-3 w-full relative">
+          {/* Attach popup menu */}
+          {showAttachMenu && (
+            <div className="absolute bottom-14 left-0 z-50 bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden min-w-[200px]">
+              <button
+                onClick={() => {
+                  setShowAttachMenu(false);
+                  onAttach?.();
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition text-left"
+              >
+                <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                  <FileUp size={16} className="text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-800">Upload Document</p>
+                  <p className="text-xs text-slate-500">PDF or DOCX file</p>
+                </div>
+              </button>
+              <div className="h-px bg-slate-100 mx-3" />
+              <button
+                onClick={() => {
+                  setShowAttachMenu(false);
+                  onAttachImage?.();
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition text-left"
+              >
+                <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center shrink-0">
+                  <ImageIcon size={16} className="text-purple-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-800">Upload Image</p>
+                  <p className="text-xs text-slate-500">PNG, JPG or WEBP</p>
+                </div>
+              </button>
+            </div>
+          )}
+
           <button
             disabled={disabled}
-            onClick={onAttach}
-            className="w-[42px] h-[42px] shrink-0 rounded-full flex items-center justify-center bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors disabled:opacity-50"
+            onClick={() => setShowAttachMenu((prev) => !prev)}
+            className={`w-[42px] h-[42px] shrink-0 rounded-full flex items-center justify-center border transition-colors disabled:opacity-50 ${
+              showAttachMenu
+                ? "bg-slate-900 border-slate-900"
+                : "bg-slate-50 border-slate-200 hover:bg-slate-100"
+            }`}
           >
-            <Plus size={24} className="text-slate-400" strokeWidth={2.5} />
+            <Plus
+              size={24}
+              className={showAttachMenu ? "text-white" : "text-slate-400"}
+              strokeWidth={2.5}
+            />
           </button>
 
           <div className="flex-1 flex flex-row items-end bg-slate-50 border border-slate-200 rounded-3xl pl-4 pr-2 py-2 min-h-[52px] focus-within:border-blue-300 focus-within:ring-2 focus-within:ring-blue-100 transition-all">

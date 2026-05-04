@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   CalendarDays,
@@ -7,6 +8,7 @@ import {
   User,
   Menu,
   Settings,
+  Trash2,
 } from "lucide-react";
 
 import { useChatStore } from "@/modules/chat/useChatStore";
@@ -45,9 +47,11 @@ export function Sidebar() {
   const activeThreadId = useChatStore((state) => state.activeThreadId);
   const selectThread = useChatStore((state) => state.selectThread);
   const startFreshChat = useChatStore((state) => state.startFreshChat);
+  const clearChatHistory = useChatStore((state) => state.clearChatHistory);
   const navigate = useNavigate();
   const location = useLocation();
   const { isSidebarCollapsed, toggleSidebar, setCurrentSection } = useUIStore();
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   function handleSelectRecentThread(threadId: string) {
     navigate("/");
@@ -191,9 +195,21 @@ export function Sidebar() {
 
           {/* Recent Chats - Scrollable */}
           <div className="flex-1 px-4 mt-6 overflow-y-auto min-h-0">
-            <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400 sticky top-0 bg-white py-1 z-10">
-              Recent Chats
-            </h3>
+            <div className="flex items-center justify-between sticky top-0 bg-white py-1 z-10 mb-3">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                Recent Chats
+              </h3>
+              {threads.length > 0 && (
+                <button
+                  onClick={() => setShowClearConfirm(true)}
+                  className="flex items-center gap-1 text-xs text-rose-500 hover:text-rose-700 transition"
+                  title="Clear all chats"
+                >
+                  <Trash2 size={12} />
+                  Clear all
+                </button>
+              )}
+            </div>
 
             {threads.length === 0 ? (
               <p className="text-sm leading-6 text-slate-400">
@@ -215,6 +231,38 @@ export function Sidebar() {
               </div>
             )}
           </div>
+
+          {/* Clear Chat Confirmation Modal */}
+          {showClearConfirm && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-2xl p-6 max-w-sm mx-4 shadow-xl">
+                <h3 className="text-base font-semibold text-slate-900 mb-2">
+                  Clear all chats?
+                </h3>
+                <p className="text-sm text-slate-500 mb-5">
+                  This will permanently delete all your conversations. This action cannot be undone.
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowClearConfirm(false)}
+                    className="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition text-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      void clearChatHistory();
+                      startFreshChat();
+                      setShowClearConfirm(false);
+                    }}
+                    className="flex-1 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-medium rounded-xl transition text-sm"
+                  >
+                    Clear all
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Settings - Fixed at bottom */}
           <div className="px-4 py-4 border-t border-slate-200 shrink-0">
