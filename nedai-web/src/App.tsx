@@ -9,6 +9,7 @@ import KnowledgeVaultScreen from './app/(app)/knowledge-vault';
 import TimetableScreen from './app/(app)/timetable';
 import ProfileScreen from './app/(app)/profile';
 import SettingsScreen from './app/(app)/settings';
+import AdminDashboard from './app/(app)/admin';
 import './index.css';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
           <Route path="/timetable" element={<TimetableScreen />} />
           <Route path="/profile" element={<ProfileScreen />} />
           <Route path="/settings" element={<SettingsScreen />} />
+          <Route path="/admin" element={<AdminDashboard />} />
         </Route>
 
         {/* Catch-all redirect to index (or login) */}

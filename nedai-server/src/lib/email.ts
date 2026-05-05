@@ -112,3 +112,29 @@ export async function sendPasswordResetEmail(opts: {
 
   console.log(`[email] Password reset email sent to ${opts.to}`);
 }
+
+export async function sendNotificationEmail(opts: {
+  to: string[];
+  subject: string;
+  htmlBody: string;
+}): Promise<void> {
+  const client = getResendClient();
+
+  // Resend allows up to 50 recipients per API call using the 'bcc' field, 
+  // or sending an array of emails to 'to' (which shows all emails to everyone). 
+  // Using bcc is better for privacy.
+  const { error } = await client.emails.send({
+    from: env.EMAIL_FROM || "NedAI <onboarding@resend.dev>",
+    to: "no-reply@nedai.app",
+    bcc: opts.to,
+    subject: opts.subject,
+    html: opts.htmlBody,
+  });
+
+  if (error) {
+    console.error("[email] Failed to send notification email:", error);
+    throw new Error(`Email delivery failed: ${error.message}`);
+  }
+
+  console.log(`[email] Notification email sent to ${opts.to.length} users`);
+}

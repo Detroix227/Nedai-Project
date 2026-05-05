@@ -6,6 +6,8 @@ import chatRoutes from "@/api/v1/app/routes/chat.route";
 import documentRoutes from "@/api/v1/app/routes/document.route";
 import timetableRoutes from "@/api/v1/app/routes/timetable.route";
 import userRoutes from "@/api/v1/app/routes/user.route";
+import adminRoutes from "@/api/v1/app/routes/admin.route";
+import notificationRoutes from "@/api/v1/app/routes/notification.route";
 
 const router = new Hono<AppBindings>();
 
@@ -13,6 +15,8 @@ router.route("/auth", authRoutes);
 router.route("/chats", chatRoutes);
 router.route("/documents", documentRoutes);
 router.route("/timetable", timetableRoutes);
+router.route("/admin", adminRoutes);
+router.route("/notifications", notificationRoutes);
 router.route("/", userRoutes);
 
 export default router;

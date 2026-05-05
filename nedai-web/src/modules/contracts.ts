@@ -10,7 +10,7 @@ export type ApiErrorPayload = {
   data?: Record<string, unknown> | unknown[];
 };
 
-export type UserRole = "STUDENT" | "LECTURER";
+export type UserRole = "STUDENT" | "LECTURER" | "ADMIN";
 
 export type ProfileCompletion = {
   isComplete: boolean;
@@ -202,4 +202,17 @@ export type ServerCreateTimetableActivityResponse = {
 
 export type ServerUpdateTimetableActivityResponse = {
   activity: TimetableActivity;
+};
+
+export interface Notification {
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export type ServerGetNotificationsResponse = {
+  notifications: Notification[];
 };

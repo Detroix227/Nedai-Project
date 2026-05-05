@@ -8,7 +8,7 @@ export type UpdateProfilePayload = Partial<{
   lecturerCurrentAcademicStage: string | null;
 }>;
 
-type UserRole = "STUDENT" | "LECTURER";
+type UserRole = "STUDENT" | "LECTURER" | "ADMIN";
 
 export function buildProfileUpdatePayload(
   role: UserRole,

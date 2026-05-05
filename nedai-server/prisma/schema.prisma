@@ -16,6 +16,7 @@ datasource db {
 enum UserRole {
   STUDENT
   LECTURER
+  ADMIN
 }
 
 enum DocumentStatus {
@@ -79,8 +80,10 @@ model User {
   lecturerCurrentAcademicStage String?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+  lastActiveAt        DateTime @default(now())
 
   documents          Documents[]
+  notifications      Notification[]
   chats              Chat[]
   chunks             DocumentChunk[]
   timetableActivities TimetableActivity[]
@@ -194,4 +197,18 @@ model TimetableActivity {
 
   @@index([userId, dayOfWeek, startTime])
   @@map("timetable_activities")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@map("notifications")
 }

@@ -9,11 +9,14 @@ import {
   Menu,
   Settings,
   Trash2,
+  ShieldAlert,
 } from "lucide-react";
 
 import { useChatStore } from "@/modules/chat/useChatStore";
 import { useUIStore } from "@/modules/ui/useUIStore";
+import { useAuthStore } from "@/modules/auth/useAuthStore";
 import { ChatItem } from "./ChatItem";
+import { NotificationBell } from "./NotificationBell";
 
 const STUDY_TOOLS = [
   {
@@ -51,6 +54,7 @@ export function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isSidebarCollapsed, toggleSidebar, setCurrentSection } = useUIStore();
+  const user = useAuthStore((state) => state.user);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   function handleSelectRecentThread(threadId: string) {
@@ -130,13 +134,17 @@ export function Sidebar() {
         <aside className="w-72 bg-white border-r border-slate-200 flex flex-col h-screen bg-slate-50/50 sticky top-0 shrink-0 overflow-hidden">
           {/* Header - Fixed */}
           <div className="px-4 pt-4 pb-4 shrink-0">
-            {/* Hamburger Menu to Collapse */}
-            <button
-              onClick={toggleSidebar}
-              className="p-2 rounded-xl hover:bg-slate-100 transition mb-4"
-            >
-              <Menu size={24} className="text-slate-600" strokeWidth={2} />
-            </button>
+            {/* Top Bar: Hamburger + Notification */}
+            <div className="flex justify-between items-center mb-4">
+              <button
+                onClick={toggleSidebar}
+                className="p-2 rounded-xl hover:bg-slate-100 transition"
+              >
+                <Menu size={24} className="text-slate-600" strokeWidth={2} />
+              </button>
+              <NotificationBell />
+            </div>
+            
             
             {/* New Chat Button */}
             <button
@@ -266,6 +274,35 @@ export function Sidebar() {
 
           {/* Settings - Fixed at bottom */}
           <div className="px-4 py-4 border-t border-slate-200 shrink-0">
+            {user?.role === "ADMIN" && (
+              <button
+                onClick={() => {
+                  setCurrentSection('admin');
+                  navigate("/admin");
+                }}
+                className={`w-full flex flex-row items-center px-3 py-3 mb-2 rounded-xl transition ${
+                  location.pathname === "/admin"
+                    ? "bg-rose-50 border border-rose-100"
+                    : "hover:bg-slate-100"
+                }`}
+              >
+                <ShieldAlert
+                  size={20}
+                  className={location.pathname === "/admin" ? "text-rose-600" : "text-slate-500"}
+                  strokeWidth={2}
+                />
+                <span
+                  className={`ml-3 text-sm font-semibold ${
+                    location.pathname === "/admin"
+                      ? "text-rose-700"
+                      : "text-slate-600"
+                  }`}
+                >
+                  Admin Dashboard
+                </span>
+              </button>
+            )}
+
             <button
               onClick={() => {
                 setCurrentSection('settings');

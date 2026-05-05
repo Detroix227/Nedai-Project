@@ -14,7 +14,8 @@
     "ingest:knowledge": "bun run src/scripts/ingest-knowledge-sources.ts",
     "prepare:knowledge": "bun run src/scripts/prepare-knowledge-sources.ts",
     "embed:knowledge": "bun run src/scripts/backfill-knowledge-embeddings.ts",
-    "migrate:global-knowledge": "bun run src/scripts/migrate-global-knowledge.ts"
+    "migrate:global-knowledge": "bun run src/scripts/migrate-global-knowledge.ts",
+    "make-admin": "bun run src/scripts/make-admin.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1041.0",
