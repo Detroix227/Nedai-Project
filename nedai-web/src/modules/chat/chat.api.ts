@@ -7,6 +7,7 @@ import type {
   ServerSendMessageResponse,
   ServerUpdateChatResponse,
 } from "@/modules/contracts";
+import { API_BASE_URL } from "@/lib/env";
 
 export function listChats(token: string) {
   return request<ServerListChatsResponse>("/chats", {
@@ -70,7 +71,6 @@ export function streamMessage(
   onEvent: (event: StreamEvent) => void,
   onError?: (error: Error) => void,
 ): () => void {
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim() ?? "/api/v1";
   const url = `${API_BASE_URL.replace(/\/+$/, "")}/chats/messages/stream`;
 
   // Use fetch with ReadableStream instead of EventSource to support POST with body

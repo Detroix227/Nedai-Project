@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
-import { Users, Activity, Send } from "lucide-react";
+import { Navigate, useNavigate } from "react-router-dom";
+import { Users, Activity, Send, ArrowLeft } from "lucide-react";
 
 import { useAuthStore } from "@/modules/auth/useAuthStore";
 import * as AdminApi from "@/modules/admin/admin.api";
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const token = useAuthStore((state) => state.accessToken);
 
@@ -52,9 +53,18 @@ export default function AdminDashboard() {
       <div className="max-w-6xl mx-auto space-y-8">
         
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Admin Dashboard</h1>
-          <p className="mt-2 text-slate-500">Manage users and send announcements.</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Admin Dashboard</h1>
+            <p className="mt-2 text-slate-500">Manage users and send announcements.</p>
+          </div>
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition shadow-sm font-medium"
+          >
+            <ArrowLeft size={18} />
+            Back to App
+          </button>
         </div>
 
         {/* Stats */}
