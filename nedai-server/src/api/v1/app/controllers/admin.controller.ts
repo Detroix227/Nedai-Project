@@ -56,6 +56,7 @@ const NotifySchema = z.object({
   subject: z.string().min(1, "Subject is required"),
   message: z.string().min(1, "Message is required"),
   target: z.enum(["email", "in-app", "both"]),
+  userIds: z.array(z.string()).optional(),
 });
 
 export async function notifyUsers(c: Context) {
@@ -69,8 +70,12 @@ export async function notifyUsers(c: Context) {
       });
     }
 
-    const { subject, message, target } = result.data;
+    const { subject, message, target, userIds } = result.data;
+    
+    // If userIds provided, target only those users; otherwise all users
+    const where = userIds && userIds.length > 0 ? { id: { in: userIds } } : {};
     const users = await prisma.user.findMany({
+      where,
       select: { id: true, email: true },
     });
 
