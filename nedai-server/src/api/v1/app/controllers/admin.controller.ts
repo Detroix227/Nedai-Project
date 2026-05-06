@@ -99,13 +99,23 @@ export async function notifyUsers(c: Context) {
       const emails = users.map((u) => u.email);
       // We chunk emails to max 50 per Resend request
       const chunkSize = 50;
-      for (let i = 0; i < emails.length; i += chunkSize) {
-        const chunk = emails.slice(i, i + chunkSize);
-        await sendNotificationEmail({
-          to: chunk,
-          subject,
-          htmlBody: `<p>${message.replace(/\n/g, "<br/>")}</p>`,
-        });
+      try {
+        for (let i = 0; i < emails.length; i += chunkSize) {
+          const chunk = emails.slice(i, i + chunkSize);
+          await sendNotificationEmail({
+            to: chunk,
+            subject,
+            htmlBody: `<p>${message.replace(/\n/g, "<br/>")}</p>`,
+          });
+        }
+      } catch (emailError) {
+        console.error("[admin] Email send failed:", emailError);
+        // If only email was requested, fail. If "both", continue since in-app was already sent.
+        if (target === "email") {
+          return respond(c, 500, "Failed to send email notifications. Email service may not be configured.");
+        }
+        // If "both", return partial success warning
+        return respond(c, 200, "In-app notifications sent, but email notifications failed. Check RESEND_API_KEY configuration.");
       }
     }
 

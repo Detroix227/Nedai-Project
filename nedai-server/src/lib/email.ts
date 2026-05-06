@@ -118,6 +118,12 @@ export async function sendNotificationEmail(opts: {
   subject: string;
   htmlBody: string;
 }): Promise<void> {
+  // Skip if no API key configured
+  if (!env.RESEND_API_KEY) {
+    console.warn("[email] RESEND_API_KEY not configured, skipping email send");
+    throw new Error("Email service not configured. Please set RESEND_API_KEY in environment variables.");
+  }
+
   const client = getResendClient();
 
   // Resend allows up to 50 recipients per API call using the 'bcc' field, 
