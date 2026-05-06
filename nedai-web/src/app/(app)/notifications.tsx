@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Bell, CheckCircle2, ArrowLeft, Trash2, Megaphone } from "lucide-react";
+import { Bell, CheckCircle2, ArrowLeft, Megaphone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { AppShell } from "@/components/AppShell";
