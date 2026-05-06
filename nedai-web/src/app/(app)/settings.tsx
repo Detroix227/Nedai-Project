@@ -1,5 +1,5 @@
 import { LogOut, User, Key, Bell, Shield, Moon, Sun } from "lucide-react";
-
+import { useNavigate } from "react-router-dom";
 import { AppShell } from "@/components/AppShell";
 import { useAuthStore } from "@/modules/auth/useAuthStore";
 import { useUIStore } from "@/modules/ui/useUIStore";
@@ -62,6 +62,7 @@ export default function SettingsScreen() {
   const logout = useAuthStore((state) => state.logout);
   const theme = useUIStore((state) => state.theme);
   const toggleTheme = useUIStore((state) => state.toggleTheme);
+  const navigate = useNavigate();
 
   function handleLogout() {
     logout();
@@ -69,11 +70,15 @@ export default function SettingsScreen() {
   }
 
   function handleProfileSettings() {
-    window.location.href = "/profile";
+    navigate("/profile");
   }
 
   function handleChangePassword() {
-    window.location.href = "/change-password";
+    navigate("/change-password");
+  }
+
+  function handleNotifications() {
+    navigate("/notifications");
   }
 
   return (
@@ -102,11 +107,8 @@ export default function SettingsScreen() {
           <SettingItem
             icon={Bell}
             title="Notifications"
-            description="Configure notification preferences and alerts"
-            onClick={() => {
-              // TODO: Implement notifications settings
-              alert("Notifications settings coming soon!");
-            }}
+            description="View your notifications from admin"
+            onClick={handleNotifications}
           />
           <SettingItem
             icon={theme === 'dark' ? Sun : Moon}

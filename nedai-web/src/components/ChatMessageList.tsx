@@ -29,11 +29,6 @@ export function ChatMessageList({ messages }: Props) {
           message.role === "assistant" &&
           message.deliveryState === "pending" &&
           message.content === "";
-        const assistantStatus = message.grounded
-          ? "Grounded in study material"
-          : message.usedGeneralKnowledge
-            ? "Answered from general knowledge"
-            : null;
 
         return (
           <div
@@ -79,12 +74,6 @@ export function ChatMessageList({ messages }: Props) {
                     <TypingBubble />
                   ) : (
                     <MarkdownMessage content={message.content} />
-                  )}
-                  
-                  {assistantStatus && (message.sources?.length || message.usedGeneralKnowledge) && (
-                    <p className="text-blue-600 dark:text-blue-400 text-xs font-semibold mt-3">
-                      {assistantStatus}
-                    </p>
                   )}
                   
                   {message.sources?.length ? (
