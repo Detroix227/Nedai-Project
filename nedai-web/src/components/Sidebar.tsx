@@ -10,6 +10,8 @@ import {
   Settings,
   Trash2,
   ShieldAlert,
+  Moon,
+  Sun,
 } from "lucide-react";
 
 import { useChatStore } from "@/modules/chat/useChatStore";
@@ -53,7 +55,7 @@ export function Sidebar() {
   const clearChatHistory = useChatStore((state) => state.clearChatHistory);
   const navigate = useNavigate();
   const location = useLocation();
-  const { isSidebarCollapsed, toggleSidebar, setCurrentSection, setSidebarCollapsed } = useUIStore();
+  const { isSidebarCollapsed, toggleSidebar, setCurrentSection, setSidebarCollapsed, theme, toggleTheme } = useUIStore();
   const user = useAuthStore((state) => state.user);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
@@ -150,6 +152,19 @@ export function Sidebar() {
                   className={location.pathname === "/settings" ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400"}
                   strokeWidth={2}
                 />
+              </button>
+
+              {/* Dark Mode Toggle */}
+              <button
+                onClick={toggleTheme}
+                className="p-3 rounded-xl transition hover:bg-slate-100 dark:hover:bg-slate-800"
+                title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              >
+                {theme === 'dark' ? (
+                  <Sun size={18} className="text-amber-500" strokeWidth={2} />
+                ) : (
+                  <Moon size={18} className="text-slate-500" strokeWidth={2} />
+                )}
               </button>
             </div>
           </div>

@@ -10,6 +10,7 @@ import TimetableScreen from './app/(app)/timetable';
 import ProfileScreen from './app/(app)/profile';
 import SettingsScreen from './app/(app)/settings';
 import AdminDashboard from './app/(app)/admin';
+import ChangePasswordScreen from './app/(app)/change-password';
 import './index.css';
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
           <Route path="/timetable" element={<TimetableScreen />} />
           <Route path="/profile" element={<ProfileScreen />} />
           <Route path="/settings" element={<SettingsScreen />} />
+          <Route path="/change-password" element={<ChangePasswordScreen />} />
           <Route path="/admin" element={<AdminDashboard />} />
         </Route>
 
