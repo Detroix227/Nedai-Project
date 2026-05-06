@@ -58,7 +58,7 @@ export function Sidebar() {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const handleMobileNav = () => {
-    if (window.innerWidth < 768) {
+    if (window.innerWidth < 1024) {
       setSidebarCollapsed(true);
     }
   };
@@ -75,7 +75,7 @@ export function Sidebar() {
     <>
       {/* Collapsed Sidebar - Hamburger Menu */}
       {isSidebarCollapsed && (
-        <div className="w-16 bg-white border-r border-slate-200 flex-col h-screen bg-slate-50/50 sticky top-0 shrink-0 hidden md:flex z-40">
+        <div className="w-16 bg-white border-r border-slate-200 flex-col h-screen bg-slate-50/50 sticky top-0 shrink-0 hidden lg:flex z-40">
           <div className="flex-1 flex flex-col items-center py-4 space-y-4">
             {/* Hamburger Menu Button */}
             <button
@@ -139,12 +139,12 @@ export function Sidebar() {
       {/* Expanded Sidebar */}
       {!isSidebarCollapsed && (
         <>
-          {/* Mobile Overlay */}
+          {/* Mobile/Tablet Overlay */}
           <div 
-            className="md:hidden fixed inset-0 bg-slate-900/20 z-40 backdrop-blur-sm" 
+            className="lg:hidden fixed inset-0 bg-slate-900/20 z-40 backdrop-blur-sm" 
             onClick={() => setSidebarCollapsed(true)}
           />
-          <aside className="w-72 bg-white border-r border-slate-200 flex flex-col h-screen bg-slate-50/50 fixed md:sticky top-0 left-0 z-50 shrink-0 overflow-hidden shadow-2xl md:shadow-none transition-transform">
+          <aside className="w-72 bg-white border-r border-slate-200 flex flex-col h-screen bg-slate-50/50 fixed lg:sticky top-0 left-0 z-50 shrink-0 overflow-hidden shadow-2xl lg:shadow-none transition-transform">
           {/* Header - Fixed */}
           <div className="px-4 pt-4 pb-4 shrink-0">
             {/* Top Bar: Hamburger + Notification */}

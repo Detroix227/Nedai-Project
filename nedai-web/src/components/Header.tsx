@@ -24,7 +24,7 @@ export function Header({
       <div className="flex flex-row items-center shrink-1">
         <button
           onClick={toggleSidebar}
-          className="md:hidden mr-3 p-2 -ml-2 rounded-xl hover:bg-slate-200 transition text-slate-600"
+          className="lg:hidden mr-3 p-2 -ml-2 rounded-xl hover:bg-slate-200 transition text-slate-600"
         >
           <Menu size={24} strokeWidth={2} />
         </button>
