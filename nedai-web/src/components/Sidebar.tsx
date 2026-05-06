@@ -166,6 +166,11 @@ export function Sidebar() {
                   <Moon size={18} className="text-slate-500" strokeWidth={2} />
                 )}
               </button>
+
+              {/* Notification Bell */}
+              <div className="relative">
+                <NotificationBell />
+              </div>
             </div>
           </div>
         </div>

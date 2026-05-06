@@ -1,5 +1,4 @@
 import { request } from "@/lib/http";
-import type { ApiResponse } from "@/modules/contracts";
 
 export type AdminStats = {
   totalUsers: number;
@@ -16,27 +15,27 @@ export type AdminUser = {
 };
 
 export async function getStats(token: string) {
-  const data = await request<ApiResponse<AdminStats>>("/admin/stats", {
+  const data = await request<AdminStats>("/admin/stats", {
     token,
   });
-  return data.data;
+  return data;
 }
 
 export async function getUsers(token: string) {
-  const data = await request<ApiResponse<{ users: AdminUser[] }>>("/admin/users", {
+  const data = await request<{ users: AdminUser[] }>("/admin/users", {
     token,
   });
-  return data.data.users;
+  return data.users;
 }
 
 export async function notifyUsers(
   token: string,
-  payload: { subject: string; message: string; target: "email" | "in-app" | "both" }
+  payload: { subject: string; message: string; target: "email" | "in-app" | "both"; userIds?: string[] }
 ) {
-  const data = await request<ApiResponse<null>>("/admin/notify", {
+  const data = await request<null>("/admin/notify", {
     method: "POST",
     token,
     body: payload,
   });
-  return data.data;
+  return data;
 }
