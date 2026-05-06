@@ -13,7 +13,7 @@ interface UIState {
 
 export const useUIStore = create<UIState>((set, get) => ({
   // Initial states
-  isSidebarCollapsed: false,
+  isSidebarCollapsed: true,
   currentSection: 'chat',
 
   // Actions

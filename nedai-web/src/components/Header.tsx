@@ -1,6 +1,7 @@
-import { History, Sparkles } from "lucide-react";
+import { History, Sparkles, Menu } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/modules/auth/useAuthStore";
+import { useUIStore } from "@/modules/ui/useUIStore";
 
 export function Header({
   title,
@@ -11,6 +12,7 @@ export function Header({
 }) {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
+  const { toggleSidebar } = useUIStore();
   const displayName = user?.fullName || user?.email || "NedAI User";
   const initials = displayName.slice(0, 1).toUpperCase();
   
@@ -20,7 +22,13 @@ export function Header({
   return (
     <header className="flex flex-row items-center justify-between px-4 pt-4 pb-4 bg-slate-50 border-b border-slate-200">
       <div className="flex flex-row items-center shrink-1">
-        <div className="w-10 h-10 rounded-2xl flex items-center justify-center mr-3 bg-blue-100">
+        <button
+          onClick={toggleSidebar}
+          className="md:hidden mr-3 p-2 -ml-2 rounded-xl hover:bg-slate-200 transition text-slate-600"
+        >
+          <Menu size={24} strokeWidth={2} />
+        </button>
+        <div className="hidden sm:flex w-10 h-10 rounded-2xl items-center justify-center mr-3 bg-blue-100">
           <Sparkles size={18} className="text-blue-700" strokeWidth={2.2} />
         </div>
         <div>

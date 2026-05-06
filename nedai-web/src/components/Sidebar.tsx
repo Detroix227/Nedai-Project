@@ -53,13 +53,20 @@ export function Sidebar() {
   const clearChatHistory = useChatStore((state) => state.clearChatHistory);
   const navigate = useNavigate();
   const location = useLocation();
-  const { isSidebarCollapsed, toggleSidebar, setCurrentSection } = useUIStore();
+  const { isSidebarCollapsed, toggleSidebar, setCurrentSection, setSidebarCollapsed } = useUIStore();
   const user = useAuthStore((state) => state.user);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+
+  const handleMobileNav = () => {
+    if (window.innerWidth < 768) {
+      setSidebarCollapsed(true);
+    }
+  };
 
   function handleSelectRecentThread(threadId: string) {
     navigate("/");
     void selectThread(threadId);
+    handleMobileNav();
   }
 
   const activePath = location.pathname;
@@ -68,7 +75,7 @@ export function Sidebar() {
     <>
       {/* Collapsed Sidebar - Hamburger Menu */}
       {isSidebarCollapsed && (
-        <div className="w-16 bg-white border-r border-slate-200 flex flex-col h-screen bg-slate-50/50 sticky top-0 shrink-0">
+        <div className="w-16 bg-white border-r border-slate-200 flex-col h-screen bg-slate-50/50 sticky top-0 shrink-0 hidden md:flex z-40">
           <div className="flex-1 flex flex-col items-center py-4 space-y-4">
             {/* Hamburger Menu Button */}
             <button
@@ -131,7 +138,13 @@ export function Sidebar() {
       
       {/* Expanded Sidebar */}
       {!isSidebarCollapsed && (
-        <aside className="w-72 bg-white border-r border-slate-200 flex flex-col h-screen bg-slate-50/50 sticky top-0 shrink-0 overflow-hidden">
+        <>
+          {/* Mobile Overlay */}
+          <div 
+            className="md:hidden fixed inset-0 bg-slate-900/20 z-40 backdrop-blur-sm" 
+            onClick={() => setSidebarCollapsed(true)}
+          />
+          <aside className="w-72 bg-white border-r border-slate-200 flex flex-col h-screen bg-slate-50/50 fixed md:sticky top-0 left-0 z-50 shrink-0 overflow-hidden shadow-2xl md:shadow-none transition-transform">
           {/* Header - Fixed */}
           <div className="px-4 pt-4 pb-4 shrink-0">
             {/* Top Bar: Hamburger + Notification */}
@@ -152,6 +165,7 @@ export function Sidebar() {
                 startFreshChat();
                 navigate("/");
                 setCurrentSection('chat');
+                handleMobileNav();
               }}
               className="w-full flex flex-row items-center justify-center rounded-xl bg-blue-600 py-3 shadow-md hover:bg-blue-700 transition"
             >
@@ -174,6 +188,7 @@ export function Sidebar() {
               const handleClick = () => {
                 setCurrentSection(item.key);
                 navigate(item.href);
+                handleMobileNav();
               };
 
               return (
@@ -279,6 +294,7 @@ export function Sidebar() {
                 onClick={() => {
                   setCurrentSection('admin');
                   navigate("/admin");
+                  handleMobileNav();
                 }}
                 className={`w-full flex flex-row items-center px-3 py-3 mb-2 rounded-xl transition ${
                   location.pathname === "/admin"
@@ -307,6 +323,7 @@ export function Sidebar() {
               onClick={() => {
                 setCurrentSection('settings');
                 navigate("/settings");
+                handleMobileNav();
               }}
               className={`w-full flex flex-row items-center px-3 py-3 rounded-xl transition ${
                 location.pathname === "/settings"
@@ -331,6 +348,7 @@ export function Sidebar() {
             </button>
           </div>
         </aside>
+        </>
       )}
     </>
   );
