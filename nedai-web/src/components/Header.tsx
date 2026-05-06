@@ -22,12 +22,15 @@ export function Header({
   return (
     <header className="flex flex-row items-center justify-between px-4 pt-4 pb-4 bg-slate-50 border-b border-slate-200">
       <div className="flex flex-row items-center shrink-1">
-        <button
-          onClick={toggleSidebar}
-          className="lg:hidden mr-3 p-2 -ml-2 rounded-xl hover:bg-slate-200 transition text-slate-600"
-        >
-          <Menu size={24} strokeWidth={2} />
-        </button>
+        <div className="flex items-center lg:hidden">
+          <button
+            onClick={toggleSidebar}
+            className="p-2 -ml-2 rounded-xl hover:bg-slate-200 transition text-slate-600"
+          >
+            <Menu size={24} strokeWidth={2} />
+          </button>
+          <div className="w-px h-6 bg-slate-300 mx-3" />
+        </div>
         <div className="hidden sm:flex w-10 h-10 rounded-2xl items-center justify-center mr-3 bg-blue-100">
           <Sparkles size={18} className="text-blue-700" strokeWidth={2.2} />
         </div>

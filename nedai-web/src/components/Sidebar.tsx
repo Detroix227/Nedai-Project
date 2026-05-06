@@ -73,14 +73,14 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Collapsed Sidebar - Hamburger Menu */}
+      {/* Collapsed Sidebar */}
       {isSidebarCollapsed && (
-        <div className="w-16 bg-white border-r border-slate-200 flex-col h-screen bg-slate-50/50 sticky top-0 shrink-0 hidden lg:flex z-40">
+        <div className="w-16 bg-white border-r border-slate-200 flex-col h-[100dvh] bg-slate-50/50 sticky top-0 shrink-0 flex z-40">
           <div className="flex-1 flex flex-col items-center py-4 space-y-4">
-            {/* Hamburger Menu Button */}
+            {/* Hamburger Menu Button (hidden on mobile since it's in Header) */}
             <button
               onClick={toggleSidebar}
-              className="p-3 rounded-xl bg-blue-600 hover:bg-blue-700 transition shadow-md"
+              className="p-3 rounded-xl bg-blue-600 hover:bg-blue-700 transition shadow-md hidden lg:block"
             >
               <Menu size={20} className="text-white" strokeWidth={3} />
             </button>
@@ -144,7 +144,7 @@ export function Sidebar() {
             className="lg:hidden fixed inset-0 bg-slate-900/20 z-40 backdrop-blur-sm" 
             onClick={() => setSidebarCollapsed(true)}
           />
-          <aside className="w-72 bg-white border-r border-slate-200 flex flex-col h-screen bg-slate-50/50 fixed lg:sticky top-0 left-0 z-50 shrink-0 overflow-hidden shadow-2xl lg:shadow-none transition-transform">
+          <aside className="w-72 bg-white border-r border-slate-200 flex flex-col h-[100dvh] bg-slate-50/50 fixed lg:sticky top-0 left-0 z-50 shrink-0 overflow-hidden shadow-2xl lg:shadow-none transition-transform">
           {/* Header - Fixed */}
           <div className="px-4 pt-4 pb-4 shrink-0">
             {/* Top Bar: Hamburger + Notification */}
