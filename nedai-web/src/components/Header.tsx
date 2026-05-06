@@ -1,7 +1,6 @@
-import { History, Sparkles, Menu } from "lucide-react";
+import { History, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/modules/auth/useAuthStore";
-import { useUIStore } from "@/modules/ui/useUIStore";
 
 export function Header({
   title,
@@ -12,7 +11,6 @@ export function Header({
 }) {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
-  const { toggleSidebar } = useUIStore();
   const displayName = user?.fullName || user?.email || "NedAI User";
   const initials = displayName.slice(0, 1).toUpperCase();
   
