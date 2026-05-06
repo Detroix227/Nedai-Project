@@ -77,10 +77,10 @@ export function Sidebar() {
       {isSidebarCollapsed && (
         <div className="w-16 bg-white border-r border-slate-200 flex-col h-[100dvh] bg-slate-50/50 sticky top-0 shrink-0 flex z-40">
           <div className="flex-1 flex flex-col items-center py-4 space-y-4">
-            {/* Hamburger Menu Button (hidden on mobile since it's in Header) */}
+            {/* Hamburger Menu Button */}
             <button
               onClick={toggleSidebar}
-              className="p-3 rounded-xl bg-blue-600 hover:bg-blue-700 transition shadow-md hidden lg:block"
+              className="p-3 rounded-xl bg-blue-600 hover:bg-blue-700 transition shadow-md"
             >
               <Menu size={20} className="text-white" strokeWidth={3} />
             </button>
@@ -113,6 +113,26 @@ export function Sidebar() {
                   </button>
                 );
               })}
+              
+              {/* Admin Icon */}
+              {user?.role === "ADMIN" && (
+                <button
+                  onClick={() => {
+                    setCurrentSection('admin');
+                    navigate("/admin");
+                  }}
+                  className={`p-3 rounded-xl transition ${
+                    location.pathname === "/admin" ? "bg-rose-50" : "hover:bg-slate-100"
+                  }`}
+                  title="Admin Dashboard"
+                >
+                  <ShieldAlert
+                    size={18}
+                    className={location.pathname === "/admin" ? "text-rose-600" : "text-slate-500"}
+                    strokeWidth={2}
+                  />
+                </button>
+              )}
               
               {/* Settings Icon - Separate from STUDY_TOOLS */}
               <button
