@@ -1,4 +1,4 @@
-import { LogOut, User, Key, Bell, Shield, Palette, Moon, Sun } from "lucide-react";
+import { LogOut, User, Key, Bell, Shield, Moon, Sun } from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
 import { useAuthStore } from "@/modules/auth/useAuthStore";
