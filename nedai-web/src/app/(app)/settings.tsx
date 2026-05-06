@@ -1,7 +1,8 @@
-import { LogOut, User, Key, Bell, Shield, Palette } from "lucide-react";
+import { LogOut, User, Key, Bell, Shield, Palette, Moon, Sun } from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
 import { useAuthStore } from "@/modules/auth/useAuthStore";
+import { useUIStore } from "@/modules/ui/useUIStore";
 
 function Section({
   title,
@@ -11,8 +12,8 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mt-6 rounded-3xl bg-white p-6 shadow-sm border border-slate-100">
-      <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
+    <div className="mt-6 rounded-3xl bg-white dark:bg-slate-900 p-6 shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
+      <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-4">
         {title}
       </h3>
       {children}
@@ -38,17 +39,17 @@ function SettingItem({
       onClick={onClick}
       className={`w-full mb-3 rounded-2xl border ${
         danger 
-          ? "bg-rose-50 border-rose-200 hover:bg-rose-100" 
-          : "bg-white border-slate-200 hover:bg-slate-50"
-      } px-4 py-4 text-left transition`}
+          ? "bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-900/50 hover:bg-rose-100 dark:hover:bg-rose-900/40" 
+          : "bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800"
+      } px-4 py-4 text-left transition-colors`}
     >
       <div className="flex items-center">
-        <Icon size={20} className={`${danger ? "text-rose-600" : "text-slate-600"} mr-3`} />
+        <Icon size={20} className={`${danger ? "text-rose-600 dark:text-rose-400" : "text-slate-600 dark:text-slate-400"} mr-3`} />
         <div>
-          <h4 className={`text-base font-semibold ${danger ? "text-rose-700" : "text-slate-800"}`}>
+          <h4 className={`text-base font-semibold ${danger ? "text-rose-700 dark:text-rose-300" : "text-slate-800 dark:text-slate-200"}`}>
             {title}
           </h4>
-          <p className={`mt-1 text-sm leading-5 ${danger ? "text-rose-600" : "text-slate-500"}`}>
+          <p className={`mt-1 text-sm leading-5 ${danger ? "text-rose-600 dark:text-rose-400/80" : "text-slate-500 dark:text-slate-400"}`}>
             {description}
           </p>
         </div>
@@ -59,6 +60,8 @@ function SettingItem({
 
 export default function SettingsScreen() {
   const logout = useAuthStore((state) => state.logout);
+  const theme = useUIStore((state) => state.theme);
+  const toggleTheme = useUIStore((state) => state.toggleTheme);
 
   function handleLogout() {
     logout();
@@ -106,13 +109,10 @@ export default function SettingsScreen() {
             }}
           />
           <SettingItem
-            icon={Palette}
-            title="Appearance"
-            description="Customize the app theme and display preferences"
-            onClick={() => {
-              // TODO: Implement appearance settings
-              alert("Appearance settings coming soon!");
-            }}
+            icon={theme === 'dark' ? Sun : Moon}
+            title={theme === 'dark' ? "Light Mode" : "Dark Mode"}
+            description="Toggle between dark and light mode"
+            onClick={toggleTheme}
           />
           <SettingItem
             icon={Shield}
