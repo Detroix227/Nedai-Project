@@ -75,7 +75,7 @@ export function Sidebar() {
     <>
       {/* Collapsed Sidebar */}
       {isSidebarCollapsed && (
-        <div className="w-16 bg-white border-r border-slate-200 flex-col h-[100dvh] bg-slate-50/50 sticky top-0 shrink-0 flex z-40">
+        <div className="w-16 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-col h-[100dvh] bg-slate-50/50 dark:bg-slate-900/50 sticky top-0 shrink-0 flex z-40">
           <div className="flex-1 flex flex-col items-center py-4 space-y-4">
             {/* Hamburger Menu Button */}
             <button
@@ -101,13 +101,13 @@ export function Sidebar() {
                     key={item.key}
                     onClick={handleClick}
                     className={`p-3 rounded-xl transition ${
-                      isActive ? "bg-blue-50" : "hover:bg-slate-100"
+                      isActive ? "bg-blue-50 dark:bg-blue-900/30" : "hover:bg-slate-100 dark:hover:bg-slate-800"
                     }`}
                     title={item.label}
                   >
                     <Icon
                       size={18}
-                      className={isActive ? "text-blue-600" : "text-slate-500"}
+                      className={isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400"}
                       strokeWidth={2}
                     />
                   </button>
@@ -122,13 +122,13 @@ export function Sidebar() {
                     navigate("/admin");
                   }}
                   className={`p-3 rounded-xl transition ${
-                    location.pathname === "/admin" ? "bg-rose-50" : "hover:bg-slate-100"
+                    location.pathname === "/admin" ? "bg-rose-50 dark:bg-rose-900/30" : "hover:bg-slate-100 dark:hover:bg-slate-800"
                   }`}
                   title="Admin Dashboard"
                 >
                   <ShieldAlert
                     size={18}
-                    className={location.pathname === "/admin" ? "text-rose-600" : "text-slate-500"}
+                    className={location.pathname === "/admin" ? "text-rose-600 dark:text-rose-400" : "text-slate-500 dark:text-slate-400"}
                     strokeWidth={2}
                   />
                 </button>
@@ -141,13 +141,13 @@ export function Sidebar() {
                   navigate("/settings");
                 }}
                 className={`p-3 rounded-xl transition ${
-                  location.pathname === "/settings" ? "bg-blue-50" : "hover:bg-slate-100"
+                  location.pathname === "/settings" ? "bg-blue-50 dark:bg-blue-900/30" : "hover:bg-slate-100 dark:hover:bg-slate-800"
                 }`}
                 title="Settings"
               >
                 <Settings
                   size={18}
-                  className={location.pathname === "/settings" ? "text-blue-600" : "text-slate-500"}
+                  className={location.pathname === "/settings" ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400"}
                   strokeWidth={2}
                 />
               </button>
@@ -161,10 +161,10 @@ export function Sidebar() {
         <>
           {/* Mobile/Tablet Overlay */}
           <div 
-            className="lg:hidden fixed inset-0 bg-slate-900/20 z-40 backdrop-blur-sm" 
+            className="lg:hidden fixed inset-0 bg-slate-900/40 z-40 backdrop-blur-sm" 
             onClick={() => setSidebarCollapsed(true)}
           />
-          <aside className="w-72 bg-white border-r border-slate-200 flex flex-col h-[100dvh] bg-slate-50/50 fixed lg:sticky top-0 left-0 z-50 shrink-0 overflow-hidden shadow-2xl lg:shadow-none transition-transform">
+          <aside className="w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col h-[100dvh] bg-slate-50/50 dark:bg-slate-900/50 fixed lg:sticky top-0 left-0 z-50 shrink-0 overflow-hidden shadow-2xl lg:shadow-none transition-transform">
           {/* Header - Fixed */}
           <div className="px-4 pt-4 pb-4 shrink-0">
             {/* Top Bar: Hamburger + Notification */}
@@ -173,7 +173,7 @@ export function Sidebar() {
                 onClick={toggleSidebar}
                 className="p-2 rounded-xl hover:bg-slate-100 transition"
               >
-                <Menu size={24} className="text-slate-600" strokeWidth={2} />
+                <Menu size={24} className="text-slate-600 dark:text-slate-400" strokeWidth={2} />
               </button>
               <NotificationBell />
             </div>
@@ -197,8 +197,8 @@ export function Sidebar() {
           </div>
 
           {/* Study Tools - Fixed */}
-          <div className="px-4 pb-4 border-b border-slate-200 shrink-0">
-            <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">
+          <div className="px-4 pb-4 border-b border-slate-200 dark:border-slate-700 shrink-0">
+            <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
               Study Tools
             </h3>
             {STUDY_TOOLS.map((item) => {
@@ -216,17 +216,17 @@ export function Sidebar() {
                   key={item.key}
                   onClick={handleClick}
                   className={`w-full mb-1 flex flex-row items-center rounded-xl p-3 transition ${
-                    isActive ? "bg-blue-50" : "hover:bg-slate-100"
+                    isActive ? "bg-blue-50 dark:bg-blue-900/30" : "hover:bg-slate-100 dark:hover:bg-slate-800"
                   }`}
                 >
                   <Icon
                     size={18}
-                    className={isActive ? "text-blue-600" : "text-slate-500"}
+                    className={isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400"}
                     strokeWidth={2}
                   />
                   <span
                     className={`ml-3 text-sm ${
-                      isActive ? "font-semibold text-blue-700" : "text-slate-700 font-medium"
+                      isActive ? "font-semibold text-blue-700 dark:text-blue-400" : "text-slate-700 dark:text-slate-300 font-medium"
                     }`}
                   >
                     {item.label}
@@ -238,8 +238,8 @@ export function Sidebar() {
 
           {/* Recent Chats - Scrollable */}
           <div className="flex-1 px-4 mt-6 overflow-y-auto min-h-0">
-            <div className="flex items-center justify-between sticky top-0 bg-white py-1 z-10 mb-3">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400">
+            <div className="flex items-center justify-between sticky top-0 bg-white dark:bg-slate-900 py-1 z-10 mb-3">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
                 Recent Chats
               </h3>
               {threads.length > 0 && (
@@ -255,7 +255,7 @@ export function Sidebar() {
             </div>
 
             {threads.length === 0 ? (
-              <p className="text-sm leading-6 text-slate-400">
+              <p className="text-sm leading-6 text-slate-400 dark:text-slate-500">
                 Your conversation history will appear here after the first
                 message.
               </p>
@@ -278,17 +278,17 @@ export function Sidebar() {
           {/* Clear Chat Confirmation Modal */}
           {showClearConfirm && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white rounded-2xl p-6 max-w-sm mx-4 shadow-xl">
-                <h3 className="text-base font-semibold text-slate-900 mb-2">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-sm mx-4 shadow-xl">
+                <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-2">
                   Clear all chats?
                 </h3>
-                <p className="text-sm text-slate-500 mb-5">
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">
                   This will permanently delete all your conversations. This action cannot be undone.
                 </p>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setShowClearConfirm(false)}
-                    className="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition text-sm"
+                    className="flex-1 px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-medium rounded-xl transition text-sm"
                   >
                     Cancel
                   </button>
@@ -308,7 +308,7 @@ export function Sidebar() {
           )}
 
           {/* Settings - Fixed at bottom */}
-          <div className="px-4 py-4 border-t border-slate-200 shrink-0">
+          <div className="px-4 py-4 border-t border-slate-200 dark:border-slate-700 shrink-0">
             {user?.role === "ADMIN" && (
               <button
                 onClick={() => {
@@ -318,20 +318,20 @@ export function Sidebar() {
                 }}
                 className={`w-full flex flex-row items-center px-3 py-3 mb-2 rounded-xl transition ${
                   location.pathname === "/admin"
-                    ? "bg-rose-50 border border-rose-100"
-                    : "hover:bg-slate-100"
+                    ? "bg-rose-50 dark:bg-rose-900/30 border border-rose-100 dark:border-rose-900/50"
+                    : "hover:bg-slate-100 dark:hover:bg-slate-800"
                 }`}
               >
                 <ShieldAlert
                   size={20}
-                  className={location.pathname === "/admin" ? "text-rose-600" : "text-slate-500"}
+                  className={location.pathname === "/admin" ? "text-rose-600 dark:text-rose-400" : "text-slate-500 dark:text-slate-400"}
                   strokeWidth={2}
                 />
                 <span
                   className={`ml-3 text-sm font-semibold ${
                     location.pathname === "/admin"
-                      ? "text-rose-700"
-                      : "text-slate-600"
+                      ? "text-rose-700 dark:text-rose-400"
+                      : "text-slate-600 dark:text-slate-400"
                   }`}
                 >
                   Admin Dashboard
@@ -347,20 +347,20 @@ export function Sidebar() {
               }}
               className={`w-full flex flex-row items-center px-3 py-3 rounded-xl transition ${
                 location.pathname === "/settings"
-                  ? "bg-blue-50 border border-blue-100"
-                  : "hover:bg-slate-100"
+                  ? "bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-900/50"
+                  : "hover:bg-slate-100 dark:hover:bg-slate-800"
               }`}
             >
               <Settings
                 size={20}
-                className={location.pathname === "/settings" ? "text-blue-600" : "text-slate-500"}
+                className={location.pathname === "/settings" ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400"}
                 strokeWidth={2}
               />
               <span
                 className={`ml-3 text-sm font-semibold ${
                   location.pathname === "/settings"
-                    ? "text-blue-700"
-                    : "text-slate-600"
+                    ? "text-blue-700 dark:text-blue-400"
+                    : "text-slate-600 dark:text-slate-400"
                 }`}
               >
                 Settings

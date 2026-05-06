@@ -43,21 +43,21 @@ export function ChatMessageList({ messages }: Props) {
             {isUser ? (
               <div className="flex flex-col items-end max-w-[85%]">
                 <div
-                  className={`rounded-2xl px-4 py-3 text-slate-900 text-[15px] leading-relaxed shadow-sm ${
+                  className={`rounded-2xl px-4 py-3 text-slate-900 dark:text-slate-100 text-[15px] leading-relaxed shadow-sm ${
                     message.deliveryState === "failed"
-                      ? "bg-red-50 border border-red-300"
-                      : "bg-slate-200"
+                      ? "bg-red-50 dark:bg-red-900/30 border border-red-300 dark:border-red-800"
+                      : "bg-slate-200 dark:bg-slate-700"
                   }`}
                 >
                   <p>{message.content}</p>
                   
                   {message.document && (
-                    <div className="flex flex-row items-center bg-white rounded-xl px-3 py-2 mt-3 border border-slate-200 select-none">
-                      <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center mr-3 shrink-0">
+                    <div className="flex flex-row items-center bg-white dark:bg-slate-800 rounded-xl px-3 py-2 mt-3 border border-slate-200 dark:border-slate-700 select-none">
+                      <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mr-3 shrink-0">
                         <FileText size={16} className="text-blue-600" strokeWidth={2.5} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-blue-900 truncate">
+                        <p className="text-xs font-bold text-blue-900 dark:text-blue-100 truncate">
                           {message.document.title}
                         </p>
                       </div>
@@ -65,12 +65,12 @@ export function ChatMessageList({ messages }: Props) {
                   )}
                 </div>
                 {message.deliveryState === "failed" && (
-                  <span className="mt-2 text-xs font-semibold text-red-600">Not sent</span>
+                  <span className="mt-2 text-xs font-semibold text-red-600 dark:text-red-400">Not sent</span>
                 )}
               </div>
             ) : (
               <div className="flex flex-row w-full max-w-4xl gap-4">
-                <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center shrink-0 mt-1">
+                <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center shrink-0 mt-1">
                   <Sparkles size={18} className="text-blue-600" />
                 </div>
                 
@@ -82,18 +82,18 @@ export function ChatMessageList({ messages }: Props) {
                   )}
                   
                   {assistantStatus && (message.sources?.length || message.usedGeneralKnowledge) && (
-                    <p className="text-blue-600 text-xs font-semibold mt-3">
+                    <p className="text-blue-600 dark:text-blue-400 text-xs font-semibold mt-3">
                       {assistantStatus}
                     </p>
                   )}
                   
                   {message.sources?.length ? (
-                    <div className="mt-3 rounded-2xl bg-slate-50 border border-slate-200 p-4 flex flex-col gap-3">
+                    <div className="mt-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4 flex flex-col gap-3">
                       {message.sources.map((source, index) => (
                         <div key={`${message.id}-${index}`}>
-                          <p className="text-slate-900 text-sm font-bold">{source.subject}</p>
-                          <p className="text-slate-700 text-sm mt-0.5">{source.lessonTitle}</p>
-                          <p className="text-slate-500 text-xs mt-1">
+                          <p className="text-slate-900 dark:text-slate-100 text-sm font-bold">{source.subject}</p>
+                          <p className="text-slate-700 dark:text-slate-300 text-sm mt-0.5">{source.lessonTitle}</p>
+                          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
                             {source.sourcePath}
                             {source.pageNumber !== undefined ? ` • Page ${source.pageNumber}` : ""}
                           </p>

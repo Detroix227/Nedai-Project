@@ -1,0 +1,41 @@
+# Admin Dashboard & Notifications Complete!
+
+I have fully implemented the Admin Dashboard and the In-App Notification system for the web platform, while keeping the mobile platform safely intact.
+
+## What Was Accomplished
+
+### 1. Database & Backend Engine
+- Added the `ADMIN` user role.
+- Updated the User model to track `lastActiveAt`. This timestamp automatically updates behind the scenes when a user uses the app, allowing us to accurately track who is "Online".
+- Created the `Notification` database model to store messages sent to users' accounts.
+- Built the new API endpoints (`/api/v1/admin/*` and `/api/v1/notifications/*`) and secured them so that only an `ADMIN` can access the admin dashboard.
+
+### 2. The Web Admin Dashboard
+- **Location:** It is accessible via `/admin`.
+- **Restricted Access:** The "Admin Dashboard" button only appears in the sidebar for users with the `ADMIN` role. If a non-admin tries to navigate there directly, they are redirected away.
+- **Features:** 
+  - Real-time stats showing Total Users and Online Users.
+  - A clean table listing all registered users with their roles and online status.
+  - A notification form where you can type announcements and choose to send them via **Emails**, **In-App**, or **Both**.
+
+### 3. User Notification Bell
+- Added a `NotificationBell` to the top-left header of the sidebar for all users.
+- It displays a red badge indicating the number of unread announcements.
+- Clicking the bell opens a dropdown showing the notifications, and clicking the checkmark marks them as read!
+
+---
+
+## Next Steps: Promoting Your Account
+
+To access the new dashboard, you need to promote your personal account to an `ADMIN`.
+
+I created a script to do this safely without you having to touch the raw database.
+
+**Run this command in your terminal (make sure to use your actual email):**
+
+```bash
+cd "nedai-server"
+npm run make-admin your.email@example.com
+```
+
+Once the terminal confirms you've been promoted, log back into your account on the web platform, and you will see the **Admin Dashboard** button appear at the bottom of the sidebar!
