@@ -118,10 +118,35 @@ function buildChatTitle(content: string) {
   return truncateText(normalized, CHAT_TITLE_LIMIT);
 }
 
+function stripMetadataFromContent(content: string): string {
+  // Remove common metadata patterns that leaked into old AI responses
+  const metadataPatterns = [
+    /^Subject:\s*.+$/gim,
+    /^Lesson:\s*.+$/gim,
+    /^Path:\s*.+$/gim,
+    /^Page:\s*.+$/gim,
+    /^Similarity:\s*.+$/gim,
+    /^Source \d+$/gim,
+    /https:\/\/pub-[a-z0-9]+\.r2\.dev\/uploads\/[a-f0-9-]+\/[a-f0-9-]+\.png/gi,
+  ];
+
+  let cleaned = content;
+  for (const pattern of metadataPatterns) {
+    cleaned = cleaned.replace(pattern, "");
+  }
+
+  // Clean up multiple newlines
+  return cleaned.replace(/\n{3,}/g, "\n\n").trim();
+}
+
 function mapHistoryMessage(message: Message) {
+  const content = message.role === "ASSISTANT"
+    ? stripMetadataFromContent(message.content)
+    : message.content;
+
   return {
     role: message.role.toLowerCase() as "system" | "user" | "assistant",
-    content: message.content,
+    content,
   };
 }
 
