@@ -125,22 +125,43 @@ export async function sendNotificationEmail(opts: {
   }
 
   const client = getResendClient();
+  const from = env.EMAIL_FROM || "NedAI <onboarding@resend.dev>";
+  const failed: string[] = [];
 
-  // Resend allows up to 50 recipients per API call using the 'bcc' field, 
-  // or sending an array of emails to 'to' (which shows all emails to everyone). 
-  // Using bcc is better for privacy.
-  const { error } = await client.emails.send({
-    from: env.EMAIL_FROM || "NedAI <onboarding@resend.dev>",
-    to: "no-reply@nedai.app",
-    bcc: opts.to,
-    subject: opts.subject,
-    html: opts.htmlBody,
-  });
+  // Send individual emails (Resend free tier/testing mode requirement)
+  for (const email of opts.to) {
+    try {
+      const { error } = await client.emails.send({
+        from,
+        to: email,
+        subject: opts.subject,
+        html: opts.htmlBody,
+      });
 
-  if (error) {
-    console.error("[email] Failed to send notification email:", error);
-    throw new Error(`Email delivery failed: ${error.message}`);
+      if (error) {
+        console.error(`[email] Failed to send to ${email}:`, error);
+        failed.push(email);
+      } else {
+        console.log(`[email] Notification sent to ${email}`);
+      }
+    } catch (err) {
+      console.error(`[email] Error sending to ${email}:`, err);
+      failed.push(email);
+    }
   }
 
-  console.log(`[email] Notification email sent to ${opts.to.length} users`);
+  if (failed.length > 0) {
+    // Check if it's the testing mode error
+    if (opts.to.length === 1 && failed.length === 1 && !opts.to[0].includes("@")) {
+      throw new Error(`Email delivery failed: Invalid email address`);
+    }
+    // For testing mode, suggest verifying domain
+    throw new Error(
+      `Failed to send to ${failed.length} recipient(s). ` +
+      `Note: Resend testing mode only allows sending to your own email. ` +
+      `To send to others, verify a domain at resend.com/domains`
+    );
+  }
+
+  console.log(`[email] Notification emails sent to ${opts.to.length} users`);
 }
