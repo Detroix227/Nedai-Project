@@ -421,7 +421,8 @@ RULES:
 - Prefer study context when relevant. Answer using general knowledge when no context applies. NEVER say "No relevant study context was retrieved" or mention context availability.
 - Do not invent sources. Keep answers clear, educational, Markdown-formatted.
 - For quizzes/exams: generate directly in chat as Markdown, tell student to reply with answers.
-- Adapt tone based on the modality you selected.`,
+- Adapt tone based on the modality you selected.
+- CRITICAL: NEVER output metadata patterns like "Subject:", "Lesson:", "Path:", "Page:", "Similarity:", "Source X", or URLs from retrieved documents. Only output the actual educational content.`,
       },
       {
         role: "system" as const,
