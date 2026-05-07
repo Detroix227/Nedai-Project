@@ -36,7 +36,7 @@ export function ChatMessageList({ messages }: Props) {
             className={`flex w-full ${isUser ? "justify-end" : "justify-start"}`}
           >
             {isUser ? (
-              <div className="flex flex-col items-end max-w-[85%]">
+              <div className="flex flex-col items-end max-w-[92%] sm:max-w-[85%]">
                 <div
                   className={`rounded-2xl px-4 py-3 text-slate-900 dark:text-slate-100 text-[15px] leading-relaxed shadow-sm ${
                     message.deliveryState === "failed"
@@ -64,7 +64,7 @@ export function ChatMessageList({ messages }: Props) {
                 )}
               </div>
             ) : (
-              <div className="flex flex-row w-full max-w-4xl gap-4">
+              <div className="flex flex-row w-full max-w-[95%] sm:max-w-3xl lg:max-w-4xl gap-2 sm:gap-4">
                 <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center shrink-0 mt-1">
                   <Sparkles size={18} className="text-blue-600" />
                 </div>
