@@ -95,26 +95,14 @@ export function buildRetrievalMetadata(chunks: RetrievedChunk[]) {
 
 export function buildContextBlock(chunks: RetrievedChunk[]) {
   if (chunks.length === 0) {
-    return "No relevant study context was retrieved for this request.";
+    return "";
   }
 
+  // Only send content text to AI - no metadata (Subject, Path, URLs, etc.)
+  // Metadata is stored separately for frontend source display
   return chunks
     .map((chunk, index) => {
-      const lines = [
-        `Source ${index + 1}`,
-        `Subject: ${chunk.subject}`,
-        `Lesson: ${chunk.lessonTitle}`,
-        `Path: ${chunk.sourcePath}`,
-      ];
-
-      if (chunk.pageNumber !== undefined) {
-        lines.push(`Page: ${chunk.pageNumber}`);
-      }
-
-      lines.push(`Similarity: ${chunk.score.toFixed(3)}`);
-      lines.push(`Content: ${trimChunkText(chunk.text)}`);
-
-      return lines.join("\n");
+      return `Source ${index + 1}:\n${trimChunkText(chunk.text)}`;
     })
     .join("\n\n");
 }
