@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Save, RefreshCw, Key, Trash2, LogOut, ChevronDown } from "lucide-react";
+import { Save, Key, Trash2, LogOut, ChevronDown, User, GraduationCap, Settings } from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
 import { useAuthStore } from "@/modules/auth/useAuthStore";
@@ -7,10 +7,12 @@ import { useChatStore } from "@/modules/chat/useChatStore";
 
 function Section({
   title,
+  icon: Icon,
   children,
   defaultCollapsed = false,
 }: {
   title: string;
+  icon?: any;
   children: React.ReactNode;
   defaultCollapsed?: boolean;
 }) {
@@ -21,26 +23,34 @@ function Section({
   };
   
   return (
-    <div className="mt-6 rounded-3xl bg-white shadow-sm border border-slate-100 overflow-hidden">
+    <div className="mt-6 rounded-3xl bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden transition-all duration-300">
       <button
         onClick={toggleCollapse}
-        className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-all duration-200 group"
+        className="w-full px-6 py-5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-200 group"
         type="button"
       >
-        <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 group-hover:text-slate-500">
-          {title}
-        </h3>
-        <div className="flex items-center space-x-2">
-          <span className="text-xs text-slate-400 group-hover:text-slate-500">
-            {isCollapsed ? "Show" : "Hide"}
+        <div className="flex items-center space-x-3">
+          {Icon && (
+            <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
+              <Icon size={20} className="text-blue-600 dark:text-blue-400" />
+            </div>
+          )}
+          <h3 className="text-sm font-bold uppercase tracking-widest text-slate-700 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            {title}
+          </h3>
+        </div>
+        <div className="flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full">
+          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+            {isCollapsed ? "Expand" : "Collapse"}
           </span>
-          <div className={`transform transition-transform duration-200 ${isCollapsed ? 'rotate-0' : 'rotate-180'}`}>
-            <ChevronDown size={16} className="text-slate-400 group-hover:text-slate-500" />
+          <div className={`transform transition-transform duration-300 ${isCollapsed ? 'rotate-0' : 'rotate-180'}`}>
+            <ChevronDown size={16} className="text-slate-500 dark:text-slate-400" />
           </div>
         </div>
       </button>
-      <div className={`transition-all duration-300 ease-in-out ${isCollapsed ? 'max-h-0 opacity-0 overflow-hidden' : 'opacity-100 overflow-visible'}`}>
-        <div className="px-6 pb-6">
+      <div className={`transition-all duration-500 ease-in-out ${isCollapsed ? 'max-h-0 opacity-0 overflow-hidden' : 'opacity-100 max-h-[2000px]'}`}>
+        <div className="px-6 pb-6 pt-2">
+          <div className="h-px w-full bg-slate-100 dark:bg-slate-800 mb-6" />
           {children}
         </div>
       </div>
@@ -55,6 +65,7 @@ function TextField({
   placeholder,
   editable = true,
   type = "text",
+  options,
 }: {
   label: string;
   value: string;
@@ -62,24 +73,41 @@ function TextField({
   placeholder?: string;
   editable?: boolean;
   type?: string;
+  options?: string[];
 }) {
   return (
     <div className="mb-5">
-      <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">
+      <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
         {label}
       </label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange?.(e.target.value)}
-        placeholder={placeholder}
-        disabled={!editable}
-        className={`w-full min-h-[56px] rounded-2xl border border-slate-200 px-5 py-4 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-          editable 
-            ? "bg-slate-50 text-slate-900" 
-            : "bg-slate-100 text-slate-500 cursor-not-allowed"
-        }`}
-      />
+      {options ? (
+        <select
+          value={value}
+          onChange={(e) => onChange?.(e.target.value)}
+          disabled={!editable}
+          className={`w-full min-h-[56px] rounded-2xl border border-slate-200 dark:border-slate-700 px-5 py-4 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+            editable 
+              ? "bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700" 
+              : "bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-500 cursor-not-allowed"
+          }`}
+        >
+          <option value="" disabled>Select an option</option>
+          {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+        </select>
+      ) : (
+        <input
+          type={type}
+          value={value}
+          onChange={(e) => onChange?.(e.target.value)}
+          placeholder={placeholder}
+          disabled={!editable}
+          className={`w-full min-h-[56px] rounded-2xl border border-slate-200 dark:border-slate-700 px-5 py-4 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+            editable 
+              ? "bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700" 
+              : "bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-500 cursor-not-allowed"
+          }`}
+        />
+      )}
     </div>
   );
 }
@@ -91,95 +119,68 @@ export default function ProfileScreen() {
   const clearError = useAuthStore((state) => state.clearError);
   const errorMessage = useAuthStore((state) => state.errorMessage);
   const status = useAuthStore((state) => state.status);
-  const refreshProfile = useAuthStore((state) => state.refreshProfile);
-  const token = useAuthStore((state) => state.accessToken);
   const clearChatHistory = useChatStore((state) => state.clearChatHistory);
   
+  // Identity
   const [fullName, setFullName] = useState("");
-  const [institution, setInstitution] = useState("");
-  const [matricNumber, setMatricNumber] = useState("");
-  const [studentAcademicLevel, setStudentAcademicLevel] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
-  const [lecturerHighestQualification, setLecturerHighestQualification] = useState("");
-  const [lecturerCurrentAcademicStage, setLecturerCurrentAcademicStage] = useState("");
+  const [age, setAge] = useState("");
+  const [maritalStatus, setMaritalStatus] = useState("");
+
+  // Academic Profile
+  const [academicLevel, setAcademicLevel] = useState("");
+  const [institutionalLevel, setInstitutionalLevel] = useState("");
+  const [futureCareer, setFutureCareer] = useState("");
+
   const [localError, setLocalError] = useState<string | null>(null);
   const [showClearChatConfirm, setShowClearChatConfirm] = useState(false);
 
   useEffect(() => {
-    if (!user) {
-      return;
-    }
-
+    if (!user) return;
     setFullName(user.fullName);
-    setInstitution(user.institution ?? "");
-    setMatricNumber(user.matricNumber ?? "");
-    setStudentAcademicLevel(user.studentAcademicLevel ?? "");
-    setDateOfBirth(user.dateOfBirth ?? "");
-    setLecturerHighestQualification(user.lecturerHighestQualification ?? "");
-    setLecturerCurrentAcademicStage(user.lecturerCurrentAcademicStage ?? "");
+
+    // Load local extended profile data (temporary until backend supports these fields)
+    try {
+      const localProfile = JSON.parse(localStorage.getItem(`extendedProfile_${user.id}`) || "{}");
+      setAge(localProfile.age || "");
+      setMaritalStatus(localProfile.maritalStatus || "");
+      setAcademicLevel(localProfile.academicLevel || "");
+      setInstitutionalLevel(localProfile.institutionalLevel || "");
+      setFutureCareer(localProfile.futureCareer || "");
+    } catch (e) {
+      console.error(e);
+    }
   }, [user]);
 
   async function handleSave() {
     clearError();
 
-    if (!fullName.trim() || !institution.trim()) {
-      setLocalError("Name and university name are required.");
+    if (!fullName.trim()) {
+      setLocalError("Name is required.");
       return;
-    }
-
-    if (user?.role === "STUDENT") {
-      if (
-        !studentAcademicLevel.trim() ||
-        !matricNumber.trim() ||
-        !dateOfBirth.trim()
-      ) {
-        setLocalError("Complete all required student fields.");
-        return;
-      }
-    }
-
-    if (user?.role === "LECTURER") {
-      if (
-        !lecturerHighestQualification.trim() ||
-        !lecturerCurrentAcademicStage.trim()
-      ) {
-        setLocalError("Complete all required lecturer fields.");
-        return;
-      }
     }
 
     setLocalError(null);
 
     try {
+      // Save primary fields to backend
       await updateProfile({
         fullName,
-        institution,
-        ...(user?.role === "STUDENT"
-          ? {
-              matricNumber,
-              studentAcademicLevel,
-              dateOfBirth,
-            }
-          : {}),
-        ...(user?.role === "LECTURER"
-          ? {
-              lecturerHighestQualification,
-              lecturerCurrentAcademicStage,
-            }
-          : {}),
+        institution: user?.institution ?? "N/A", // Required by backend schema but hidden in UI now
       });
+
+      // Save extended fields to local storage
+      if (user) {
+        localStorage.setItem(`extendedProfile_${user.id}`, JSON.stringify({
+          age,
+          maritalStatus,
+          academicLevel,
+          institutionalLevel,
+          futureCareer
+        }));
+      }
     } catch (error) {
       console.error("Profile update failed:", error);
     }
-  }
-
-  function handleClearChatHistory() {
-    setShowClearChatConfirm(true);
-  }
-
-  function confirmClearChatHistory() {
-    clearChatHistory();
-    setShowClearChatConfirm(false);
   }
 
   function handleLogout() {
@@ -187,200 +188,147 @@ export default function ProfileScreen() {
     window.location.href = "/login";
   }
 
-  function handleRefresh() {
-    if (token) {
-      refreshProfile(token);
-    }
-  }
-
-  const versionId = "Web Build";
-
   return (
-    <AppShell
-      title="Profile"
-    >
-      <div className="flex flex-col w-full max-w-6xl mx-auto p-6">
+    <AppShell title="Profile">
+      <div className="flex flex-col w-full max-w-4xl mx-auto p-6 overflow-y-auto custom-scrollbar h-full pb-24">
+        
+        <div className="flex items-center space-x-6 mb-8">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-3xl font-bold text-white shadow-lg">
+            {fullName.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">{fullName || "Your Profile"}</h1>
+            <p className="text-slate-500 dark:text-slate-400 text-lg">{user?.role} Account</p>
+          </div>
+        </div>
+
         {/* Identity Section */}
-        <Section title="Identity" defaultCollapsed={false}>
-          <TextField
-            label="Name"
-            value={fullName}
-            onChange={setFullName}
-            placeholder="Your full name"
-          />
-          <TextField 
-            label="Email" 
-            value={user?.email ?? ""} 
-            editable={false} 
-          />
-          <TextField 
-            label="Role" 
-            value={user?.role ?? ""} 
-            editable={false} 
-          />
+        <Section title="Identity" icon={User} defaultCollapsed={false}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+            <TextField label="Full Name" value={fullName} onChange={setFullName} placeholder="Your full name" />
+            <TextField label="Email Address" value={user?.email ?? ""} editable={false} />
+            <TextField label="Role" value={user?.role ?? ""} editable={false} />
+            <TextField label="Age" value={age} onChange={setAge} type="number" placeholder="e.g. 21" />
+            <TextField 
+              label="Marital Status" 
+              value={maritalStatus} 
+              onChange={setMaritalStatus} 
+              options={["Single", "Married", "Divorced", "Widowed"]}
+            />
+          </div>
         </Section>
 
         {/* Academic Profile Section */}
-        <Section title="Academic Profile" defaultCollapsed={false}>
-          <TextField
-            label="University Name"
-            value={institution}
-            onChange={setInstitution}
-            placeholder="Mountain Top University"
-          />
-
-          {user?.role === "STUDENT" ? (
-            <>
-              <TextField
-                label="Academic Level"
-                value={studentAcademicLevel}
-                onChange={setStudentAcademicLevel}
-                placeholder="400 Level"
-              />
-              <TextField
-                label="Matriculation Number"
-                value={matricNumber}
-                onChange={setMatricNumber}
-                placeholder="MAT/2022/001"
-              />
-              <TextField
-                label="Date of Birth"
-                value={dateOfBirth}
-                onChange={setDateOfBirth}
-                placeholder="YYYY-MM-DD"
-                type="date"
-              />
-            </>
-          ) : (
-            <>
-              <TextField
-                label="Highest Qualification"
-                value={lecturerHighestQualification}
-                onChange={setLecturerHighestQualification}
-                placeholder="BSc Computer Science"
-              />
-              <TextField
-                label="Current Academic Stage"
-                value={lecturerCurrentAcademicStage}
-                onChange={setLecturerCurrentAcademicStage}
-                placeholder="Masters Level"
-              />
-            </>
-          )}
+        <Section title="Academic Profile" icon={GraduationCap} defaultCollapsed={false}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+            <TextField 
+              label="Academic Level" 
+              value={academicLevel} 
+              onChange={setAcademicLevel} 
+              options={["Primary", "Secondary", "University", "Postgraduate"]}
+            />
+            <TextField 
+              label="Institutional Level" 
+              value={institutionalLevel} 
+              onChange={setInstitutionalLevel} 
+              placeholder="e.g. Primary 1, JSS1, SS1, 100L, Masters" 
+            />
+            <TextField 
+              label="Current / Future Career" 
+              value={futureCareer} 
+              onChange={setFutureCareer} 
+              placeholder="e.g. Software Engineer, Doctor" 
+            />
+          </div>
         </Section>
 
         {/* System Section */}
-        <Section title="System" defaultCollapsed={true}>
-          <button
-            onClick={() => window.location.href = "/change-password"}
-            className="w-full mb-3 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left hover:bg-slate-50 transition"
-          >
-            <div className="flex items-center">
-              <Key size={20} className="text-slate-600 mr-3" />
-              <div>
-                <h4 className="text-base font-semibold text-slate-800">
-                  Change Password
-                </h4>
-                <p className="mt-1 text-sm leading-5 text-slate-500">
-                  Update your password without leaving your account settings.
-                </p>
-              </div>
-            </div>
-          </button>
-
-          <div className="mb-3 rounded-2xl bg-white border border-slate-100 px-4 py-4 flex items-center justify-between">
-            <div>
-              <h4 className="text-sm font-semibold text-slate-700">
-                Update Version
-              </h4>
-              <p className="text-xs text-slate-400 mt-1">
-                ID: {versionId}
-              </p>
-            </div>
+        <Section title="System" icon={Settings} defaultCollapsed={true}>
+          <div className="grid grid-cols-1 gap-4">
             <button
-              onClick={handleRefresh}
-              className="rounded-xl bg-blue-50 px-4 py-2 hover:bg-blue-100 transition flex items-center"
+              onClick={() => window.location.href = "/change-password"}
+              className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 py-5 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition shadow-sm group"
             >
-              <RefreshCw size={16} className="text-blue-600 mr-2" />
-              <span className="text-sm font-bold text-blue-600">Check</span>
+              <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mr-4 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 transition-colors">
+                  <Key size={20} className="text-slate-600 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-slate-800 dark:text-slate-200">Change Password</h4>
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Update your account security credentials.</p>
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setShowClearChatConfirm(true)}
+              className="w-full rounded-2xl border border-rose-100 dark:border-rose-900/30 bg-rose-50/50 dark:bg-rose-900/10 px-6 py-5 text-left hover:bg-rose-100 dark:hover:bg-rose-900/30 transition shadow-sm group"
+            >
+              <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center mr-4 group-hover:bg-rose-200 dark:group-hover:bg-rose-800 transition-colors">
+                  <Trash2 size={20} className="text-rose-600 dark:text-rose-400" />
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-rose-700 dark:text-rose-400">Clear Chat History</h4>
+                  <p className="mt-1 text-sm text-rose-600 dark:text-rose-500">Remove every saved conversation from this account.</p>
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 px-6 py-5 text-left hover:bg-slate-200 dark:hover:bg-slate-700 transition shadow-sm"
+            >
+              <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-900 flex items-center justify-center mr-4">
+                  <LogOut size={20} className="text-slate-600 dark:text-slate-400" />
+                </div>
+                <h4 className="text-base font-bold text-slate-700 dark:text-slate-200">Log Out</h4>
+              </div>
             </button>
           </div>
-
-          <button
-            onClick={handleClearChatHistory}
-            className="w-full mb-3 rounded-2xl bg-rose-50 px-4 py-4 text-left hover:bg-rose-100 transition"
-          >
-            <div className="flex items-center">
-              <Trash2 size={20} className="text-rose-600 mr-3" />
-              <div>
-                <h4 className="text-base font-semibold text-rose-700">
-                  Clear Chat History
-                </h4>
-                <p className="mt-1 text-sm leading-5 text-rose-600">
-                  Remove every saved conversation from this account.
-                </p>
-              </div>
-            </div>
-          </button>
-
-          <button
-            onClick={handleLogout}
-            className="w-full rounded-2xl bg-slate-100 px-4 py-4 text-left hover:bg-slate-200 transition"
-          >
-            <div className="flex items-center">
-              <LogOut size={20} className="text-slate-600 mr-3" />
-              <h4 className="text-base font-semibold text-slate-700">
-                Log Out
-              </h4>
-            </div>
-          </button>
         </Section>
 
         {/* Error Message */}
-        {localError || errorMessage ? (
-          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-2xl">
-            <p className="text-sm text-red-600">
-              {localError || errorMessage}
-            </p>
+        {(localError || errorMessage) && (
+          <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl">
+            <p className="text-sm font-semibold text-red-600 dark:text-red-400">{localError || errorMessage}</p>
           </div>
-        ) : null}
+        )}
 
         {/* Save Button */}
         <button
           onClick={handleSave}
           disabled={status === "loading"}
-          className="mt-6 w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-semibold py-4 rounded-2xl transition flex items-center justify-center"
+          className="mt-8 w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-bold py-5 rounded-2xl transition shadow-lg transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center text-lg"
         >
-          {status === "loading" ? (
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-          ) : (
-            <Save size={20} className="mr-2" />
-          )}
-          {status === "loading" ? "Saving..." : "Save Profile"}
+          {status === "loading" && <Loader2 size={22} className="animate-spin mr-3" />}
+          {status === "loading" ? "Saving Profile..." : "Save Profile"}
         </button>
 
         {/* Clear Chat History Confirmation Modal */}
         {showClearChatConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-2xl p-6 max-w-md mx-4">
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                Clear chat history
-              </h3>
-              <p className="text-sm text-slate-600 mb-6">
-                This will permanently delete your chat history from the device and server.
+          <div className="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 w-full max-w-md shadow-2xl border border-slate-100 dark:border-slate-800">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-3">Clear chat history?</h3>
+              <p className="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
+                This will permanently delete your chat history from the device and server. This action cannot be undone.
               </p>
-              <div className="flex gap-3">
+              <div className="flex gap-4">
                 <button
                   onClick={() => setShowClearChatConfirm(false)}
-                  className="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition"
+                  className="flex-1 px-4 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition"
                 >
                   Cancel
                 </button>
                 <button
-                  onClick={confirmClearChatHistory}
-                  className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition"
+                  onClick={() => {
+                    clearChatHistory();
+                    setShowClearChatConfirm(false);
+                  }}
+                  className="flex-1 px-4 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition shadow-md"
                 >
-                  Clear
+                  Yes, Clear
                 </button>
               </div>
             </div>
