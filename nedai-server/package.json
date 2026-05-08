@@ -5,7 +5,7 @@
     "start": "bun run src/server.ts",
     "dev": "bun run --hot src/server.ts",
     "dev:node": "node --watch src/server.ts",
-    "build": "tsc --noEmit",
+    "build": "bunx prisma migrate deploy && tsc --noEmit",
     "postinstall": "prisma generate",
     "generate": "prisma generate",
     "studio": "prisma studio",
