@@ -243,7 +243,6 @@ export function ChatInput({
             />
 
             <div className="flex flex-row items-center shrink-0 ml-2 h-[34px]">
-              <ContextUsageIndicator usage={contextUsage} />
               <button
                 disabled={!hasSendableText}
                 onClick={onSend}
@@ -263,50 +262,3 @@ export function ChatInput({
   );
 }
 
-const ContextUsageIndicator = ({ usage }: { usage: number }) => {
-  const size = 32;
-  const strokeWidth = 3;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (usage / 100) * circumference;
-
-  let color = "#10B981"; // Green
-  let textClass = "text-green-500";
-  if (usage > 80) {
-    color = "#EF4444"; // Red
-    textClass = "text-red-500";
-  } else if (usage > 50) {
-    color = "#F59E0B"; // Amber
-    textClass = "text-amber-500";
-  }
-
-  return (
-    <div className="relative w-8 h-8 mr-2 flex items-center justify-center select-none" title={`Context limit: ${usage}% used`}>
-      <svg width={size} height={size} className="transform -rotate-90">
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke="#E2E8F0"
-          strokeWidth={strokeWidth}
-          fill="none"
-        />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke={color}
-          strokeWidth={strokeWidth}
-          strokeDasharray={circumference}
-          strokeDashoffset={strokeDashoffset}
-          strokeLinecap="round"
-          fill="none"
-          className="transition-all duration-500 ease-in-out"
-        />
-      </svg>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <span className={`text-[9px] font-bold ${textClass}`}>{usage}</span>
-      </div>
-    </div>
-  );
-};

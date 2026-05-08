@@ -387,6 +387,8 @@ export const useChatStore = create<ChatStore>()(
                 set({ status: "idle", errorMessage: null });
                 useSyncStore.getState().markSynced();
                 resolve();
+              } else if (event.type === "error") {
+                reject(new Error(event.message || "Streaming failed"));
               }
             },
             (error) => {

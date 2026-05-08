@@ -63,6 +63,7 @@ export function pinChat(token: string, chatId: string, isPinned: boolean) {
 type StreamEvent =
   | { type: "init"; chat: any; userMessage: any; assistantMessage: any; contextUsage: number }
   | { type: "chunk"; content: string }
+  | { type: "error"; message: string }
   | { type: "done" };
 
 export function streamMessage(
