@@ -1,8 +1,6 @@
 // Chat Embedding Service for RAG-based chat memory
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { getEmbedding } from "@/lib/embedding";
-
-const prisma = new PrismaClient();
 
 export interface ChatEmbeddingData {
   userId: string;

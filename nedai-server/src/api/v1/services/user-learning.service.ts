@@ -1,7 +1,5 @@
 // User Learning Service - Extracts and stores user preferences from interactions
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export interface UserLearningUpdate {
   tone?: string;
