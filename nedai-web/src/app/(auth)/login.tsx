@@ -58,7 +58,7 @@ export default function LoginScreen() {
           </h1>
 
           <h2 className="mb-2 text-2xl font-bold text-slate-900 w-full text-center">
-            Welcome back
+            Welcome
           </h2>
           <p className="mb-10 px-4 text-center text-slate-500">
             Sign in to continue with your workspace.

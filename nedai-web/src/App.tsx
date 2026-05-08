@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import IntroScreen from './app/(auth)/intro';
 import LoginScreen from './app/(auth)/login';
 import SignupScreen from './app/(auth)/signup';
 import ForgotPasswordScreen from './app/(auth)/forgot-password';
@@ -19,6 +20,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* Auth Route */}
+        <Route path="/intro" element={<IntroScreen />} />
         <Route path="/login" element={<LoginScreen />} />
         <Route path="/signup" element={<SignupScreen />} />
         <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
@@ -36,8 +38,8 @@ function App() {
           <Route path="/admin" element={<AdminDashboard />} />
         </Route>
 
-        {/* Catch-all redirect to index (or login) */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* Catch-all redirect to index (or intro) */}
+        <Route path="*" element={<Navigate to="/intro" replace />} />
       </Routes>
     </BrowserRouter>
   );

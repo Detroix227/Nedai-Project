@@ -288,7 +288,7 @@ export const useAuthStore = create<AuthStore>()(
     }),
     {
       name: "nedai-auth-store",
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         user: state.user,
         accessToken: state.accessToken,
@@ -300,3 +300,9 @@ export const useAuthStore = create<AuthStore>()(
     },
   ),
 );
+
+if (typeof window !== "undefined") {
+  window.addEventListener("offline", () => {
+    useAuthStore.getState().logout();
+  });
+}

@@ -33,7 +33,7 @@ export default function AppLayout() {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace state={{ from: location }} />;
+    return <Navigate to="/intro" replace state={{ from: location }} />;
   }
 
   return <Outlet />;
