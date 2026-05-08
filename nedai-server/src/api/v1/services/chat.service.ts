@@ -36,6 +36,14 @@ import {
 } from "@/api/v1/services/user-context.service";
 import { getGeminiClient, GEMINI_CHAT_MODEL } from "@/lib/gemini";
 import { isAssessmentRequest } from "@/utils/assessment-intent.util";
+import {
+  createChatEmbedding,
+  buildHybridChatContext,
+} from "@/api/v1/services/chat-embedding.service";
+import {
+  analyzeUserInteraction,
+  getPersonalizedPromptModifier,
+} from "@/api/v1/services/user-learning.service";
 
 type PrismaLike = Pick<
   typeof prisma,
@@ -308,6 +316,15 @@ export class ChatServiceImpl {
       },
     });
 
+    // Create embedding for user message (async, non-blocking)
+    createChatEmbedding({
+      userId,
+      chatId: chat.id,
+      messageId: userMessage.id,
+      role: "user",
+      content: data.content,
+    }).catch(console.error);
+
     const nextTitle =
       chat.title === "New chat" ? buildChatTitle(data.content) : chat.title;
     chat = await this.prisma.chat.update({
@@ -319,19 +336,8 @@ export class ChatServiceImpl {
       },
     });
 
-    const history = await this.prisma.message.findMany({
-      where: {
-        chatId: chat.id,
-        NOT: {
-          id: userMessage.id,
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: this.historyLimit,
-    });
-    const orderedHistory = history.reverse();
+    // Use hybrid RAG context instead of just recent history
+    // This combines recent messages with semantically relevant older messages
     let retrievedChunks: RetrievedChunk[];
 
     const allUsedDocumentIds = await this.prisma.message
@@ -378,6 +384,9 @@ export class ChatServiceImpl {
       throw new ApiError(401, "Unauthorized");
     }
 
+    // Get personalized prompt modifier based on user learning profile
+    const personalization = await getPersonalizedPromptModifier(userId);
+
     const [timetableActivities, readyDocuments] = await Promise.all([
       this.prisma.timetableActivity.findMany({
         where: {
@@ -422,7 +431,7 @@ RULES:
 - Do not invent sources. Keep answers clear, educational, Markdown-formatted.
 - For quizzes/exams: generate directly in chat as Markdown, tell student to reply with answers.
 - Adapt tone based on the modality you selected.
-- CRITICAL: NEVER output metadata patterns like "Subject:", "Lesson:", "Path:", "Page:", "Similarity:", "Source X", or URLs from retrieved documents. Only output the actual educational content.`,
+- CRITICAL: NEVER output metadata patterns like "Subject:", "Lesson:", "Path:", "Page:", "Similarity:", "Source X", or URLs from retrieved documents. Only output the actual educational content.${personalization}`,
       },
       {
         role: "system" as const,
@@ -448,7 +457,8 @@ RULES:
         role: "system" as const,
         content: `Retrieved context:\n\n${buildContextBlock(retrievedChunks)}`,
       },
-      ...orderedHistory.map(mapHistoryMessage),
+      // Hybrid chat context: recent messages + semantically relevant RAG results
+      ...(await buildHybridChatContext(userId, chat.id, data.content, 5, 3)),
       {
         role: "user" as const,
         content: data.content,
@@ -481,6 +491,9 @@ RULES:
       client,
       promptMessages,
       assistantMessage.id,
+      userId,
+      chat.id,
+      data.content,
     );
 
     chat = await this.prisma.chat.update({
@@ -522,6 +535,9 @@ RULES:
     client: GeminiClientLike,
     promptMessages: any[],
     messageId: string,
+    userId: string,
+    chatId: string,
+    userQuery: string,
   ): AsyncGenerator<string, void, unknown> {
     try {
       const model = client.getGenerativeModel({
@@ -569,6 +585,19 @@ RULES:
         where: { id: messageId },
         data: { content: fullContent },
       });
+
+      // Create embedding for assistant response and analyze for learning
+      if (fullContent) {
+        await createChatEmbedding({
+          userId,
+          chatId,
+          messageId,
+          role: "assistant",
+          content: fullContent,
+        });
+
+        await analyzeUserInteraction(userId, userQuery, fullContent);
+      }
     } catch (error) {
       logChatStageError("streaming", error, { messageId });
       throw new ApiError(502, "AI streaming failed");

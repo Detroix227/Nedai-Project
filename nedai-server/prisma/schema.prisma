@@ -87,6 +87,8 @@ model User {
   chats              Chat[]
   chunks             DocumentChunk[]
   timetableActivities TimetableActivity[]
+  chatEmbeddings     ChatEmbedding[]
+  learningProfile    UserLearningProfile?
   passwordResetToken   String?
   passwordResetExpires DateTime?
 
@@ -161,6 +163,7 @@ model Chat {
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages Message[]
+  chatEmbeddings ChatEmbedding[]
 
   @@index([userId])
   @@index([isPinned])
@@ -178,6 +181,7 @@ model Message {
 
   chat     Chat       @relation(fields: [chatId], references: [id], onDelete: Cascade)
   document Documents? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  chatEmbeddings ChatEmbedding[]
 
   @@index([chatId])
   @@map("messages")
@@ -211,4 +215,44 @@ model Notification {
 
   @@index([userId, isRead])
   @@map("notifications")
+}
+
+model ChatEmbedding {
+  id          String   @id @default(uuid())
+  userId      String
+  chatId      String
+  messageId   String
+  role        String   // "user" or "assistant"
+  content     String   @db.Text
+  embedding   Unsupported("vector(1536)")? // For pgvector
+  metadata    Json?    // { topic, sentiment, keywords, etc. }
+  createdAt   DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chat    Chat    @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([chatId])
+  @@index([createdAt])
+  @@map("chat_embeddings")
+}
+
+model UserLearningProfile {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  // Learning preferences extracted from interactions
+  preferredTone   String?  // "reflective", "analytical", "guide", etc.
+  preferredDetail String?  // "concise", "detailed", "examples"
+  weakSubjects    String[] // Subjects user struggles with
+  strongSubjects  String[] // Subjects user excels at
+  studyPatterns   Json?    // { peakHours, sessionLength, breakFrequency }
+  emotionalProfile Json?   // { stressTopics, motivationTriggers }
+  lastUpdated     DateTime @updatedAt
+  createdAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("user_learning_profiles")
 }
