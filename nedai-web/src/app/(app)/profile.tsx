@@ -137,18 +137,11 @@ export default function ProfileScreen() {
   useEffect(() => {
     if (!user) return;
     setFullName(user.fullName);
-
-    // Load local extended profile data (temporary until backend supports these fields)
-    try {
-      const localProfile = JSON.parse(localStorage.getItem(`extendedProfile_${user.id}`) || "{}");
-      setAge(localProfile.age || "");
-      setMaritalStatus(localProfile.maritalStatus || "");
-      setAcademicLevel(localProfile.academicLevel || "");
-      setInstitutionalLevel(localProfile.institutionalLevel || "");
-      setFutureCareer(localProfile.futureCareer || "");
-    } catch (e) {
-      console.error(e);
-    }
+    setAge(user.age != null ? String(user.age) : "");
+    setMaritalStatus(user.maritalStatus ?? "");
+    setAcademicLevel(user.academicLevel ?? "");
+    setInstitutionalLevel(user.institutionalLevel ?? "");
+    setFutureCareer(user.futureCareer ?? "");
   }, [user]);
 
   async function handleSave() {
@@ -162,22 +155,15 @@ export default function ProfileScreen() {
     setLocalError(null);
 
     try {
-      // Save primary fields to backend
       await updateProfile({
         fullName,
-        institution: user?.institution ?? "N/A", // Required by backend schema but hidden in UI now
+        institution: user?.institution ?? undefined,
+        age: age ? Number(age) : null,
+        maritalStatus: maritalStatus || null,
+        academicLevel: academicLevel || null,
+        institutionalLevel: institutionalLevel || null,
+        futureCareer: futureCareer || null,
       });
-
-      // Save extended fields to local storage
-      if (user) {
-        localStorage.setItem(`extendedProfile_${user.id}`, JSON.stringify({
-          age,
-          maritalStatus,
-          academicLevel,
-          institutionalLevel,
-          futureCareer
-        }));
-      }
     } catch (error) {
       console.error("Profile update failed:", error);
     }

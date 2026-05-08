@@ -28,6 +28,11 @@ export type AuthUser = {
   dateOfBirth: string | null;
   lecturerHighestQualification: string | null;
   lecturerCurrentAcademicStage: string | null;
+  age: number | null;
+  maritalStatus: string | null;
+  academicLevel: string | null;
+  institutionalLevel: string | null;
+  futureCareer: string | null;
   profileCompletion: ProfileCompletion;
   createdAt: string;
   updatedAt: string;
