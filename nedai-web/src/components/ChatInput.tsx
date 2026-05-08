@@ -74,7 +74,7 @@ export function ChatInput({
   };
 
   return (
-    <div className={`px-4 pt-2 pb-6 bg-white dark:bg-slate-900 shrink-0 ${className}`}>
+    <div className={`px-4 pt-2 pb-6 bg-transparent shrink-0 ${className}`}>
       <div className="w-full max-w-4xl mx-auto flex flex-col relative">
         {selectedDocument && (
           <div className="flex flex-row items-center justify-between rounded-2xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/30 px-3 py-2.5 mb-3 w-fit">

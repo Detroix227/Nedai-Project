@@ -374,7 +374,7 @@ export default function HomeScreen() {
       title="Chat"
       onHistory={handleOpenHistory}
     >
-      <div className="flex flex-col h-full w-full max-w-6xl mx-auto drop-shadow-sm bg-white dark:bg-slate-900 border-l border-r border-slate-200 dark:border-slate-800 overflow-hidden">
+      <div className="flex flex-col h-full w-full max-w-4xl mx-auto overflow-hidden relative">
         {/* Scrollable message area */}
         <div className="flex-1 overflow-y-auto min-h-0">
           {hasConversation ? (
@@ -415,25 +415,27 @@ export default function HomeScreen() {
           accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
         />
 
-        <ChatInput
-          disabled={isSending}
-          value={composerText}
-          onChangeText={setComposerDraft}
-          onAttach={() => fileInputRef.current?.click()}
-          onAttachImage={() => imageInputRef.current?.click()}
-          onSend={handleSend}
-          helperText={helperText}
-          helperTone={helperTone}
-          selectedDocument={selectedDocument}
-          onClearSelectedDocument={() => {
-            setSelectedDocument(null);
-            setHelperState(null);
-          }}
-          showDocumentSuggestions={showDocumentSuggestions}
-          documentSuggestions={suggestionResults}
-          documentSuggestionStatus={documentSuggestionStatus}
-          onSelectDocument={handleSelectDocument}
-        />
+        <div className="p-4 md:px-8 md:pb-8 shrink-0 relative">
+          <ChatInput
+            disabled={isSending}
+            value={composerText}
+            onChangeText={setComposerDraft}
+            onAttach={() => fileInputRef.current?.click()}
+            onAttachImage={() => imageInputRef.current?.click()}
+            onSend={handleSend}
+            helperText={helperText}
+            helperTone={helperTone}
+            selectedDocument={selectedDocument}
+            onClearSelectedDocument={() => {
+              setSelectedDocument(null);
+              setHelperState(null);
+            }}
+            showDocumentSuggestions={showDocumentSuggestions}
+            documentSuggestions={suggestionResults}
+            documentSuggestionStatus={documentSuggestionStatus}
+            onSelectDocument={handleSelectDocument}
+          />
+        </div>
       </div>
     </AppShell>
   );

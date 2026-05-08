@@ -123,7 +123,7 @@ export default function TimetableScreen() {
     <AppShell
       title="Timetable"
     >
-      <div className="flex flex-col h-[calc(100vh-72px)] w-full max-w-6xl mx-auto p-6 overflow-y-auto">
+      <div className="flex flex-col h-[calc(100vh-72px)] w-full max-w-screen-2xl mx-auto p-6 overflow-y-auto">
         {/* Form Section */}
         <div className="rounded-3xl bg-white p-6 mb-6 shadow-sm border border-slate-100">
           <h1 className="text-xl font-semibold text-slate-900 mb-2">
@@ -235,9 +235,9 @@ export default function TimetableScreen() {
         </div>
 
         {/* Activities List */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 content-start pb-10 custom-scrollbar">
           {groupedActivities.map(({ day, items }) => (
-            <div key={day} className="mb-6">
+            <div key={day} className="flex flex-col">
               <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">
                 {labelForWeekday(day)}
               </h3>
