@@ -88,9 +88,7 @@ export default function HomeScreen() {
   );
   const loadChats = useChatStore((state) => state.loadChats);
   const sendMessage = useChatStore((state) => state.sendMessage);
-  const contextUsageByChatId = useChatStore(
-    (state) => state.contextUsageByChatId,
-  );
+
   const documents = useDocumentStore((state) => state.documents);
   const loadDocuments = useDocumentStore((state) => state.loadDocuments);
   const uploadDocument = useDocumentStore((state) => state.uploadDocument);
@@ -435,9 +433,6 @@ export default function HomeScreen() {
           documentSuggestions={suggestionResults}
           documentSuggestionStatus={documentSuggestionStatus}
           onSelectDocument={handleSelectDocument}
-          contextUsage={
-            activeThreadId ? (contextUsageByChatId[activeThreadId] ?? 0) : 0
-          }
         />
       </div>
     </AppShell>
