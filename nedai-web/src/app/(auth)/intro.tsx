@@ -1,81 +1,134 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, BrainCircuit, CalendarDays, GraduationCap } from 'lucide-react';
+import { Sparkles, BrainCircuit, CalendarDays, GraduationCap, ChevronRight } from 'lucide-react';
 
 export default function IntroScreen() {
   return (
-    <div className="flex-1 bg-white min-h-screen flex flex-col font-sans">
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-2xl mx-auto px-6 py-12 flex flex-col items-center">
-          
-          {/* Logo & Header */}
-          <div className="mb-6 h-24 w-24 flex items-center justify-center bg-blue-50 rounded-full shadow-sm">
+    <div className="flex-1 bg-slate-50 dark:bg-slate-950 min-h-screen flex flex-col font-sans">
+      
+      {/* Top Navbar */}
+      <nav className="w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800">
+        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-3">
             <img 
               src="/nedai-logo.png" 
               alt="NedAI Logo" 
-              className="w-16 h-16 object-contain"
+              className="w-10 h-10 object-contain"
             />
+            <span className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">NedAI</span>
           </div>
-          
-          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 text-center tracking-tight mb-4">
-            Welcome to <span className="text-blue-600">NedAI</span>
-          </h1>
-          
-          <p className="text-lg md:text-xl text-slate-500 text-center mb-12 max-w-lg">
-            Your personal AI-powered academic assistant. Upload materials, manage your schedule, and chat with your coursework.
-          </p>
-
-          {/* Features Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mb-14">
-            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-col items-center text-center">
-              <div className="bg-blue-100 p-3 rounded-full mb-4">
-                <BrainCircuit className="w-6 h-6 text-blue-600" />
-              </div>
-              <h3 className="text-lg font-bold text-slate-800 mb-2">Smart Chat</h3>
-              <p className="text-slate-500 text-sm">Ask questions and get instant, grounded answers from your uploaded documents.</p>
-            </div>
-
-            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-col items-center text-center">
-              <div className="bg-emerald-100 p-3 rounded-full mb-4">
-                <GraduationCap className="w-6 h-6 text-emerald-600" />
-              </div>
-              <h3 className="text-lg font-bold text-slate-800 mb-2">Knowledge Vault</h3>
-              <p className="text-slate-500 text-sm">A centralized, searchable library for all your PDFs, lecture notes, and study materials.</p>
-            </div>
-
-            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-col items-center text-center">
-              <div className="bg-amber-100 p-3 rounded-full mb-4">
-                <CalendarDays className="w-6 h-6 text-amber-600" />
-              </div>
-              <h3 className="text-lg font-bold text-slate-800 mb-2">AI Timetable</h3>
-              <p className="text-slate-500 text-sm">Automatically parse your schedule and stay on top of your classes and deadlines.</p>
-            </div>
-
-            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-col items-center text-center">
-              <div className="bg-purple-100 p-3 rounded-full mb-4">
-                <Sparkles className="w-6 h-6 text-purple-600" />
-              </div>
-              <h3 className="text-lg font-bold text-slate-800 mb-2">Instant Insights</h3>
-              <p className="text-slate-500 text-sm">Generates quizzes, summaries, and personalized study guides on demand.</p>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row w-full gap-4 max-w-md justify-center">
-            <Link 
-              to="/signup" 
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold h-14 rounded-xl flex items-center justify-center transition-colors shadow-sm"
-            >
-              Get Started
-            </Link>
+          <div className="flex items-center gap-2 sm:gap-4">
             <Link 
               to="/login" 
-              className="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-bold h-14 rounded-xl flex items-center justify-center transition-colors shadow-sm"
+              className="text-slate-600 dark:text-slate-300 font-semibold hover:text-slate-900 dark:hover:text-white transition px-4 py-2"
             >
               Sign In
             </Link>
+            <Link 
+              to="/signup" 
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-full transition shadow-sm"
+            >
+              Sign Up
+            </Link>
           </div>
-          
         </div>
+      </nav>
+
+      <div className="flex-1 overflow-y-auto custom-scrollbar">
+        {/* Hero Section */}
+        <section className="max-w-6xl mx-auto px-6 py-20 md:py-32 flex flex-col items-center text-center">
+          <h1 className="text-7xl md:text-9xl font-black text-slate-900 dark:text-white tracking-tighter mb-8">
+            <span className="bg-clip-text text-transparent bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400">
+              NedAI
+            </span>
+          </h1>
+          <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl leading-relaxed mb-12 font-medium">
+            Your personal AI-powered academic assistant. Automate your schedule, store your knowledge, and study smarter.
+          </p>
+          <Link 
+            to="/signup" 
+            className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-bold px-8 py-4 rounded-full flex items-center gap-2 transition transform hover:scale-105 shadow-xl text-lg"
+          >
+            Get Started for Free <ChevronRight size={20} strokeWidth={3} />
+          </Link>
+        </section>
+
+        {/* Detailed Sections */}
+        <section className="bg-white dark:bg-slate-900 py-24 border-y border-slate-200 dark:border-slate-800 shadow-sm">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="text-center mb-20">
+              <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6 tracking-tight">Everything you need to succeed</h2>
+              <p className="text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
+                Powerful tools designed specifically for students and educators to save time and boost productivity.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+              
+              {/* Feature 1 */}
+              <div className="flex flex-col">
+                <div className="w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-6 shadow-inner">
+                  <BrainCircuit className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Context-Aware AI Chat</h3>
+                <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Stop scrolling through hundreds of pages. Upload your lecture slides, notes, and textbooks, and let NedAI read them for you. Ask questions, request summaries, and get highly accurate answers grounded entirely in your own course materials. No more hallucinated facts.
+                </p>
+              </div>
+
+              {/* Feature 2 */}
+              <div className="flex flex-col">
+                <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-6 shadow-inner">
+                  <GraduationCap className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">The Knowledge Vault</h3>
+                <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
+                  A powerful, centralized storage system for your academic life. Keep all your PDFs, Word documents, and images organized in one place. NedAI automatically indexes everything you upload, making it instantly searchable and available for your AI chat sessions.
+                </p>
+              </div>
+
+              {/* Feature 3 */}
+              <div className="flex flex-col">
+                <div className="w-16 h-16 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-6 shadow-inner">
+                  <CalendarDays className="w-8 h-8 text-amber-600 dark:text-amber-400" />
+                </div>
+                <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Automated Timetable</h3>
+                <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Managing your schedule has never been easier. View your classes in a beautiful calendar interface. Best of all, you can simply upload an image or document of your class schedule, and NedAI will use vision processing to automatically extract and populate your timetable.
+                </p>
+              </div>
+
+              {/* Feature 4 */}
+              <div className="flex flex-col">
+                <div className="w-16 h-16 rounded-2xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-6 shadow-inner">
+                  <Sparkles className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+                </div>
+                <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Instant Generation</h3>
+                <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Prepare for exams with zero friction. Ask NedAI to generate multiple-choice quizzes, flashcards, and comprehensive study guides based on your specific curriculum. The AI adapts to your learning pace and focuses on the materials you provide.
+                </p>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* Footer CTA */}
+        <section className="bg-slate-50 dark:bg-slate-950 py-32 text-center px-6">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-8 tracking-tight">Ready to upgrade your workflow?</h2>
+          <Link 
+            to="/signup" 
+            className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold px-10 py-5 rounded-full transition transform hover:scale-105 shadow-xl text-xl"
+          >
+            Create Your Free Account
+          </Link>
+        </section>
+        
+        {/* Footer */}
+        <footer className="w-full bg-slate-900 text-slate-400 py-8 text-center border-t border-slate-800">
+          <p className="text-sm font-medium">© {new Date().getFullYear()} NedAI. All rights reserved.</p>
+        </footer>
+
       </div>
     </div>
   );
