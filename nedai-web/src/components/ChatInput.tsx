@@ -21,7 +21,6 @@ type Props = {
   documentSuggestions?: DocumentSummary[];
   documentSuggestionStatus?: DocumentSuggestionStatus;
   onSelectDocument?: (document: DocumentSummary) => void;
-  contextUsage?: number;
   className?: string;
 };
 
@@ -52,7 +51,6 @@ export function ChatInput({
   documentSuggestions = [],
   documentSuggestionStatus = "idle",
   onSelectDocument,
-  contextUsage = 0,
   className = "",
 }: Props) {
   const hasSendableText = value.trim().length > 0 && !disabled;
