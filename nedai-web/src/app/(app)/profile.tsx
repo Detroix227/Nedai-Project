@@ -171,7 +171,6 @@ export default function ProfileScreen() {
 
   function handleLogout() {
     logout();
-    window.location.href = "/login";
   }
 
   return (

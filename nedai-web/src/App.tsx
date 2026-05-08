@@ -38,7 +38,7 @@ function App() {
           <Route path="/admin" element={<AdminDashboard />} />
         </Route>
 
-        {/* Catch-all redirect to index (or intro) */}
+        {/* Catch-all: any unknown path → /intro */}
         <Route path="*" element={<Navigate to="/intro" replace />} />
       </Routes>
     </BrowserRouter>

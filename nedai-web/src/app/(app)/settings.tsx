@@ -66,7 +66,6 @@ export default function SettingsScreen() {
 
   function handleLogout() {
     logout();
-    window.location.href = "/login";
   }
 
   function handleProfileSettings() {

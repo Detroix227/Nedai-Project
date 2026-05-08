@@ -23,6 +23,7 @@ export default function AppLayout() {
 
   // Inactivity Auto-Logout (2 hours)
   const logout = useAuthStore((state) => state.logout);
+  const token = useAuthStore((state) => state.accessToken);
   useEffect(() => {
     if (!isAuthenticated) return;
 
@@ -46,6 +47,23 @@ export default function AppLayout() {
       events.forEach(event => document.removeEventListener(event, resetTimer));
     };
   }, [isAuthenticated, logout]);
+
+  // Heartbeat: update lastActiveAt every 5 minutes so the admin "online" counter is accurate
+  useEffect(() => {
+    if (!isAuthenticated || !token) return;
+
+    const ping = () => {
+      fetch('/api/v1/users/me/heartbeat', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch(() => { /* silent fail */ });
+    };
+
+    ping(); // ping immediately on mount
+    const intervalId = setInterval(ping, 5 * 60 * 1000); // every 5 minutes
+
+    return () => clearInterval(intervalId);
+  }, [isAuthenticated, token]);
 
   useEffect(() => {
     if (!isAuthenticated) {
