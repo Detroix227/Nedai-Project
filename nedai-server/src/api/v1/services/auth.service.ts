@@ -206,6 +206,26 @@ export class AuthServiceImpl {
       );
     }
 
+    if (data.age !== undefined) {
+      updateData.age = data.age;
+    }
+
+    if (data.maritalStatus !== undefined) {
+      updateData.maritalStatus = normalizeNullableString(data.maritalStatus);
+    }
+
+    if (data.academicLevel !== undefined) {
+      updateData.academicLevel = normalizeNullableString(data.academicLevel);
+    }
+
+    if (data.institutionalLevel !== undefined) {
+      updateData.institutionalLevel = normalizeNullableString(data.institutionalLevel);
+    }
+
+    if (data.futureCareer !== undefined) {
+      updateData.futureCareer = normalizeNullableString(data.futureCareer);
+    }
+
     return updateData;
   }
 

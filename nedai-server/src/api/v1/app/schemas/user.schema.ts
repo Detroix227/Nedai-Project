@@ -48,6 +48,11 @@ export const updateCurrentUserSchema = z
       .max(120, "Current academic stage must be 120 characters or fewer")
       .nullable()
       .optional(),
+    age: z.coerce.number().int().min(1).max(120).nullable().optional(),
+    maritalStatus: z.string().trim().max(50).nullable().optional(),
+    academicLevel: z.string().trim().max(100).nullable().optional(),
+    institutionalLevel: z.string().trim().max(100).nullable().optional(),
+    futureCareer: z.string().trim().max(150).nullable().optional(),
   })
   .strict()
   .refine((data) => Object.keys(data).length > 0, {
