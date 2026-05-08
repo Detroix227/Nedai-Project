@@ -5,7 +5,7 @@
     "start": "bun run src/server.ts",
     "dev": "bun run --hot src/server.ts",
     "dev:node": "node --watch src/server.ts",
-    "build": "bunx prisma migrate resolve --applied 20260508104247_add_user_learning_profiles 2>/dev/null || true && bunx prisma migrate resolve --applied 20260508104248_add_chat_embeddings 2>/dev/null || true && bunx prisma migrate deploy && tsc --noEmit",
+    "build": "bunx prisma migrate deploy && tsc --noEmit",
     "postinstall": "prisma generate",
     "generate": "prisma generate",
     "studio": "prisma studio",
