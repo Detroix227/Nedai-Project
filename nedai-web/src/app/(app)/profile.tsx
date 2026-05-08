@@ -23,10 +23,10 @@ function Section({
   };
   
   return (
-    <div className="mt-6 rounded-3xl bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden transition-all duration-300">
+    <div className="mt-6 rounded-3xl bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 transition-all duration-300">
       <button
         onClick={toggleCollapse}
-        className="w-full px-6 py-5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-200 group"
+        className="w-full px-6 py-5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-200 group rounded-3xl"
         type="button"
       >
         <div className="flex items-center space-x-3">
@@ -48,12 +48,12 @@ function Section({
           </div>
         </div>
       </button>
-      <div className={`transition-all duration-500 ease-in-out ${isCollapsed ? 'max-h-0 opacity-0 overflow-hidden' : 'opacity-100 max-h-[2000px]'}`}>
+      {!isCollapsed && (
         <div className="px-6 pb-6 pt-2">
           <div className="h-px w-full bg-slate-100 dark:bg-slate-800 mb-6" />
           {children}
         </div>
-      </div>
+      )}
     </div>
   );
 }
