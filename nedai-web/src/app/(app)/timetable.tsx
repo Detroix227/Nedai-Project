@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState, useRef } from "react";
-import { Trash2, ChevronLeft, ChevronRight, Upload, Plus, X, Loader2 } from "lucide-react";
+import { Trash2, ChevronLeft, ChevronRight, Upload, Plus, X, Loader2, ChevronDown } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useAuthStore } from "@/modules/auth/useAuthStore";
 import type { TimetableActivity, Weekday } from "@/modules/contracts";
 import { useTimetableStore } from "@/modules/timetable/useTimetableStore";
 
 const WEEKDAYS: Weekday[] = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
-const START_HOUR = 7; // 7 AM
-const END_HOUR = 21; // 9 PM
+const START_HOUR = 0; // 12 AM
+const END_HOUR = 23; // 11 PM
 const HOURS = Array.from({ length: END_HOUR - START_HOUR + 1 }, (_, i) => i + START_HOUR);
 const HOUR_HEIGHT = 80; // pixels
 
@@ -26,8 +26,10 @@ function getWeekDates(baseDate: Date) {
 }
 
 function formatHour(hour: number) {
-  const ampm = hour >= 12 ? 'PM' : 'AM';
-  const h = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+  if (hour === 0 || hour === 24) return '12 AM';
+  if (hour === 12) return '12 PM';
+  const ampm = hour > 12 ? 'PM' : 'AM';
+  const h = hour > 12 ? hour - 12 : hour;
   return `${h} ${ampm}`;
 }
 
@@ -152,9 +154,34 @@ export default function TimetableScreen() {
         {/* Toolbar */}
         <div className="flex flex-row items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800 shrink-0 bg-white dark:bg-slate-900 z-20">
           <div className="flex items-center space-x-4">
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 min-w-[200px]">
-              {monthYearStr}
-            </h1>
+            <div className="relative flex items-center min-w-[200px]">
+              <h1 
+                className="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 group cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition" 
+                onClick={() => {
+                  try {
+                    (document.getElementById('month-picker') as HTMLInputElement)?.showPicker?.();
+                  } catch (e) {
+                    // Fallback for browsers without showPicker
+                    document.getElementById('month-picker')?.focus();
+                  }
+                }}
+              >
+                {monthYearStr}
+                <ChevronDown size={20} className="opacity-50 group-hover:opacity-100 transition-opacity" />
+              </h1>
+              <input 
+                id="month-picker"
+                type="month" 
+                value={`${baseDate.getFullYear()}-${String(baseDate.getMonth() + 1).padStart(2, '0')}`}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    const [year, month] = e.target.value.split('-');
+                    setBaseDate(new Date(Number(year), Number(month) - 1, 1));
+                  }
+                }}
+                className="absolute inset-0 opacity-0 cursor-pointer w-[200px] pointer-events-none"
+              />
+            </div>
             <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
               <button onClick={handlePrevWeek} className="p-1.5 hover:bg-white dark:hover:bg-slate-700 rounded-md transition"><ChevronLeft size={20} className="text-slate-600 dark:text-slate-300" /></button>
               <button onClick={handleToday} className="px-3 py-1.5 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 rounded-md transition">Today</button>

@@ -21,6 +21,32 @@ export default function AppLayout() {
     }
   }, [hydrated, bootstrapped, bootstrapSession]);
 
+  // Inactivity Auto-Logout (2 hours)
+  const logout = useAuthStore((state) => state.logout);
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const INACTIVITY_LIMIT = 2 * 60 * 60 * 1000;
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    const resetTimer = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        logout();
+      }, INACTIVITY_LIMIT);
+    };
+
+    resetTimer();
+
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+    events.forEach(event => document.addEventListener(event, resetTimer));
+
+    return () => {
+      clearTimeout(timeoutId);
+      events.forEach(event => document.removeEventListener(event, resetTimer));
+    };
+  }, [isAuthenticated, logout]);
+
   useEffect(() => {
     if (!isAuthenticated) {
       resetChat();
