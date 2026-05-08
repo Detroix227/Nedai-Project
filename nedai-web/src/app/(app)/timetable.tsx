@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
-import { CalendarDays, Clock, Edit2, Trash2, ChevronLeft, ChevronRight, Upload, Plus, X, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState, useRef } from "react";
+import { Trash2, ChevronLeft, ChevronRight, Upload, Plus, X, Loader2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useAuthStore } from "@/modules/auth/useAuthStore";
 import type { TimetableActivity, Weekday } from "@/modules/contracts";
