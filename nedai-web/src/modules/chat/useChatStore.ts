@@ -323,7 +323,7 @@ export const useChatStore = create<ChatStore>()(
                     streamingContent += event.content;
                     set((state) => ({
                       draftMessages: state.draftMessages.map((m) =>
-                        m.id === optimisticAssistantId ? { ...m, content: streamingContent } : m
+                        m.id === optimisticAssistantMessage.id ? { ...m, content: streamingContent } : m
                       ),
                     }));
                   }
@@ -333,7 +333,7 @@ export const useChatStore = create<ChatStore>()(
             } else {
               set((state) => ({
                 draftMessages: state.draftMessages.map((m) =>
-                  m.id === optimisticAssistantId 
+                  m.id === optimisticAssistantMessage.id 
                     ? { ...m, content: "You are currently offline. Please check your connection to continue.", isError: true } 
                     : m
                 ),
