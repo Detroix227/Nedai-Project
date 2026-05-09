@@ -311,28 +311,39 @@ export const useChatStore = create<ChatStore>()(
           let realChatId: string | null = null;
           let realAssistantMessageId: string | null = null;
           let streamingContent = "";
-
           const isOnline = useConnectivityStore.getState().isOnline;
 
+          // --- OFFLINE / LOCAL MODE ---
           if (!isOnline) {
-                        ? { ...msg, content: streamingContent }
-                        : msg
-                    ),
-                  }));
-                } else if (event.type === "done") {
-                  set({ status: "idle", errorMessage: null });
-                  resolve();
-                }
-              },
-              (error) => {
-                set({ status: "error", errorMessage: "Local engine (Ollama) not responding." });
-                reject(error);
-              }
-            );
+            if (window.electronAPI) {
+              await streamLocalMessage(
+                { content: trimmed },
+                (event) => {
+                  if (event.type === "chunk") {
+                    streamingContent += event.content;
+                    set((state) => ({
+                      draftMessages: state.draftMessages.map((m) =>
+                        m.id === optimisticAssistantId ? { ...m, content: streamingContent } : m
+                      ),
+                    }));
+                  }
+                },
+                () => resolve()
+              );
+            } else {
+              set((state) => ({
+                draftMessages: state.draftMessages.map((m) =>
+                  m.id === optimisticAssistantId 
+                    ? { ...m, content: "You are currently offline. Please check your connection to continue.", isError: true } 
+                    : m
+                ),
+              }));
+              resolve();
+            }
             return;
           }
 
-          // ONLINE MODE: Use Render (Original Logic)
+          // --- ONLINE MODE (Render Server) ---
           ChatApi.streamMessage(
             token,
             {
