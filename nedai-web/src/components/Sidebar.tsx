@@ -76,7 +76,7 @@ export function Sidebar() {
     <>
       {/* Collapsed Sidebar */}
       {isSidebarCollapsed && (
-        <div className="w-16 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-col h-[100dvh] bg-slate-50/50 dark:bg-slate-900/50 sticky top-0 shrink-0 flex z-40">
+        <div className="w-16 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-col h-[100dvh] sticky top-0 shrink-0 flex z-40">
           <div className="flex-1 flex flex-col items-center py-4 space-y-4">
             {/* Hamburger Menu Button */}
             <button
@@ -183,7 +183,7 @@ export function Sidebar() {
             className="lg:hidden fixed inset-0 bg-slate-900/40 z-40 backdrop-blur-sm" 
             onClick={() => setSidebarCollapsed(true)}
           />
-          <aside className="w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col h-[100dvh] bg-slate-50/50 dark:bg-slate-900/50 fixed lg:sticky top-0 left-0 z-50 shrink-0 overflow-hidden shadow-2xl lg:shadow-none transition-transform">
+          <aside className="w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col h-[100dvh] fixed lg:sticky top-0 left-0 z-50 shrink-0 overflow-hidden shadow-2xl lg:shadow-none transition-transform">
           {/* Header - Fixed */}
           <div className="px-4 pt-4 pb-4 shrink-0">
             {/* Top Bar: Hamburger + Notification */}
