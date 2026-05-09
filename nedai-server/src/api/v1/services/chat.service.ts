@@ -340,6 +340,10 @@ export class ChatServiceImpl {
     // This combines recent messages with semantically relevant older messages
     let retrievedChunks: RetrievedChunk[];
 
+    // 1. Determine if we should perform retrieval
+    const isGreeting = /^(hi|hello|hey|greetings|morning|afternoon|evening)(\s|$)/i.test(data.content.trim());
+    const shouldRetrieve = data.content.trim().length > 10 && !isGreeting;
+
     const allUsedDocumentIds = await this.prisma.message
       .findMany({
         where: {
@@ -355,31 +359,35 @@ export class ChatServiceImpl {
       );
 
     try {
-      // HYBRID RETRIEVAL:
-      // We always search all documents to allow "Automatic Learning,"
-      // but if the user used a @ tag, we ensure that specific document
-      // gets more weight (higher topK).
-      const retrievalOptions = { 
-        documentIds: undefined, // Search across ALL ready documents
-        topK: selectedDocument ? Math.max(this.topK, 12) : this.topK, 
-        minScore: 0.25 
-      };
+      if (shouldRetrieve || selectedDocument) {
+        // HYBRID RETRIEVAL:
+        // We always search all documents to allow "Automatic Learning,"
+        // but if the user used a @ tag, we ensure that specific document
+        // gets more weight (higher topK).
+        const retrievalOptions = { 
+          documentIds: undefined, // Search across ALL ready documents
+          topK: selectedDocument ? Math.max(this.topK, 12) : this.topK, 
+          minScore: 0.25 
+        };
 
-      retrievedChunks = await this.retrievalService.retrieveRelevantChunks(
-        userId,
-        data.content,
-        retrievalOptions,
-      );
-
-      // If a document was specifically tagged, we do an extra "Deep Dive" 
-      // into that document and combine the results.
-      if (selectedDocument) {
-        const deepDiveChunks = await this.retrievalService.retrieveRelevantChunks(
+        retrievedChunks = await this.retrievalService.retrieveRelevantChunks(
           userId,
           data.content,
-          { documentId: selectedDocument.id, topK: 10, minScore: 0.1 }
+          retrievalOptions,
         );
-        retrievedChunks = [...retrievedChunks, ...deepDiveChunks];
+
+        // If a document was specifically tagged, we do an extra "Deep Dive" 
+        // into that document and combine the results.
+        if (selectedDocument) {
+          const deepDiveChunks = await this.retrievalService.retrieveRelevantChunks(
+            userId,
+            data.content,
+            { documentId: selectedDocument.id, topK: 10, minScore: 0.1 }
+          );
+          retrievedChunks = [...retrievedChunks, ...deepDiveChunks];
+        }
+      } else {
+        retrievedChunks = [];
       }
     } catch (error) {
       logChatStageError("retrieval", error, {
