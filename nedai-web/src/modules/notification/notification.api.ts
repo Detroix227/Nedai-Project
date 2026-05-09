@@ -1,5 +1,5 @@
 import { request } from "@/lib/http";
-import type { ApiResponse, ServerGetNotificationsResponse } from "@/modules/contracts";
+import type { ServerGetNotificationsResponse } from "@/modules/contracts";
 
 export async function getMyNotifications(token: string) {
   const data = await request<ServerGetNotificationsResponse>("/notifications", {
