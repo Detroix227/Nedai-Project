@@ -132,6 +132,7 @@ export default function ProfileScreen() {
   const [futureCareer, setFutureCareer] = useState("");
 
   const [localError, setLocalError] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [showClearChatConfirm, setShowClearChatConfirm] = useState(false);
 
   useEffect(() => {
@@ -146,6 +147,7 @@ export default function ProfileScreen() {
 
   async function handleSave() {
     clearError();
+    setShowSuccess(false);
 
     if (!fullName.trim()) {
       setLocalError("Name is required.");
@@ -164,6 +166,9 @@ export default function ProfileScreen() {
         institutionalLevel: institutionalLevel || null,
         futureCareer: futureCareer || null,
       });
+      setShowSuccess(true);
+      // Automatically hide the success message after 3 seconds
+      setTimeout(() => setShowSuccess(false), 3000);
     } catch (error) {
       console.error("Profile update failed:", error);
     }
@@ -274,10 +279,23 @@ export default function ProfileScreen() {
           </div>
         </Section>
 
+        {/* Success Message */}
+        {showSuccess && (
+          <div className="mt-6 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl flex items-center animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center mr-3 shrink-0">
+              <Check size={18} className="text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <p className="text-sm font-bold text-emerald-700 dark:text-emerald-300">Profile saved successfully!</p>
+          </div>
+        )}
+
         {/* Error Message */}
         {(localError || errorMessage) && (
-          <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl">
-            <p className="text-sm font-semibold text-red-600 dark:text-red-400">{localError || errorMessage}</p>
+          <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl flex items-center animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center mr-3 shrink-0">
+              <X size={18} className="text-red-600 dark:text-red-400" />
+            </div>
+            <p className="text-sm font-bold text-red-600 dark:text-red-400">{localError || errorMessage}</p>
           </div>
         )}
 
