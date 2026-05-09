@@ -12,14 +12,27 @@ export function NotificationBell() {
   
   const token = useAuthStore((state) => state.accessToken);
 
-  useEffect(() => {
+  const fetchNotifications = () => {
     if (!token) return;
-    
-    // Fetch notifications
     NotificationApi.getMyNotifications(token)
       .then((data) => setNotifications(data))
       .catch(console.error);
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+
+    // Background polling: check for new notifications every 30 seconds
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
   }, [token]);
+
+  const handleOpen = () => {
+    setIsOpen(!isOpen);
+    if (!isOpen) {
+      fetchNotifications(); // Refresh when opening
+    }
+  };
 
   useEffect(() => {
     // Click outside to close
@@ -49,7 +62,7 @@ export function NotificationBell() {
   return (
     <div className="relative" ref={dropdownRef}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleOpen}
         className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition relative"
       >
         <Bell size={24} className="text-slate-600 dark:text-slate-400" strokeWidth={2} />
