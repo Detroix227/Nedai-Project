@@ -315,25 +315,6 @@ export const useChatStore = create<ChatStore>()(
           const isOnline = useConnectivityStore.getState().isOnline;
 
           if (!isOnline) {
-            // OFFLINE MODE: Use local Ollama
-            await streamLocalMessage(
-              { content: trimmed },
-              (event) => {
-                if (event.type === "chunk") {
-                  streamingContent += event.content;
-                  // In local mode, we reuse the optimistic placeholder
-                  set((state) => ({
-                    messagesByChatId: {
-                      ...state.messagesByChatId,
-                      [optimisticChatId]: (state.messagesByChatId[optimisticChatId] ?? []).map(
-                        (msg) =>
-                          msg.id === optimisticAssistantMessage.id
-                            ? { ...msg, content: streamingContent }
-                            : msg,
-                      ),
-                    },
-                    draftMessages: state.draftMessages.map((msg) =>
-                      msg.id === optimisticAssistantMessage.id
                         ? { ...msg, content: streamingContent }
                         : msg
                     ),
