@@ -90,6 +90,7 @@ export async function notifyUsers(c: Context) {
         message: message,
       }));
 
+      console.log(`[admin] Sending in-app notifications to ${users.length} users: ${users.map(u => u.email).join(', ')}`);
       await prisma.notification.createMany({
         data: notifications,
       });

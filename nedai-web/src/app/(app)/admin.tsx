@@ -35,13 +35,19 @@ export default function AdminDashboard() {
     e.preventDefault();
     if (!token) return;
     setSending(true);
-    setSuccessMsg("");
     try {
       const userIds = selectedUserIds.size > 0 ? Array.from(selectedUserIds) : undefined;
       await AdminApi.notifyUsers(token, { subject, message, target, userIds });
-      setSuccessMsg(`Notifications sent to ${userIds?.length ?? users.length} user(s) successfully!`);
+      
+      const targetCount = userIds ? userIds.length : users.length;
+      const targetNames = userIds 
+        ? users.filter(u => userIds.includes(u.id)).map(u => u.fullName).join(", ")
+        : "All Users";
+      
+      setSuccessMsg(`Successfully notified ${targetCount} user(s): ${targetNames}`);
       setSubject("");
       setMessage("");
+      setSelectedUserIds(new Set()); // Reset selection after send
     } catch (error) {
       console.error(error);
       alert("Failed to send notification");
@@ -201,14 +207,15 @@ export default function AdminDashboard() {
                     const isSelected = selectedUserIds.has(u.id);
                     
                     return (
-                      <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                      <tr 
+                        key={u.id} 
+                        onClick={() => toggleUserSelection(u.id)}
+                        className={`hover:bg-slate-50 dark:hover:bg-slate-700/50 transition cursor-pointer ${isSelected ? 'bg-blue-50/30 dark:bg-blue-900/10' : ''}`}
+                      >
                         <td className="px-6 py-4">
-                          <button
-                            onClick={() => toggleUserSelection(u.id)}
-                            className="text-slate-400 hover:text-blue-600 transition"
-                          >
+                          <div className="text-slate-400 hover:text-blue-600 transition">
                             {isSelected ? <CheckSquare size={20} className="text-blue-600" /> : <Square size={20} />}
-                          </button>
+                          </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="font-semibold text-slate-900 dark:text-slate-100">{u.fullName}</div>
