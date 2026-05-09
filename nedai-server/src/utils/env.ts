@@ -38,6 +38,8 @@ export const env = {
   R2_SECRET_ACCESS_KEY: process.env.R2_SECRET_ACCESS_KEY,
   R2_BUCKET_NAME: process.env.R2_BUCKET_NAME,
   R2_PUBLIC_URL: process.env.R2_PUBLIC_URL,
+  // UploadThing
+  UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
   // Email
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   APP_URL: process.env.APP_URL || "http://localhost:5173",

@@ -6,10 +6,12 @@
     "target": "ES2023",
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "types": ["bun"],
     "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     }
-  }
+  },
+  "exclude": ["node_modules", "src/**/*.test.ts"]
 }
