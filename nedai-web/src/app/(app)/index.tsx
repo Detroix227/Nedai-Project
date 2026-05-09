@@ -1,5 +1,4 @@
-import { Sparkles } from "lucide-react";
-import React, {
+import {
   useEffect,
   useMemo,
   useRef,
