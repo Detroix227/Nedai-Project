@@ -17,6 +17,7 @@ enum UserRole {
   STUDENT
   LECTURER
   ADMIN
+  OTHER
 }
 
 enum DocumentStatus {

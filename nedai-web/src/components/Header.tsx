@@ -1,6 +1,7 @@
 import { History, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/modules/auth/useAuthStore";
+import { useConnectivityStore } from "@/modules/connectivity/useConnectivityStore";
 
 export function Header({
   title,
@@ -11,6 +12,7 @@ export function Header({
 }) {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
+  const isOnline = useConnectivityStore((state) => state.isOnline);
   const displayName = user?.fullName || user?.email || "NedAI User";
   const initials = displayName.slice(0, 1).toUpperCase();
   
@@ -34,6 +36,19 @@ export function Header({
       </div>
 
       <div className="flex flex-row items-center gap-2">
+        {/* Brain Status Pill */}
+        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all duration-500 ${isOnline
+            ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
+            : 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
+          }`}>
+          <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-amber-500 animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.5)]'
+            }`} />
+          <span className={`text-[11px] font-bold uppercase tracking-wider ${isOnline ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'
+            }`}>
+            {isOnline ? 'Cloud Brain' : 'Local Brain (Phi-3)'}
+          </span>
+        </div>
+
         {onHistory && (
           <button
             onClick={onHistory}

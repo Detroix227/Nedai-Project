@@ -12,6 +12,8 @@ import {
   ShieldAlert,
   Moon,
   Sun,
+  Database,
+  Cpu,
 } from "lucide-react";
 
 import { useChatStore } from "@/modules/chat/useChatStore";
@@ -110,6 +112,29 @@ export function Sidebar() {
                     <Icon
                       size={18}
                       className={isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400"}
+                      strokeWidth={2}
+                    />
+                  </button>
+                );
+              })}
+
+              <div className="w-8 h-px bg-slate-200 dark:bg-slate-700 my-1" />
+
+              {LOCAL_TOOLS.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.href;
+
+                return (
+                  <button
+                    key={item.key}
+                    onClick={() => navigate(item.href)}
+                    className={`p-3 rounded-xl transition ${isActive ? "bg-amber-50 dark:bg-amber-900/30" : "hover:bg-slate-100 dark:hover:bg-slate-800"
+                      }`}
+                    title={item.label}
+                  >
+                    <Icon
+                      size={18}
+                      className={isActive ? "text-amber-600 dark:text-amber-400" : "text-slate-500 dark:text-slate-400"}
                       strokeWidth={2}
                     />
                   </button>
@@ -254,6 +279,42 @@ export function Sidebar() {
                 </button>
               );
             })}
+
+            <div className="mt-6">
+              <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                Local Intelligence
+              </h3>
+              {LOCAL_TOOLS.map((item) => {
+                const Icon = item.icon;
+                const isActive = activePath === item.href;
+
+                return (
+                  <button
+                    key={item.key}
+                    onClick={() => {
+                      navigate(item.href);
+                      handleMobileNav();
+                    }}
+                    className={`w-full mb-1 flex flex-row items-center rounded-xl p-3 transition ${isActive ? "bg-amber-50 dark:bg-amber-900/30" : "hover:bg-slate-100 dark:hover:bg-slate-800"
+                      }`}
+                  >
+                    <div className={`p-1.5 rounded-lg ${isActive ? 'bg-amber-100 dark:bg-amber-800/40' : 'bg-slate-100 dark:bg-slate-800'}`}>
+                      <Icon
+                        size={16}
+                        className={isActive ? "text-amber-600 dark:text-amber-400" : "text-slate-500 dark:text-slate-400"}
+                        strokeWidth={2.5}
+                      />
+                    </div>
+                    <span
+                      className={`ml-3 text-sm ${isActive ? "font-semibold text-amber-700 dark:text-amber-400" : "text-slate-700 dark:text-slate-300 font-medium"
+                        }`}
+                    >
+                      {item.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Recent Chats - Scrollable */}

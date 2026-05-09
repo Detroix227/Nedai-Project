@@ -10,6 +10,8 @@ import type {
   SendChatMessagePayload,
 } from "@/modules/contracts";
 import { useSyncStore } from "@/modules/sync/useSyncStore";
+import { useConnectivityStore } from "@/modules/connectivity/useConnectivityStore";
+import { streamLocalMessage } from "@/modules/chat/chat.local.api";
 
 const EMPTY_ARRAY: any[] = [];
 
@@ -310,6 +312,46 @@ export const useChatStore = create<ChatStore>()(
           let realAssistantMessageId: string | null = null;
           let streamingContent = "";
 
+          const isOnline = useConnectivityStore.getState().isOnline;
+
+          if (!isOnline) {
+            // OFFLINE MODE: Use local Ollama
+            await streamLocalMessage(
+              { content: trimmed },
+              (event) => {
+                if (event.type === "chunk") {
+                  streamingContent += event.content;
+                  // In local mode, we reuse the optimistic placeholder
+                  set((state) => ({
+                    messagesByChatId: {
+                      ...state.messagesByChatId,
+                      [optimisticChatId]: (state.messagesByChatId[optimisticChatId] ?? []).map(
+                        (msg) =>
+                          msg.id === optimisticAssistantMessage.id
+                            ? { ...msg, content: streamingContent }
+                            : msg,
+                      ),
+                    },
+                    draftMessages: state.draftMessages.map((msg) =>
+                      msg.id === optimisticAssistantMessage.id
+                        ? { ...msg, content: streamingContent }
+                        : msg
+                    ),
+                  }));
+                } else if (event.type === "done") {
+                  set({ status: "idle", errorMessage: null });
+                  resolve();
+                }
+              },
+              (error) => {
+                set({ status: "error", errorMessage: "Local engine (Ollama) not responding." });
+                reject(error);
+              }
+            );
+            return;
+          }
+
+          // ONLINE MODE: Use Render (Original Logic)
           ChatApi.streamMessage(
             token,
             {

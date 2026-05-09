@@ -1,0 +1,4 @@
+Things i should note when working on my ai 
+
+The responses that are being called from the RAG should start with "according to the" when needed 
+i should construct a data map and aa proper chain for retrival(how it responds)
