@@ -1,7 +1,14 @@
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { Sparkles, BrainCircuit, CalendarDays, GraduationCap, ChevronRight } from 'lucide-react';
+import { useAuthStore } from '@/modules/auth/useAuthStore';
 
 export default function IntroScreen() {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  if (isAuthenticated) {
+    return <Navigate to="/chat" replace />;
+  }
+
   return (
     <div className="flex-1 bg-slate-50 dark:bg-slate-950 min-h-screen flex flex-col font-sans">
       

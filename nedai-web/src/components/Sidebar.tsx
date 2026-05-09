@@ -24,7 +24,7 @@ const STUDY_TOOLS = [
   {
     key: "chat",
     label: "Chat",
-    href: "/",
+    href: "/chat",
     icon: MessageSquare,
   },
   {
@@ -66,7 +66,7 @@ export function Sidebar() {
   };
 
   function handleSelectRecentThread(threadId: string) {
-    navigate("/");
+    navigate("/chat");
     void selectThread(threadId);
     handleMobileNav();
   }
@@ -203,7 +203,7 @@ export function Sidebar() {
             <button
               onClick={() => {
                 startFreshChat();
-                navigate("/");
+                navigate("/chat");
                 setCurrentSection('chat');
                 handleMobileNav();
               }}

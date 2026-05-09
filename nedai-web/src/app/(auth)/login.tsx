@@ -35,7 +35,7 @@ export default function LoginScreen() {
     setLocalError(null);
     try {
       await signIn({ email, password });
-      navigate("/");
+      navigate("/chat");
     } catch {}
   }
 

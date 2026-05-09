@@ -19,8 +19,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Auth Route */}
-        <Route path="/intro" element={<IntroScreen />} />
+        {/* Public Route */}
+        <Route path="/" element={<IntroScreen />} />
         <Route path="/login" element={<LoginScreen />} />
         <Route path="/signup" element={<SignupScreen />} />
         <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
@@ -28,7 +28,7 @@ function App() {
         
         {/* Protected App Routes */}
         <Route element={<AppLayout />}>
-          <Route path="/" element={<HomeScreen />} />
+          <Route path="/chat" element={<HomeScreen />} />
           <Route path="/knowledge-vault" element={<KnowledgeVaultScreen />} />
           <Route path="/timetable" element={<TimetableScreen />} />
           <Route path="/profile" element={<ProfileScreen />} />

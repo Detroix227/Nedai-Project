@@ -28,7 +28,7 @@ export default function AdminDashboard() {
   }, [user, token]);
 
   if (user?.role !== "ADMIN") {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/chat" replace />;
   }
 
   const handleNotify = async (e: React.FormEvent) => {
@@ -79,7 +79,7 @@ export default function AdminDashboard() {
             <p className="mt-2 text-slate-500 dark:text-slate-400">Manage users and send announcements.</p>
           </div>
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/chat")}
             className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-sm font-medium"
           >
             <ArrowLeft size={18} />

@@ -52,7 +52,7 @@ export default function SignupScreen() {
 
     try {
       await signUp({ fullName, role, email, password });
-      navigate("/");
+      navigate("/chat");
     } catch {}
   }
 
