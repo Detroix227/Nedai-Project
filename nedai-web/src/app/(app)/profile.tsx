@@ -132,6 +132,7 @@ export default function ProfileScreen() {
   const [futureCareer, setFutureCareer] = useState("");
 
   const [localError, setLocalError] = useState<string | null>(null);
+  const [localInfo, setLocalInfo] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showClearChatConfirm, setShowClearChatConfirm] = useState(false);
 
@@ -148,13 +149,28 @@ export default function ProfileScreen() {
   async function handleSave() {
     clearError();
     setShowSuccess(false);
+    setLocalInfo(null);
+    setLocalError(null);
 
     if (!fullName.trim()) {
       setLocalError("Name is required.");
       return;
     }
 
-    setLocalError(null);
+    // Check if any changes were actually made
+    const hasChanges = 
+      fullName !== user?.fullName ||
+      (age ? Number(age) : null) !== (user?.age ?? null) ||
+      maritalStatus !== (user?.maritalStatus ?? "") ||
+      academicLevel !== (user?.academicLevel ?? "") ||
+      institutionalLevel !== (user?.institutionalLevel ?? "") ||
+      futureCareer !== (user?.futureCareer ?? "");
+
+    if (!hasChanges) {
+      setLocalInfo("No changes were made.");
+      setTimeout(() => setLocalInfo(null), 3000);
+      return;
+    }
 
     try {
       await updateProfile({
@@ -286,6 +302,16 @@ export default function ProfileScreen() {
               <Check size={18} className="text-emerald-600 dark:text-emerald-400" />
             </div>
             <p className="text-sm font-bold text-emerald-700 dark:text-emerald-300">Profile saved successfully!</p>
+          </div>
+        )}
+
+        {/* Info Message (No changes) */}
+        {localInfo && (
+          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl flex items-center animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center mr-3 shrink-0">
+              <User size={18} className="text-blue-600 dark:text-blue-400" />
+            </div>
+            <p className="text-sm font-bold text-blue-700 dark:text-blue-300">{localInfo}</p>
           </div>
         )}
 
