@@ -313,38 +313,26 @@ export const useChatStore = create<ChatStore>()(
           let streamingContent = "";
           const isOnline = useConnectivityStore.getState().isOnline;
 
-          // --- OFFLINE / LOCAL MODE ---
-          if (!isOnline) {
-            if (window.electronAPI) {
-              await streamLocalMessage(
-                { content: trimmed },
-                (event) => {
-                  if (event.type === "chunk") {
-                    streamingContent += event.content;
-                    set((state) => ({
-                      draftMessages: state.draftMessages.map((m) =>
-                        m.id === optimisticAssistantMessage.id ? { ...m, content: streamingContent } : m
-                      ),
-                    }));
-                  }
-                },
-                () => resolve()
-              );
-            } else {
-              set((state) => ({
-                status: "idle", // Stop the "Replying..." indicator
-                draftMessages: state.draftMessages.map((m) =>
-                  m.id === optimisticAssistantMessage.id 
-                    ? { ...m, content: "You are currently offline. Please check your connection to continue.", isError: true } 
-                    : m
-                ),
-              }));
-              resolve();
-            }
+          // --- OFFLINE / LOCAL PIVOT (Desktop Only) ---
+          if (!isOnline && window.electronAPI) {
+            await streamLocalMessage(
+              { content: trimmed },
+              (event) => {
+                if (event.type === "chunk") {
+                  streamingContent += event.content;
+                  set((state) => ({
+                    draftMessages: state.draftMessages.map((m) =>
+                      m.id === optimisticAssistantMessage.id ? { ...m, content: streamingContent } : m
+                    ),
+                  }));
+                }
+              },
+              () => resolve()
+            );
             return;
           }
 
-          // --- ONLINE MODE (Render Server) ---
+          // --- CLOUD MODE (Web and Online Desktop) ---
           ChatApi.streamMessage(
             token,
             {
