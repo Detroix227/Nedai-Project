@@ -28,8 +28,9 @@ function getNumberEnv(name: string, fallback: number): number {
 
 export const env = {
   DATABASE_URL: process.env.DATABASE_URL,
-  GROQ_API_KEY: process.env.GROQ_API_KEY,
-  GROQ_CHAT_MODEL: process.env.GROQ_CHAT_MODEL || "openai/gpt-oss-20b",
+  // GROQ - COMMENTED OUT, USING GEMINI INSTEAD
+  // GROQ_API_KEY: process.env.GROQ_API_KEY,
+  // GROQ_CHAT_MODEL: process.env.GROQ_CHAT_MODEL || "openai/gpt-oss-20b",
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   GEMINI_API_KEY: process.env.GEMINI_API_KEY,
   // Cloudflare R2 storage
