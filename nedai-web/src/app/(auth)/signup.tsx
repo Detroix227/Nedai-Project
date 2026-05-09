@@ -37,8 +37,8 @@ export default function SignupScreen() {
 
   useEffect(() => {
     // Initialize Google Identity Services
-    if (window.google) {
-      window.google.accounts.id.initialize({
+    if ((window as any).google) {
+      (window as any).google.accounts.id.initialize({
         client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || "",
         callback: handleGoogleResponse,
       });
@@ -91,7 +91,7 @@ export default function SignupScreen() {
       alert("Google Client ID is not configured. Please add VITE_GOOGLE_CLIENT_ID to your .env file.");
       return;
     }
-    window.google?.accounts.id.prompt();
+    (window as any).google?.accounts.id.prompt();
   };
 
   return (

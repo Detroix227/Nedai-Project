@@ -93,4 +93,4 @@ async function queryHenry(queryText, limit = 3) {
   return `CONTEXT FROM LOCAL DOCUMENTS:\n${context}`;
 }
 
-module.exports = { initEngine, ingestPDF, queryHenry };
+module.exports = { initEngine, ingestFile, queryHenry };
