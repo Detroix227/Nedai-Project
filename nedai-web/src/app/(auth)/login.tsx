@@ -5,7 +5,7 @@ import { useAuthStore } from "@/modules/auth/useAuthStore";
 import { useUIStore } from "@/modules/ui/useUIStore";
 
 function isValidEmail(value: string) {
-  return /^[^\s@]+@gmail\.com$/.test(value.trim().toLowerCase());
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
 
 export default function LoginScreen() {
@@ -39,7 +39,7 @@ export default function LoginScreen() {
       return;
     }
     if (!isValidEmail(email)) {
-      setLocalError("Only @gmail.com addresses are allowed.");
+      setLocalError("Enter a valid email address.");
       return;
     }
     setLocalError(null);
