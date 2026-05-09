@@ -5,7 +5,7 @@ import { useAuthStore } from "@/modules/auth/useAuthStore";
 import { useUIStore } from "@/modules/ui/useUIStore";
 
 function isValidEmail(value: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+  return /^[^\s@]+@gmail\.com$/.test(value.trim().toLowerCase());
 }
 
 export default function LoginScreen() {
@@ -39,7 +39,7 @@ export default function LoginScreen() {
       return;
     }
     if (!isValidEmail(email)) {
-      setLocalError("Enter a valid email address.");
+      setLocalError("Only @gmail.com addresses are allowed.");
       return;
     }
     setLocalError(null);
@@ -48,6 +48,11 @@ export default function LoginScreen() {
       navigate("/chat");
     } catch {}
   }
+
+  const handleGoogleSignIn = () => {
+    // Placeholder for Google OAuth logic
+    alert("Google Sign-In will be available soon!");
+  };
 
   return (
     <main className="flex-1 bg-white dark:bg-slate-950 min-h-screen flex flex-col transition-colors duration-300">
@@ -83,7 +88,7 @@ export default function LoginScreen() {
                 <Mail className="w-5 h-5 text-slate-500 dark:text-slate-400" />
                 <input
                   type="email"
-                  placeholder="name@email.com"
+                  placeholder="yourname@gmail.com"
                   className="ml-3 flex-1 text-base text-slate-900 dark:text-white bg-transparent outline-none w-full"
                   value={email}
                   onChange={(e) => {
@@ -147,6 +152,22 @@ export default function LoginScreen() {
               </span>
             </button>
           </form>
+
+          <div className="w-full flex items-center my-6">
+            <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+            <span className="px-4 text-sm font-medium text-slate-500 dark:text-slate-400">OR</span>
+            <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+          </div>
+
+          <button
+            onClick={handleGoogleSignIn}
+            className="w-full h-14 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors shadow-sm"
+          >
+            <img src="/google-logo.png" alt="Google" className="w-5 h-5 mr-3" />
+            <span className="text-base font-bold text-slate-700 dark:text-slate-300">
+              Continue with Google
+            </span>
+          </button>
 
           <div className="mb-6 mt-10 flex flex-row items-center gap-1 justify-center w-full">
             <span className="text-slate-500 dark:text-slate-400">
