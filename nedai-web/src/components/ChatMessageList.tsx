@@ -75,21 +75,6 @@ export function ChatMessageList({ messages }: Props) {
                   ) : (
                     <MarkdownMessage content={message.content} />
                   )}
-                  
-                  {message.sources?.length ? (
-                    <div className="mt-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4 flex flex-col gap-3">
-                      {message.sources.map((source, index) => (
-                        <div key={`${message.id}-${index}`}>
-                          <p className="text-slate-900 dark:text-slate-100 text-sm font-bold">{source.subject}</p>
-                          <p className="text-slate-700 dark:text-slate-300 text-sm mt-0.5">{source.lessonTitle}</p>
-                          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
-                            {source.sourcePath}
-                            {source.pageNumber !== undefined ? ` • Page ${source.pageNumber}` : ""}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  ) : null}
                 </div>
               </div>
             )}
