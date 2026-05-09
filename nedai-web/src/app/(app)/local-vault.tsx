@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FileText, Trash2, FileUp, Cpu, HardDrive } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 
 export default function LocalVaultScreen() {
-  const [files, setFiles] = useState<{name: string, chunks: number}[]>([]);
-  const [isIngesting, setIsIngesting] = useState(false);
+  const [files, _setFiles] = useState<{name: string, chunks: number}[]>([]);
+  const [isIngesting, _setIsIngesting] = useState(false);
 
   // In a real scenario, we'd fetch this from the electron engine
   // For now, it's a demonstration of the local ingestion flow

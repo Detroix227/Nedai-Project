@@ -36,6 +36,8 @@ type ChatStore = {
   deleteChat: (chatId: string) => Promise<void>;
   renameChat: (chatId: string, title: string) => Promise<void>;
   pinChat: (chatId: string, isPinned: boolean) => Promise<void>;
+  toggleLocalBrain: () => void;
+  isLocalBrainEnabled: boolean;
   messagesForActiveThread: () => ChatMessage[];
   clearError: () => void;
   reset: () => void;
@@ -147,6 +149,7 @@ export const useChatStore = create<ChatStore>()(
       messagesByChatId: {},
       loadedChatIds: [],
       contextUsageByChatId: {},
+      isLocalBrainEnabled: false,
       loadChats: async () => {
         set({
           status: "loading",
@@ -312,9 +315,10 @@ export const useChatStore = create<ChatStore>()(
           let realAssistantMessageId: string | null = null;
           let streamingContent = "";
           const isOnline = useConnectivityStore.getState().isOnline;
+          const isLocalBrainEnabled = get().isLocalBrainEnabled;
 
           // --- OFFLINE / LOCAL PIVOT (Desktop Only) ---
-          if (!isOnline && window.electronAPI) {
+          if ((!isOnline || isLocalBrainEnabled) && window.electronAPI) {
             await streamLocalMessage(
               { content: trimmed },
               (event) => {
@@ -552,6 +556,7 @@ export const useChatStore = create<ChatStore>()(
           throw error;
         }
       },
+      toggleLocalBrain: () => set((state) => ({ isLocalBrainEnabled: !state.isLocalBrainEnabled })),
       messagesForActiveThread: () => {
         const state = get();
         const threadId = state.activeThreadId;

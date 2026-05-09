@@ -88,7 +88,7 @@ export default function HomeScreen() {
   );
   const loadChats = useChatStore((state) => state.loadChats);
   const sendMessage = useChatStore((state) => state.sendMessage);
-
+  
   const documents = useDocumentStore((state) => state.documents);
   const loadDocuments = useDocumentStore((state) => state.loadDocuments);
   const uploadDocument = useDocumentStore((state) => state.uploadDocument);
@@ -440,3 +440,4 @@ export default function HomeScreen() {
     </AppShell>
   );
 }
+

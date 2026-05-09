@@ -13,7 +13,6 @@ import SettingsScreen from './app/(app)/settings';
 import AdminDashboard from './app/(app)/admin';
 import ChangePasswordScreen from './app/(app)/change-password';
 import NotificationsScreen from './app/(app)/notifications';
-import LocalVaultScreen from './app/(app)/local-vault';
 import './index.css';
 
 function App() {
@@ -31,7 +30,6 @@ function App() {
         <Route element={<AppLayout />}>
           <Route path="/chat" element={<HomeScreen />} />
           <Route path="/knowledge-vault" element={<KnowledgeVaultScreen />} />
-          <Route path="/local-vault" element={<LocalVaultScreen />} />
           <Route path="/timetable" element={<TimetableScreen />} />
           <Route path="/profile" element={<ProfileScreen />} />
           <Route path="/settings" element={<SettingsScreen />} />
