@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useAuthStore } from "@/modules/auth/useAuthStore";
+import { useUIStore } from "@/modules/ui/useUIStore";
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
@@ -13,6 +14,15 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const theme = useUIStore((state) => state.theme);
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
   
   const signIn = useAuthStore((state) => state.signIn);
   const clearError = useAuthStore((state) => state.clearError);
@@ -40,7 +50,7 @@ export default function LoginScreen() {
   }
 
   return (
-    <main className="flex-1 bg-white min-h-screen flex flex-col">
+    <main className="flex-1 bg-white dark:bg-slate-950 min-h-screen flex flex-col transition-colors duration-300">
       <div className="flex-1 overflow-y-auto">
         <div className="flex-1 flex flex-col items-center px-6 pb-10 pt-10 max-w-md mx-auto">
           
@@ -53,28 +63,28 @@ export default function LoginScreen() {
             />
           </div>
 
-          <h1 className="mb-10 text-3xl font-bold text-slate-900">
+          <h1 className="mb-10 text-3xl font-bold text-slate-900 dark:text-white">
             NedAI
           </h1>
 
-          <h2 className="mb-2 text-2xl font-bold text-slate-900 w-full text-center">
+          <h2 className="mb-2 text-2xl font-bold text-slate-900 dark:text-white w-full text-center">
             Welcome
           </h2>
-          <p className="mb-10 px-4 text-center text-slate-500">
+          <p className="mb-10 px-4 text-center text-slate-500 dark:text-slate-400">
             Sign in to continue with your workspace.
           </p>
 
           <form className="w-full" onSubmit={handleLogin}>
             <div className="mb-6">
-              <label className="block mb-2 ml-1 text-sm font-semibold text-slate-700">
+              <label className="block mb-2 ml-1 text-sm font-semibold text-slate-700 dark:text-slate-300">
                 Email Address
               </label>
-              <div className="h-14 flex flex-row items-center rounded-xl border border-slate-200 bg-slate-50 px-4">
-                <Mail className="w-5 h-5 text-slate-500" />
+              <div className="h-14 flex flex-row items-center rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-4">
+                <Mail className="w-5 h-5 text-slate-500 dark:text-slate-400" />
                 <input
                   type="email"
                   placeholder="name@email.com"
-                  className="ml-3 flex-1 text-base text-slate-900 bg-transparent outline-none w-full"
+                  className="ml-3 flex-1 text-base text-slate-900 dark:text-white bg-transparent outline-none w-full"
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
@@ -86,19 +96,19 @@ export default function LoginScreen() {
 
             <div className="mb-6">
               <div className="mx-1 mb-2 flex flex-row items-center justify-between">
-                <label className="text-sm font-semibold text-slate-700">
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                   Password
                 </label>
-                <Link to="/forgot-password" className="text-sm font-semibold text-blue-600 hover:opacity-80 transition-opacity">
+                <Link to="/forgot-password" className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:opacity-80 transition-opacity">
                   Forgot password?
                 </Link>
               </div>
-              <div className="h-14 flex flex-row items-center rounded-xl border border-slate-200 bg-slate-50 px-4">
-                <Lock className="w-5 h-5 text-slate-500" />
+              <div className="h-14 flex flex-row items-center rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-4">
+                <Lock className="w-5 h-5 text-slate-500 dark:text-slate-400" />
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="........"
-                  className="ml-3 flex-1 text-base text-slate-900 bg-transparent outline-none w-full"
+                  className="ml-3 flex-1 text-base text-slate-900 dark:text-white bg-transparent outline-none w-full"
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
@@ -111,16 +121,16 @@ export default function LoginScreen() {
                   className="hover:opacity-80 transition-opacity ml-2 focus:outline-none"
                 >
                   {showPassword ? (
-                    <EyeOff className="w-5 h-5 text-slate-500" />
+                    <EyeOff className="w-5 h-5 text-slate-500 dark:text-slate-400" />
                   ) : (
-                    <Eye className="w-5 h-5 text-slate-500" />
+                    <Eye className="w-5 h-5 text-slate-500 dark:text-slate-400" />
                   )}
                 </button>
               </div>
             </div>
 
             {activeError ? (
-              <p className="mb-2 px-1 text-sm text-red-600">
+              <p className="mb-2 px-1 text-sm text-red-600 dark:text-red-400">
                 {activeError}
               </p>
             ) : null}
@@ -128,21 +138,21 @@ export default function LoginScreen() {
             <button
               type="submit"
               className={`mt-8 w-full h-14 flex items-center justify-center rounded-xl shadow-sm transition-opacity ${
-                isSubmitting ? "bg-slate-400 cursor-not-allowed" : "bg-slate-900 hover:opacity-90"
+                isSubmitting ? "bg-slate-400 dark:bg-slate-700 cursor-not-allowed" : "bg-slate-900 dark:bg-white hover:opacity-90"
               }`}
               disabled={isSubmitting}
             >
-              <span className="text-lg font-bold text-white">
+              <span className={`text-lg font-bold ${isSubmitting ? "text-white" : "text-white dark:text-slate-900"}`}>
                 {isSubmitting ? "Signing in..." : "Continue"}
               </span>
             </button>
           </form>
 
           <div className="mb-6 mt-10 flex flex-row items-center gap-1 justify-center w-full">
-            <span className="text-slate-500">
+            <span className="text-slate-500 dark:text-slate-400">
               Don't have an account?
             </span>
-            <Link to="/signup" className="font-bold text-blue-600 hover:opacity-80 transition-opacity">
+            <Link to="/signup" className="font-bold text-blue-600 dark:text-blue-400 hover:opacity-80 transition-opacity">
               Sign up
             </Link>
           </div>

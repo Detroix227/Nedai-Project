@@ -1,19 +1,30 @@
 import { Link, Navigate } from 'react-router-dom';
-import { Sparkles, BrainCircuit, CalendarDays, GraduationCap, ChevronRight } from 'lucide-react';
+import { Sparkles, BrainCircuit, CalendarDays, GraduationCap, ChevronRight, Sun, Moon } from 'lucide-react';
+import { useEffect } from 'react';
 import { useAuthStore } from '@/modules/auth/useAuthStore';
+import { useUIStore } from '@/modules/ui/useUIStore';
 
 export default function IntroScreen() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { theme, toggleTheme } = useUIStore();
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
 
   if (isAuthenticated) {
     return <Navigate to="/chat" replace />;
   }
 
   return (
-    <div className="flex-1 bg-slate-50 dark:bg-slate-950 min-h-screen flex flex-col font-sans">
+    <div className="flex-1 bg-slate-50 dark:bg-slate-950 min-h-screen flex flex-col font-sans transition-colors duration-300">
       
       {/* Top Navbar */}
-      <nav className="w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800">
+      <nav className="w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800 transition-colors">
         <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img 
@@ -24,6 +35,19 @@ export default function IntroScreen() {
             <span className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">NedAI</span>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors mr-2"
+              title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {theme === 'dark' ? (
+                <Sun size={20} className="text-amber-500" strokeWidth={2.5} />
+              ) : (
+                <Moon size={20} className="text-slate-600" strokeWidth={2.5} />
+              )}
+            </button>
+            
             <Link 
               to="/login" 
               className="text-slate-600 dark:text-slate-300 font-semibold hover:text-slate-900 dark:hover:text-white transition px-4 py-2"
