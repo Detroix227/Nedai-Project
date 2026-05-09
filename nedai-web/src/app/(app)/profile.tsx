@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Key, Trash2, LogOut, ChevronDown, User, GraduationCap, Settings, Loader2 } from "lucide-react";
+import { Key, Trash2, LogOut, ChevronDown, User, GraduationCap, Settings, Loader2, Check, X } from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
 import { useAuthStore } from "@/modules/auth/useAuthStore";
