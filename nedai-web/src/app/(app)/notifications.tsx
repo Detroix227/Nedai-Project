@@ -6,6 +6,8 @@ import { AppShell } from "@/components/AppShell";
 import { useAuthStore } from "@/modules/auth/useAuthStore";
 import type { Notification } from "@/modules/contracts";
 import * as NotificationApi from "@/modules/notification/notification.api";
+import { Modal } from "@/components/Modal";
+import { MarkdownMessage } from "@/components/MarkdownMessage";
 
 export default function NotificationsScreen() {
   const navigate = useNavigate();
@@ -21,6 +23,14 @@ export default function NotificationsScreen() {
       .then((data) => {
         setNotifications(data);
         setLoading(false);
+
+        // Automatic mark as read when the user sees them
+        const unreadCount = data.filter((n) => !n.isRead).length;
+        if (unreadCount > 0) {
+          NotificationApi.markAllAsRead(token).catch(console.error);
+          // Optimistically update local state
+          setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+        }
       })
       .catch((err) => {
         console.error("Failed to load notifications:", err);
@@ -36,26 +46,19 @@ export default function NotificationsScreen() {
     return () => clearInterval(interval);
   }, [token]);
 
-  const handleMarkAsRead = async (id: string) => {
+  const handleMarkAllAsRead = async () => {
     if (!token) return;
     try {
-      await NotificationApi.markAsRead(token, id);
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-      );
+      await NotificationApi.markAllAsRead(token);
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     } catch (error) {
-      console.error(error);
+      console.error("Failed to mark all as read:", error);
     }
   };
 
-  const handleMarkAllAsRead = async () => {
-    if (!token) return;
-    const unreadIds = notifications.filter((n) => !n.isRead).map((n) => n.id);
-    await Promise.all(unreadIds.map((id) => NotificationApi.markAsRead(token, id)));
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-  };
-
   const unreadCount = notifications.filter((n) => !n.isRead).length;
+
+  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
 
   return (
     <AppShell title="Notifications">
@@ -112,7 +115,8 @@ export default function NotificationsScreen() {
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-5 transition hover:bg-slate-50 dark:hover:bg-slate-700/50 ${
+                  onClick={() => setSelectedNotification(notification)}
+                  className={`p-5 transition cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 ${
                     !notification.isRead ? "bg-blue-50/30 dark:bg-blue-900/10" : ""
                   }`}
                 >
@@ -144,19 +148,9 @@ export default function NotificationsScreen() {
                         </span>
                       </div>
                       
-                      <p className="text-slate-600 dark:text-slate-400 text-sm mt-1 leading-relaxed">
+                      <p className="text-slate-600 dark:text-slate-400 text-sm mt-1 leading-relaxed line-clamp-2">
                         {notification.message}
                       </p>
-                      
-                      {!notification.isRead && (
-                        <button
-                          onClick={() => handleMarkAsRead(notification.id)}
-                          className="mt-3 flex items-center gap-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition"
-                        >
-                          <CheckCircle2 size={16} />
-                          Mark as read
-                        </button>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -165,6 +159,32 @@ export default function NotificationsScreen() {
           )}
         </div>
       </div>
+
+      <Modal
+        isOpen={!!selectedNotification}
+        onClose={() => setSelectedNotification(null)}
+        title={selectedNotification?.title || "Notification"}
+      >
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500 font-medium">
+            <Megaphone size={14} />
+            <span>
+              {selectedNotification && new Date(selectedNotification.createdAt).toLocaleDateString(undefined, {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+              })}
+            </span>
+          </div>
+          
+          <div className="max-w-none text-slate-700 dark:text-slate-300 leading-relaxed">
+            <MarkdownMessage content={selectedNotification?.message || ""} />
+          </div>
+        </div>
+      </Modal>
     </AppShell>
   );
 }

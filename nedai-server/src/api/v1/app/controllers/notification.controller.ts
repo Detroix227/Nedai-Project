@@ -46,3 +46,19 @@ export async function markAsRead(c: Context) {
     return respond(c, 500, "Failed to mark notification as read");
   }
 }
+
+export async function markAllAsRead(c: Context) {
+  try {
+    const payload = getJwtPayload(c);
+
+    await prisma.notification.updateMany({
+      where: { userId: payload.sub, isRead: false },
+      data: { isRead: true },
+    });
+
+    return respond(c, 200, "All notifications marked as read");
+  } catch (error) {
+    console.error("[notifications] markAllAsRead error:", error);
+    return respond(c, 500, "Failed to mark all notifications as read");
+  }
+}

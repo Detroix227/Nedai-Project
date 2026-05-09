@@ -14,3 +14,10 @@ export async function markAsRead(token: string, notificationId: string) {
     token,
   });
 }
+
+export async function markAllAsRead(token: string) {
+  await request<null>("/notifications/read-all", {
+    method: "PATCH",
+    token,
+  });
+}

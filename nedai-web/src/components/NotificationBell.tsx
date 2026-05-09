@@ -4,10 +4,13 @@ import { Bell, CheckCircle2 } from "lucide-react";
 import { useAuthStore } from "@/modules/auth/useAuthStore";
 import type { Notification } from "@/modules/contracts";
 import * as NotificationApi from "@/modules/notification/notification.api";
+import { Modal } from "@/components/Modal";
+import { MarkdownMessage } from "@/components/MarkdownMessage";
 
 export function NotificationBell() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   
   const token = useAuthStore((state) => state.accessToken);
@@ -28,9 +31,17 @@ export function NotificationBell() {
   }, [token]);
 
   const handleOpen = () => {
-    setIsOpen(!isOpen);
-    if (!isOpen) {
+    const nextState = !isOpen;
+    setIsOpen(nextState);
+    if (nextState) {
       fetchNotifications(); // Refresh when opening
+      
+      // Automatic mark as read
+      const unreadCount = notifications.filter((n) => !n.isRead).length;
+      if (unreadCount > 0 && token) {
+        NotificationApi.markAllAsRead(token).catch(console.error);
+        setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+      }
     }
   };
 
@@ -46,18 +57,6 @@ export function NotificationBell() {
   }, []);
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
-
-  const handleMarkAsRead = async (id: string) => {
-    if (!token) return;
-    try {
-      await NotificationApi.markAsRead(token, id);
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -94,7 +93,11 @@ export function NotificationBell() {
                 {notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`p-4 transition hover:bg-slate-50 dark:hover:bg-slate-700 ${
+                    onClick={() => {
+                      setSelectedNotification(notification);
+                      setIsOpen(false);
+                    }}
+                    className={`p-4 transition cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 ${
                       !notification.isRead ? "bg-blue-50/30 dark:bg-blue-900/20" : ""
                     }`}
                   >
@@ -106,17 +109,8 @@ export function NotificationBell() {
                       >
                         {notification.title}
                       </h4>
-                      {!notification.isRead && (
-                        <button
-                          onClick={() => handleMarkAsRead(notification.id)}
-                          className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 p-1 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/30 transition"
-                          title="Mark as read"
-                        >
-                          <CheckCircle2 size={16} />
-                        </button>
-                      )}
                     </div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-2 leading-relaxed">
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-2 leading-relaxed line-clamp-2">
                       {notification.message}
                     </p>
                     <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
@@ -134,6 +128,32 @@ export function NotificationBell() {
           </div>
         </div>
       )}
+
+      <Modal
+        isOpen={!!selectedNotification}
+        onClose={() => setSelectedNotification(null)}
+        title={selectedNotification?.title || "Notification"}
+      >
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500 font-medium">
+            <CheckCircle2 size={14} className="text-blue-500" />
+            <span>
+              {selectedNotification && new Date(selectedNotification.createdAt).toLocaleDateString(undefined, {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+              })}
+            </span>
+          </div>
+          
+          <div className="max-w-none text-slate-700 dark:text-slate-300 leading-relaxed">
+            <MarkdownMessage content={selectedNotification?.message || ""} />
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
