@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useAuthStore } from "@/modules/auth/useAuthStore";
 import { useUIStore } from "@/modules/ui/useUIStore";
@@ -14,6 +14,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const theme = useUIStore((state) => state.theme);
 
   useEffect(() => {
@@ -45,7 +46,14 @@ export default function LoginScreen() {
   async function handleGoogleResponse(response: any) {
     try {
       await googleSignIn(response.credential);
-      navigate("/chat");
+      const isDesktopRedirect = searchParams.get("redirect") === "desktop";
+      const token = useAuthStore.getState().accessToken;
+
+      if (isDesktopRedirect && token) {
+        window.location.href = `nedai://auth?token=${token}`;
+      } else {
+        navigate("/chat");
+      }
     } catch (err) {
       console.error("Google Sign-In Error:", err);
     }
@@ -65,7 +73,14 @@ export default function LoginScreen() {
     setLocalError(null);
     try {
       await signIn({ email, password });
-      navigate("/chat");
+      const isDesktopRedirect = searchParams.get("redirect") === "desktop";
+      const token = useAuthStore.getState().accessToken;
+
+      if (isDesktopRedirect && token) {
+        window.location.href = `nedai://auth?token=${token}`;
+      } else {
+        navigate("/chat");
+      }
     } catch {}
   }
 
@@ -85,9 +100,9 @@ export default function LoginScreen() {
           {/* Logo */}
           <div className="mb-4 h-20 w-20 flex items-center justify-center">
             <img 
-              src="/nedai-logo.png" 
+              src="/nedai-text-logo.png" 
               alt="NedAI Logo" 
-              className="w-full h-full object-contain"
+              className="w-full h-full object-contain scale-150"
             />
           </div>
 
