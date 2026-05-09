@@ -306,7 +306,7 @@ export const useChatStore = create<ChatStore>()(
         });
         useSyncStore.getState().startSync();
 
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<void>(async (resolve, reject) => {
           const token = requireAccessToken();
           let realChatId: string | null = null;
           let realAssistantMessageId: string | null = null;

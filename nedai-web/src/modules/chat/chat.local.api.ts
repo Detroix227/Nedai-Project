@@ -1,5 +1,4 @@
-import { useConnectivityStore } from "../connectivity/useConnectivityStore";
-
+// Removed unused useConnectivityStore import
 export async function streamLocalMessage(
   payload: { content: string },
   onEvent: (event: any) => void,

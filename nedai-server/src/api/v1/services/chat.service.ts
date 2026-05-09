@@ -355,17 +355,32 @@ export class ChatServiceImpl {
       );
 
     try {
-      // If a document is specifically tagged, we increase the topK for that document
-      // to ensure more content is retrieved (critical for summaries).
-      const retrievalOptions = selectedDocument
-        ? { documentId: selectedDocument.id, topK: Math.max(this.topK, 15), minScore: 0.1 }
-        : { documentIds: allUsedDocumentIds };
+      // HYBRID RETRIEVAL:
+      // We always search all documents to allow "Automatic Learning,"
+      // but if the user used a @ tag, we ensure that specific document
+      // gets more weight (higher topK).
+      const retrievalOptions = { 
+        documentIds: undefined, // Search across ALL ready documents
+        topK: selectedDocument ? Math.max(this.topK, 12) : this.topK, 
+        minScore: 0.25 
+      };
 
       retrievedChunks = await this.retrievalService.retrieveRelevantChunks(
         userId,
         data.content,
         retrievalOptions,
       );
+
+      // If a document was specifically tagged, we do an extra "Deep Dive" 
+      // into that document and combine the results.
+      if (selectedDocument) {
+        const deepDiveChunks = await this.retrievalService.retrieveRelevantChunks(
+          userId,
+          data.content,
+          { documentId: selectedDocument.id, topK: 10, minScore: 0.1 }
+        );
+        retrievedChunks = [...retrievedChunks, ...deepDiveChunks];
+      }
     } catch (error) {
       logChatStageError("retrieval", error, {
         userId,

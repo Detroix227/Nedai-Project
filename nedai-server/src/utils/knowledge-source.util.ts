@@ -5,8 +5,8 @@ const MIME_TYPES = {
   pdf: "application/pdf",
 } as const;
 
-export const KNOWLEDGE_CHUNK_SIZE = 1800;
-export const KNOWLEDGE_CHUNK_OVERLAP = 200;
+export const KNOWLEDGE_CHUNK_SIZE = 500;
+export const KNOWLEDGE_CHUNK_OVERLAP = 50;
 
 export type KnowledgeSourceType = "DOCX" | "PDF";
 
