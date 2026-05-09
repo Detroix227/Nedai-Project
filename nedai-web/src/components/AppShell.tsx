@@ -3,7 +3,6 @@ import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { useUIStore } from "@/modules/ui/useUIStore";
 import { useConnectivityStore } from "@/modules/connectivity/useConnectivityStore";
-import { Cpu, AlertTriangle } from "lucide-react";
 
 export function AppShell({
   title,
@@ -14,7 +13,7 @@ export function AppShell({
   onHistory?: () => void;
   children: React.ReactNode;
 }) {
-  const { isSidebarCollapsed, theme } = useUIStore();
+  const { theme } = useUIStore();
 
   const { checkConnection } = useConnectivityStore();
 

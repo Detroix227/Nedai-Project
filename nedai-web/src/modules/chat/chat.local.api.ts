@@ -9,7 +9,9 @@ export async function streamLocalMessage(
   // 1. Ask Henry for local context first!
   let localContext = "";
   try {
-    localContext = await window.electronAPI.queryLocalBrain(payload.content);
+    if (window.electronAPI) {
+      localContext = await window.electronAPI.queryLocalBrain(payload.content);
+    }
   } catch (e) {
     console.warn("Henry couldn't find context, proceeding with general knowledge.");
   }

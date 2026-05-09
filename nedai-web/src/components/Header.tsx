@@ -1,7 +1,6 @@
 import { History, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/modules/auth/useAuthStore";
-import { useConnectivityStore } from "@/modules/connectivity/useConnectivityStore";
 
 export function Header({
   title,
@@ -12,7 +11,6 @@ export function Header({
 }) {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
-  const isOnline = useConnectivityStore((state) => state.isOnline);
   const displayName = user?.fullName || user?.email || "NedAI User";
   const initials = displayName.slice(0, 1).toUpperCase();
   
