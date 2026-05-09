@@ -13,10 +13,10 @@ export default function NotificationsScreen() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchNotifications = (showLoading = false) => {
     if (!token) return;
+    if (showLoading) setLoading(true);
     
-    setLoading(true);
     NotificationApi.getMyNotifications(token)
       .then((data) => {
         setNotifications(data);
@@ -26,6 +26,14 @@ export default function NotificationsScreen() {
         console.error("Failed to load notifications:", err);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchNotifications(true); // Initial load with spinner
+
+    // Background polling: check for new notifications every 30 seconds
+    const interval = setInterval(() => fetchNotifications(false), 30000);
+    return () => clearInterval(interval);
   }, [token]);
 
   const handleMarkAsRead = async (id: string) => {
