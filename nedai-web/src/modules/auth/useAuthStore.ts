@@ -41,6 +41,7 @@ type AuthStore = AuthState & {
   updateProfile: (payload: UpdateProfilePayload) => Promise<AuthUser>;
   refreshProfile: (token: string) => Promise<void>;
   changePassword: (payload: ChangePasswordPayload) => Promise<void>;
+  googleSignIn: (idToken: string) => Promise<void>;
   logout: () => void;
   clearError: () => void;
   markHydrated: () => void;
@@ -276,6 +277,26 @@ export const useAuthStore = create<AuthStore>()(
             });
           }
 
+          throw error;
+        }
+      },
+      googleSignIn: async (idToken) => {
+        set({
+          status: "loading",
+          errorMessage: null,
+        });
+
+        try {
+          const response = await AuthApi.googleLogin(idToken);
+          applyAuthenticatedSession(set, response);
+          set({ bootstrapped: true });
+        } catch (error) {
+          clearSession(set);
+          set({
+            status: "error",
+            errorMessage: buildAuthErrorMessage(error),
+            bootstrapped: true,
+          });
           throw error;
         }
       },

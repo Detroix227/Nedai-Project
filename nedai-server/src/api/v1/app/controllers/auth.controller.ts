@@ -31,3 +31,10 @@ export async function resetPassword(c: Context<AppBindings>) {
 
   return respond(c, 200, result.message);
 }
+
+export async function googleLogin(c: Context<AppBindings>) {
+  const { idToken } = await c.req.json();
+  const result = await AuthService.googleLogin(idToken);
+
+  return respond(c, 200, "Google login successful", result);
+}

@@ -59,4 +59,5 @@ export const env = {
     | "local"
     | "openai"
     | "gemini",
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
 } as const;

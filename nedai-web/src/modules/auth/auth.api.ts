@@ -91,3 +91,10 @@ export function resetPassword(payload: ResetPasswordPayload) {
     body: payload,
   });
 }
+
+export function googleLogin(idToken: string) {
+  return request<ServerAuthResponse>("/auth/google", {
+    method: "POST",
+    body: { idToken },
+  });
+}

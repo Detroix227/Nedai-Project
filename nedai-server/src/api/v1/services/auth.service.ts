@@ -1,5 +1,7 @@
 import { ApiError } from "@/lib/api-error";
+import { OAuth2Client } from "google-auth-library";
 import prisma from "@/lib/prisma";
+import { env } from "@/utils/env";
 import { issueAccessToken } from "@/lib/auth-token";
 import {
   loginSchema,
@@ -303,6 +305,55 @@ export class AuthServiceImpl {
     });
 
     return { message: "Password reset successful" };
+  }
+
+  public async googleLogin(idToken: string) {
+    const client = new OAuth2Client(env.GOOGLE_CLIENT_ID);
+    
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken,
+        audience: env.GOOGLE_CLIENT_ID,
+      });
+      
+      const payload = ticket.getPayload();
+      if (!payload || !payload.email) {
+        throw new ApiError(400, "Invalid Google token payload");
+      }
+
+      const { email, name, sub: googleId, picture } = payload;
+
+      // Find user by email
+      let user = await this.prismaClient.user.findUnique({
+        where: { email: email.toLowerCase() },
+      });
+
+      if (!user) {
+        // Create new user if they don't exist
+        // Note: For Google users, we use a random secure password hash since they'll use Google to log in
+        const randomPassword = crypto.randomUUID();
+        const passwordHash = await Bun.password.hash(randomPassword);
+
+        user = await this.prismaClient.user.create({
+          data: {
+            email: email.toLowerCase(),
+            fullName: name || email.split("@")[0],
+            passwordHash,
+            role: UserRole.STUDENT, // Default role
+          },
+        });
+      }
+
+      const accessToken = await issueAccessToken(user);
+
+      return {
+        accessToken,
+        user: serializeUser(user),
+      };
+    } catch (error) {
+      console.error("[AuthService] Google login error:", error);
+      throw new ApiError(401, "Google authentication failed");
+    }
   }
 }
 
