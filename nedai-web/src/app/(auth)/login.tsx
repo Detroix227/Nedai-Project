@@ -34,17 +34,27 @@ export default function LoginScreen() {
   const activeError = localError || errorMessage;
 
   useEffect(() => {
-    // Debug: Check if env var is loaded
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     console.log("[Google Auth] VITE_GOOGLE_CLIENT_ID:", clientId ? "SET" : "NOT SET");
     
-    // Initialize Google Identity Services
-    if ((window as any).google && clientId) {
-      (window as any).google.accounts.id.initialize({
-        client_id: clientId,
-        callback: handleGoogleResponse,
-      });
-    }
+    if (!clientId) return;
+
+    // Wait for Google library to load, then initialize
+    const initGoogle = () => {
+      if ((window as any).google?.accounts?.id) {
+        console.log("[Google Auth] Initializing...");
+        (window as any).google.accounts.id.initialize({
+          client_id: clientId,
+          callback: handleGoogleResponse,
+        });
+        console.log("[Google Auth] Initialized successfully");
+      } else {
+        console.log("[Google Auth] Library not ready, retrying...");
+        setTimeout(initGoogle, 500);
+      }
+    };
+
+    initGoogle();
   }, []);
 
   async function handleGoogleResponse(response: any) {
@@ -54,7 +64,7 @@ export default function LoginScreen() {
       const token = useAuthStore.getState().accessToken;
 
       if (isDesktopRedirect && token) {
-        navigate(`/auth-success?token=${token}`);
+        window.location.href = `nedai://auth?token=${token}`;
       } else {
         navigate("/chat");
       }
@@ -81,7 +91,7 @@ export default function LoginScreen() {
       const token = useAuthStore.getState().accessToken;
 
       if (isDesktopRedirect && token) {
-        navigate(`/auth-success?token=${token}`);
+        window.location.href = `nedai://auth?token=${token}`;
       } else {
         navigate("/chat");
       }

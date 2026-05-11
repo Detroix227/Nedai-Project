@@ -17,17 +17,9 @@ export default function LoginScreen() {
 
   const handleBrowserLogin = () => {
     // This will open the default system browser
-    // In development, use localhost:5174
-    // We check for localhost or if we are not on an https production domain
-    const isDev = window.location.hostname === 'localhost' || 
-                  window.location.hostname === '127.0.0.1' || 
-                  !window.location.protocol.startsWith('https');
-    
-    const loginUrl = isDev 
-      ? "http://localhost:5174/login?redirect=desktop"
-      : "https://nedai.app/login?redirect=desktop";
-    
-    window.open(loginUrl, '_blank');
+    // In a real production app, we'd use the actual URL
+    const productionUrl = "https://nedai.app/login?redirect=desktop";
+    window.open(productionUrl, '_blank');
   };
 
   return (
