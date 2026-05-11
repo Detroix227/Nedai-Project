@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
 const isDev = process.env.NODE_ENV === 'development';
 
 const { initEngine, ingestFile, queryHenry } = require('./engine');
@@ -74,7 +74,25 @@ async function bootstrapModels(window) {
       console.log('[Bootstrapper] Phi-3 Mini missing. Pulling now...');
       window.webContents.send('bootstrap-status', 'pulling');
       
-      const pullProcess = exec('ollama pull phi3:mini');
+      const pullProcess = spawn('ollama', ['pull', 'phi3:mini']);
+      
+      pullProcess.stdout.on('data', (data) => {
+        const output = data.toString();
+        // Ollama sends progress to stdout or stderr depending on version/terminal
+        // Look for percentages like "50%"
+        const match = output.match(/(\d+)%/);
+        if (match) {
+          window.webContents.send('bootstrap-progress', parseInt(match[1]));
+        }
+      });
+
+      pullProcess.stderr.on('data', (data) => {
+        const output = data.toString();
+        const match = output.match(/(\d+)%/);
+        if (match) {
+          window.webContents.send('bootstrap-progress', parseInt(match[1]));
+        }
+      });
       
       pullProcess.on('close', (code) => {
         if (code === 0) {
@@ -118,7 +136,16 @@ function createWindow() {
   } else {
     // In production, load the built files
     mainWindow.loadFile(path.join(__dirname, 'web/dist/index.html'));
+    mainWindow.webContents.openDevTools();
   }
+
+  // Ensure external links open in the default browser
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('https:')) {
+      require('electron').shell.openExternal(url);
+    }
+    return { action: 'deny' };
+  });
 
   // If we have a pending token from launch, send it once ready
   mainWindow.webContents.on('did-finish-load', () => {

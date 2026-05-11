@@ -18,16 +18,16 @@ export function Header({
     navigate("/profile");
   };
   return (
-    <header className="flex flex-row items-center justify-between px-4 pt-4 pb-4 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-      <div className="flex flex-row items-center shrink-1">
-        <div className="flex items-center justify-center mr-3">
-          <img src="/nedai-text-logo.png" alt="NedAI" className="h-8 object-contain" />
+    <header className="flex flex-row items-center justify-between px-3 sm:px-4 pt-3 sm:pt-4 pb-3 sm:pb-4 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+      <div className="flex flex-row items-center shrink-1 min-w-0">
+        <div className="flex items-center justify-center mr-2 sm:mr-3 shrink-0">
+          <img src="/nedai-text-logo.png" alt="NedAI" className="h-6 sm:h-8 object-contain" />
         </div>
-        <div>
-          <span className="text-[11px] font-bold tracking-widest uppercase text-slate-500 dark:text-slate-400 block">
+        <div className="min-w-0">
+          <span className="text-[10px] sm:text-[11px] font-bold tracking-widest uppercase text-slate-500 dark:text-slate-400 block">
             NedAI Workspace
           </span>
-          <h1 className="text-[22px] font-bold text-slate-800 dark:text-slate-100 leading-tight">
+          <h1 className="text-lg sm:text-[22px] font-bold text-slate-800 dark:text-slate-100 leading-tight truncate">
             {title}
           </h1>
         </div>
@@ -47,10 +47,10 @@ export function Header({
         {/* User Profile - Clickable to navigate to profile */}
         <button
           onClick={handleProfileClick}
-          className="flex flex-row items-center hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl px-2 py-2 transition cursor-pointer"
+          className="flex flex-row items-center hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl px-1 sm:px-2 py-2 transition cursor-pointer"
         >
-          <div className="mr-3 h-10 w-10 flex shrink-0 items-center justify-center rounded-full bg-orange-100">
-            <span className="text-sm font-bold text-orange-700">
+          <div className="mr-2 sm:mr-3 h-8 w-8 sm:h-10 sm:w-10 flex shrink-0 items-center justify-center rounded-full bg-orange-100">
+            <span className="text-xs sm:text-sm font-bold text-orange-700">
               {initials}
             </span>
           </div>

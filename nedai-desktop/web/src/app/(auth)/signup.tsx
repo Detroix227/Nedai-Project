@@ -1,9 +1,11 @@
 import { useEffect } from "react";
-import { ExternalLink, UserPlus } from "lucide-react";
+import { ExternalLink, UserPlus, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useUIStore } from "@/modules/ui/useUIStore";
 
 export default function SignupScreen() {
   const theme = useUIStore((state) => state.theme);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -19,7 +21,16 @@ export default function SignupScreen() {
   };
 
   return (
-    <main className="flex-1 bg-white dark:bg-slate-950 min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-300">
+    <main className="flex-1 bg-white dark:bg-slate-950 min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-300 relative">
+      {/* Back Button */}
+      <button 
+        onClick={() => navigate('/')}
+        className="absolute top-8 left-8 flex items-center gap-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors group"
+      >
+        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+        <span className="font-bold text-sm uppercase tracking-widest">Back</span>
+      </button>
+
       <div className="max-w-md w-full text-center">
         <div className="relative h-20 w-20 mx-auto mb-8 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-xl">
           <UserPlus size={40} />
@@ -41,7 +52,7 @@ export default function SignupScreen() {
         </button>
 
         <p className="mt-8 text-sm text-slate-400 dark:text-slate-600">
-          Already have an account? <span className="text-blue-500 font-bold cursor-pointer hover:underline" onClick={() => window.history.back()}>Log in.</span>
+          Already have an account? <span className="text-blue-500 font-bold cursor-pointer hover:underline" onClick={() => navigate('/login')}>Log in.</span>
         </p>
       </div>
     </main>

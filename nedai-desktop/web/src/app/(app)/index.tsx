@@ -1,4 +1,3 @@
-import { Sparkles } from "lucide-react";
 import React, {
   useEffect,
   useMemo,
@@ -89,9 +88,9 @@ export default function HomeScreen() {
   const loadChats = useChatStore((state) => state.loadChats);
   const sendMessage = useChatStore((state) => state.sendMessage);
   
-  const documents = useDocumentStore((state) => state.documents);
-  const loadDocuments = useDocumentStore((state) => state.loadDocuments);
   const uploadDocument = useDocumentStore((state) => state.uploadDocument);
+  const brainMode = useChatStore((state) => state.brainMode);
+  const toggleBrainMode = useChatStore((state) => state.toggleBrainMode);
   const [composerText, setComposerText] = useState("");
   const [selectedDocument, setSelectedDocument] =
     useState<DocumentSummary | null>(null);
@@ -387,10 +386,8 @@ export default function HomeScreen() {
             </div>
           ) : (
             <div className="h-full flex flex-col items-center justify-center px-4">
-              <div className="w-[120px] h-[120px] rounded-full bg-white dark:bg-slate-800 shadow-xl shadow-blue-500/10 flex items-center justify-center mb-8 border border-slate-50 dark:border-slate-700">
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-full">
-                  <img src="/nedai-symbol.png" alt="NedAI" className="w-16 h-16 object-contain scale-125" />
-                </div>
+              <div className="w-[240px] h-[240px] rounded-full bg-white dark:bg-slate-800 shadow-xl shadow-blue-500/10 flex items-center justify-center mb-8 border border-slate-50 dark:border-slate-700 overflow-hidden">
+                <img src="nedai-text-logo.png" alt="NedAI" className="w-[140%] max-w-none object-contain" />
               </div>
               <h2 className="text-[28px] font-bold text-slate-800 dark:text-slate-100 text-center mb-8 max-w-sm leading-tight">
                 What would you like to work on today?
@@ -434,6 +431,8 @@ export default function HomeScreen() {
             documentSuggestions={suggestionResults}
             documentSuggestionStatus={documentSuggestionStatus}
             onSelectDocument={handleSelectDocument}
+            brainMode={brainMode}
+            onToggleBrainMode={toggleBrainMode}
           />
         </div>
       </div>
