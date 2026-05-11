@@ -46,6 +46,8 @@ export default function LoginScreen() {
         (window as any).google.accounts.id.initialize({
           client_id: clientId,
           callback: handleGoogleResponse,
+          auto_select: false,
+          cancel_on_tap_outside: false,
         });
         console.log("[Google Auth] Initialized successfully");
       } else {
