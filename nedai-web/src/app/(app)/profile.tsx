@@ -222,6 +222,7 @@ export default function ProfileScreen() {
               value={role} 
               onChange={(val) => setRole(val as "STUDENT" | "LECTURER" | "OTHER")}
               options={["STUDENT", "LECTURER", "OTHER"]}
+              editable={user?.role !== "ADMIN"}
             />
             <TextField label="Age" value={age} onChange={setAge} type="number" placeholder="e.g. 21" />
             <TextField 
