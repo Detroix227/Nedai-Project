@@ -39,17 +39,33 @@ export default function LoginScreen() {
     
     if (!clientId) return;
 
-    // Wait for Google library to load, then initialize
+    // Wait for Google library to load, then initialize and render button
     const initGoogle = () => {
-      if ((window as any).google?.accounts?.id) {
+      const google = (window as any).google;
+      if (google?.accounts?.id) {
         console.log("[Google Auth] Initializing...");
-        (window as any).google.accounts.id.initialize({
+        
+        // Initialize with FedCM disabled for better compatibility
+        google.accounts.id.initialize({
           client_id: clientId,
           callback: handleGoogleResponse,
           auto_select: false,
-          cancel_on_tap_outside: false,
+          cancel_on_tap_outside: true,
+          ux_mode: 'popup',
         });
-        console.log("[Google Auth] Initialized successfully");
+        
+        // Render the Google button
+        const buttonDiv = document.getElementById('google-signin-button');
+        if (buttonDiv) {
+          google.accounts.id.renderButton(buttonDiv, {
+            theme: 'outline',
+            size: 'large',
+            width: '100%',
+            text: 'continue_with',
+            shape: 'rectangular',
+          });
+          console.log("[Google Auth] Button rendered");
+        }
       } else {
         console.log("[Google Auth] Library not ready, retrying...");
         setTimeout(initGoogle, 500);
@@ -100,22 +116,8 @@ export default function LoginScreen() {
     } catch {}
   }
 
-  const handleGoogleClick = () => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    console.log("[Google Auth] Click - Client ID:", clientId);
-    
-    if (!clientId) {
-      alert("Google Client ID is not configured. Please add VITE_GOOGLE_CLIENT_ID to Vercel environment variables and redeploy.");
-      return;
-    }
-    
-    if (!(window as any).google) {
-      alert("Google Sign-In library is still loading. Please wait a moment and try again.");
-      return;
-    }
-    
-    (window as any).google.accounts.id.prompt();
-  };
+  // Google button is now rendered automatically by Google's library
+  // No manual click handler needed
 
   return (
     <main className="flex-1 bg-white dark:bg-slate-950 min-h-screen flex flex-col transition-colors duration-300">
@@ -222,17 +224,13 @@ export default function LoginScreen() {
             <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
           </div>
 
-          <button
-            onClick={handleGoogleClick}
-            className="w-full h-14 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors shadow-md group"
+          {/* Google Sign-In Button - rendered by Google's library */}
+          <div 
+            id="google-signin-button" 
+            className="w-full flex justify-center"
           >
-            <div className="flex items-center justify-center">
-              <img src="/google-logo.png" alt="Google" className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
-              <span className="text-base font-bold text-slate-700 dark:text-slate-300">
-                Continue with Google
-              </span>
-            </div>
-          </button>
+            {/* Button will be rendered here by Google Identity Services */}
+          </div>
 
           <div className="mb-6 mt-10 flex flex-row items-center gap-1 justify-center w-full">
             <span className="text-slate-500 dark:text-slate-400">
