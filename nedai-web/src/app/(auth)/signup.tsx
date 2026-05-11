@@ -14,7 +14,7 @@ export default function SignupScreen() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"STUDENT" | "LECTURER">("STUDENT");
+  const [role, setRole] = useState<"STUDENT" | "LECTURER" | "OTHER">("STUDENT");
   const [localError, setLocalError] = useState<string | null>(null);
   const theme = useUIStore((state) => state.theme);
 
