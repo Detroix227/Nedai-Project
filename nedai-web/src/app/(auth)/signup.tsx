@@ -175,13 +175,14 @@ export default function SignupScreen() {
 
             <div className="mb-5">
               <label className="mb-2 ml-1 text-sm font-semibold text-slate-700 dark:text-slate-300 block">
-                Role
+                Account Type
               </label>
-              <div className="flex flex-row">
+              <div className="grid grid-cols-3 gap-3">
                 {(
                   [
                     { label: "Student", value: "STUDENT" },
                     { label: "Lecturer", value: "LECTURER" },
+                    { label: "Other", value: "OTHER" },
                   ] as const
                 ).map((option) => (
                   <button
@@ -192,7 +193,7 @@ export default function SignupScreen() {
                       setLocalError(null);
                       clearError();
                     }}
-                    className={`mr-3 flex-1 rounded-xl px-4 py-3 transition-colors ${role === option.value ? "bg-blue-600" : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700"}`}
+                    className={`rounded-xl px-4 py-3 transition-colors ${role === option.value ? "bg-blue-600" : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700"}`}
                   >
                     <span
                       className={`text-center text-sm font-semibold ${role === option.value ? "text-white" : "text-slate-700 dark:text-slate-300"}`}
