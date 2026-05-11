@@ -123,6 +123,7 @@ export default function ProfileScreen() {
   
   // Identity
   const [fullName, setFullName] = useState("");
+  const [role, setRole] = useState<"STUDENT" | "LECTURER" | "OTHER">("STUDENT");
   const [age, setAge] = useState("");
   const [maritalStatus, setMaritalStatus] = useState("");
 
@@ -139,6 +140,7 @@ export default function ProfileScreen() {
   useEffect(() => {
     if (!user) return;
     setFullName(user.fullName);
+    setRole(user.role as "STUDENT" | "LECTURER" | "OTHER");
     setAge(user.age != null ? String(user.age) : "");
     setMaritalStatus(user.maritalStatus ?? "");
     setAcademicLevel(user.academicLevel ?? "");
@@ -160,6 +162,7 @@ export default function ProfileScreen() {
     // Check if any changes were actually made
     const hasChanges = 
       fullName !== user?.fullName ||
+      role !== user?.role ||
       (age ? Number(age) : null) !== (user?.age ?? null) ||
       maritalStatus !== (user?.maritalStatus ?? "") ||
       academicLevel !== (user?.academicLevel ?? "") ||
@@ -175,6 +178,7 @@ export default function ProfileScreen() {
     try {
       await updateProfile({
         fullName,
+        role,
         institution: user?.institution ?? undefined,
         age: age ? Number(age) : null,
         maritalStatus: maritalStatus || null,
@@ -213,7 +217,12 @@ export default function ProfileScreen() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
             <TextField label="Full Name" value={fullName} onChange={setFullName} placeholder="Your full name" />
             <TextField label="Email Address" value={user?.email ?? ""} editable={false} />
-            <TextField label="Role" value={user?.role ?? ""} editable={false} />
+            <TextField 
+              label="Account Type" 
+              value={role} 
+              onChange={(val) => setRole(val as "STUDENT" | "LECTURER" | "OTHER")}
+              options={["STUDENT", "LECTURER", "OTHER"]}
+            />
             <TextField label="Age" value={age} onChange={setAge} type="number" placeholder="e.g. 21" />
             <TextField 
               label="Marital Status" 

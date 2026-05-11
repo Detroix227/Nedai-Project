@@ -228,6 +228,10 @@ export class AuthServiceImpl {
       (updateData as any).futureCareer = normalizeNullableString(data.futureCareer);
     }
 
+    if (data.role !== undefined) {
+      (updateData as any).role = data.role;
+    }
+
     return updateData;
   }
 

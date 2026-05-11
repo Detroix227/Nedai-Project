@@ -53,6 +53,7 @@ export const updateCurrentUserSchema = z
     academicLevel: z.string().trim().max(100).nullable().optional(),
     institutionalLevel: z.string().trim().max(100).nullable().optional(),
     futureCareer: z.string().trim().max(150).nullable().optional(),
+    role: z.enum(["STUDENT", "LECTURER", "ADMIN", "OTHER"]).optional(),
   })
   .strict()
   .refine((data) => Object.keys(data).length > 0, {
