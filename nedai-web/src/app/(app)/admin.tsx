@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { Users, Activity, Send, ArrowLeft, CheckSquare, Square } from "lucide-react";
+import { Users, Activity, Send, ArrowLeft, CheckSquare, Square, Search, X } from "lucide-react";
 
 import { useAuthStore } from "@/modules/auth/useAuthStore";
 import * as AdminApi from "@/modules/admin/admin.api";
@@ -19,6 +19,7 @@ export default function AdminDashboard() {
   const [sending, setSending] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (user?.role !== "ADMIN" || !token) return;
@@ -67,12 +68,24 @@ export default function AdminDashboard() {
   };
 
   const selectAllUsers = () => {
-    if (selectedUserIds.size === users.length) {
+    if (selectedUserIds.size === filteredUsers.length) {
       setSelectedUserIds(new Set());
     } else {
-      setSelectedUserIds(new Set(users.map(u => u.id)));
+      setSelectedUserIds(new Set(filteredUsers.map(u => u.id)));
     }
   };
+
+  // Filter users based on search query
+  const filteredUsers = useMemo(() => {
+    if (!searchQuery.trim()) return users;
+    
+    const query = searchQuery.toLowerCase().trim();
+    return users.filter(u => 
+      u.fullName.toLowerCase().includes(query) ||
+      u.email.toLowerCase().includes(query) ||
+      u.role.toLowerCase().includes(query)
+    );
+  }, [users, searchQuery]);
 
   return (
     <div className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-slate-950 p-6 sm:p-10">
@@ -176,18 +189,45 @@ export default function AdminDashboard() {
 
           {/* Users Table */}
           <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">Registered Users ({users.length})</h2>
-              <button
-                onClick={selectAllUsers}
-                className="flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 transition"
-              >
-                {selectedUserIds.size === users.length && users.length > 0 ? (
-                  <><CheckSquare size={18} /> Deselect All</>
-                ) : (
-                  <><Square size={18} /> Select All ({selectedUserIds.size} selected)</>
+            <div className="p-6 border-b border-slate-200 dark:border-slate-700 space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">Registered Users ({filteredUsers.length})</h2>
+                <button
+                  onClick={selectAllUsers}
+                  className="flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 transition"
+                >
+                  {selectedUserIds.size === filteredUsers.length && filteredUsers.length > 0 ? (
+                    <><CheckSquare size={18} /> Deselect All</>
+                  ) : (
+                    <><Square size={18} /> Select All ({selectedUserIds.size} selected)</>
+                  )}
+                </button>
+              </div>
+              
+              {/* Search Bar */}
+              <div className="relative">
+                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search by name, email, or role..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-10 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                  >
+                    <X size={16} className="text-slate-400" />
+                  </button>
                 )}
-              </button>
+              </div>
+              {searchQuery && (
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Showing {filteredUsers.length} of {users.length} users
+                </p>
+              )}
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left text-slate-500 dark:text-slate-400">
@@ -201,7 +241,7 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                  {users.map((u) => {
+                  {filteredUsers.map((u) => {
                     const lastActive = new Date(u.lastActiveAt);
                     const isOnline = Date.now() - lastActive.getTime() < 15 * 60 * 1000;
                     const isSelected = selectedUserIds.has(u.id);
@@ -240,8 +280,10 @@ export default function AdminDashboard() {
                   })}
                 </tbody>
               </table>
-              {users.length === 0 && (
-                <div className="p-8 text-center text-slate-500 dark:text-slate-400">Loading users...</div>
+              {filteredUsers.length === 0 && (
+                <div className="p-8 text-center text-slate-500 dark:text-slate-400">
+                  {searchQuery ? "No users match your search." : "Loading users..."}
+                </div>
               )}
             </div>
           </div>
