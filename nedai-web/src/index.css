@@ -11,10 +11,12 @@
     0% { width: 0%; }
     100% { width: 100%; }
   }
-  .animate-bounce-slow {
-    animation: bounce-slow 2s infinite ease-in-out;
-  }
-  .animate-progress-fast {
-    animation: progress-fast 2s infinite linear;
-  }
+}
+
+@utility animate-bounce-slow {
+  animation: bounce-slow 2s infinite ease-in-out;
+}
+
+@utility animate-progress-fast {
+  animation: progress-fast 2s infinite linear;
 }
