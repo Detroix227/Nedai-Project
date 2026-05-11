@@ -1,5 +1,6 @@
 export type UpdateProfilePayload = Partial<{
   fullName: string;
+  role: "STUDENT" | "LECTURER" | "ADMIN" | "OTHER";
   institution: string | null;
   matricNumber: string | null;
   studentAcademicLevel: string | null;
