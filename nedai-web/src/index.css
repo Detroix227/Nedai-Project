@@ -1,3 +1,20 @@
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  @keyframes bounce-slow {
+    0%, 100% { transform: translateY(-5%); }
+    50% { transform: translateY(0); }
+  }
+  @keyframes progress-fast {
+    0% { width: 0%; }
+    100% { width: 100%; }
+  }
+  .animate-bounce-slow {
+    animation: bounce-slow 2s infinite ease-in-out;
+  }
+  .animate-progress-fast {
+    animation: progress-fast 2s infinite linear;
+  }
+}

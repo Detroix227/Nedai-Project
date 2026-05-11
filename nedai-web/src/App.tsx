@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import IntroScreen from './app/(auth)/intro';
 import LoginScreen from './app/(auth)/login';
 import SignupScreen from './app/(auth)/signup';
+import AuthSuccessScreen from './app/(auth)/auth-success';
 import ForgotPasswordScreen from './app/(auth)/forgot-password';
 import ResetPasswordScreen from './app/(auth)/reset-password';
 import AppLayout from './app/(app)/_layout';
@@ -23,6 +24,7 @@ function App() {
         <Route path="/" element={<IntroScreen />} />
         <Route path="/login" element={<LoginScreen />} />
         <Route path="/signup" element={<SignupScreen />} />
+        <Route path="/auth-success" element={<AuthSuccessScreen />} />
         <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
         <Route path="/reset-password" element={<ResetPasswordScreen />} />
         

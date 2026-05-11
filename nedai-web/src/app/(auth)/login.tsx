@@ -34,10 +34,14 @@ export default function LoginScreen() {
   const activeError = localError || errorMessage;
 
   useEffect(() => {
+    // Debug: Check if env var is loaded
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    console.log("[Google Auth] VITE_GOOGLE_CLIENT_ID:", clientId ? "SET" : "NOT SET");
+    
     // Initialize Google Identity Services
-    if ((window as any).google) {
+    if ((window as any).google && clientId) {
       (window as any).google.accounts.id.initialize({
-        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || "",
+        client_id: clientId,
         callback: handleGoogleResponse,
       });
     }
@@ -50,7 +54,7 @@ export default function LoginScreen() {
       const token = useAuthStore.getState().accessToken;
 
       if (isDesktopRedirect && token) {
-        window.location.href = `nedai://auth?token=${token}`;
+        navigate(`/auth-success?token=${token}`);
       } else {
         navigate("/chat");
       }
@@ -77,7 +81,7 @@ export default function LoginScreen() {
       const token = useAuthStore.getState().accessToken;
 
       if (isDesktopRedirect && token) {
-        window.location.href = `nedai://auth?token=${token}`;
+        navigate(`/auth-success?token=${token}`);
       } else {
         navigate("/chat");
       }
@@ -85,11 +89,20 @@ export default function LoginScreen() {
   }
 
   const handleGoogleClick = () => {
-    if (!import.meta.env.VITE_GOOGLE_CLIENT_ID) {
-      alert("Google Client ID is not configured. Please add VITE_GOOGLE_CLIENT_ID to your .env file.");
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    console.log("[Google Auth] Click - Client ID:", clientId);
+    
+    if (!clientId) {
+      alert("Google Client ID is not configured. Please add VITE_GOOGLE_CLIENT_ID to Vercel environment variables and redeploy.");
       return;
     }
-    (window as any).google?.accounts.id.prompt();
+    
+    if (!(window as any).google) {
+      alert("Google Sign-In library is still loading. Please wait a moment and try again.");
+      return;
+    }
+    
+    (window as any).google.accounts.id.prompt();
   };
 
   return (
