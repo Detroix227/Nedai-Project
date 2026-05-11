@@ -37,13 +37,38 @@ export default function SignupScreen() {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    // Initialize Google Identity Services
-    if ((window as any).google) {
-      (window as any).google.accounts.id.initialize({
-        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || "",
-        callback: handleGoogleResponse,
-      });
-    }
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!clientId) return;
+
+    // Wait for Google library to load, then initialize and render button
+    const initGoogle = () => {
+      const google = (window as any).google;
+      if (google?.accounts?.id) {
+        google.accounts.id.initialize({
+          client_id: clientId,
+          callback: handleGoogleResponse,
+          auto_select: false,
+          cancel_on_tap_outside: true,
+          ux_mode: 'popup',
+        });
+        
+        // Render the Google button
+        const buttonDiv = document.getElementById('google-signup-button');
+        if (buttonDiv) {
+          google.accounts.id.renderButton(buttonDiv, {
+            theme: 'outline',
+            size: 'large',
+            width: '100%',
+            text: 'signup_with',
+            shape: 'rectangular',
+          });
+        }
+      } else {
+        setTimeout(initGoogle, 500);
+      }
+    };
+
+    initGoogle();
   }, []);
 
   async function handleGoogleResponse(response: any) {
@@ -101,13 +126,7 @@ export default function SignupScreen() {
     } catch {}
   }
 
-  const handleGoogleClick = () => {
-    if (!import.meta.env.VITE_GOOGLE_CLIENT_ID) {
-      alert("Google Client ID is not configured. Please add VITE_GOOGLE_CLIENT_ID to your .env file.");
-      return;
-    }
-    (window as any).google?.accounts.id.prompt();
-  };
+  // Google button is now rendered automatically by Google's library
 
   return (
     <main className="flex-1 bg-white dark:bg-slate-950 min-h-screen flex flex-col transition-colors duration-300">
@@ -263,17 +282,13 @@ export default function SignupScreen() {
             <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
           </div>
 
-          <button
-            onClick={handleGoogleClick}
-            className="w-full h-14 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors shadow-md group"
+          {/* Google Sign-Up Button - rendered by Google's library */}
+          <div 
+            id="google-signup-button" 
+            className="w-full flex justify-center"
           >
-            <div className="flex items-center justify-center">
-              <img src="/google-logo.png" alt="Google" className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
-              <span className="text-base font-bold text-slate-700 dark:text-slate-300">
-                Sign up with Google
-              </span>
-            </div>
-          </button>
+            {/* Button will be rendered here by Google Identity Services */}
+          </div>
 
           <div className="mb-6 mt-auto flex flex-row pt-10">
             <span className="text-slate-500 dark:text-slate-400 mr-1">
