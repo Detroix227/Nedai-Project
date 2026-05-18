@@ -44,7 +44,7 @@ export function ChatMessageList({ messages, isStreaming = false }: Props) {
           >
             {isUser ? (
               <div className="flex flex-col items-end max-w-[92%] sm:max-w-[85%]">
-                <motionless
+                <div
                   className={`rounded-2xl px-4 py-3 text-slate-900 dark:text-slate-100 text-[15px] leading-relaxed shadow-sm ${
                     message.deliveryState === "failed"
                       ? "bg-red-50 dark:bg-red-900/30 border border-red-300 dark:border-red-800"
@@ -62,19 +62,19 @@ export function ChatMessageList({ messages, isStreaming = false }: Props) {
                         <p className="text-xs font-bold text-blue-900 dark:text-blue-100 truncate">
                           {message.document.title}
                         </p>
-                      </motionless>
-                    </motionless>
+                      </div>
+                    </div>
                   )}
-                </motionless>
+                </div>
                 {message.deliveryState === "failed" && (
                   <span className="mt-2 text-xs font-semibold text-red-600 dark:text-red-400">Not sent</span>
                 )}
-              </motionless>
+              </div>
             ) : (
               <div className="flex flex-row w-full max-w-[95%] sm:max-w-3xl lg:max-w-4xl gap-2 sm:gap-4">
                 <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center shrink-0 mt-1">
                   <Sparkles size={18} className="text-blue-600" />
-                </motionless>
+                </div>
 
                 <div className="flex-1 pt-1 min-w-0">
                   {isPendingAssistant ? (
@@ -82,13 +82,13 @@ export function ChatMessageList({ messages, isStreaming = false }: Props) {
                   ) : (
                     <MarkdownMessage content={message.content} />
                   )}
-                </motionless>
-              </motionless>
+                </div>
+              </div>
             )}
-          </motionless>
+          </div>
         );
       })}
       <div ref={bottomRef} aria-hidden className="h-px w-full shrink-0" />
-    </motionless>
+    </div>
   );
 }
