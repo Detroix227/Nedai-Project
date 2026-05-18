@@ -6,6 +6,8 @@ import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
+const electronBuild = process.env.ELECTRON_BUILD === '1'
+
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
@@ -24,5 +26,11 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
+  },
+  build: {
+    outDir: electronBuild
+      ? path.resolve(__dirname, '../nedai-desktop/web/dist')
+      : 'dist',
+    emptyOutDir: true,
   },
 })

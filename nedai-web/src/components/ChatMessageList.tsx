@@ -1,5 +1,5 @@
 import { FileText, Sparkles } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 import { MarkdownMessage } from "@/components/MarkdownMessage";
 import { TypingBubble } from "@/components/TypingBubble";
@@ -7,22 +7,29 @@ import type { ChatMessage } from "@/modules/contracts";
 
 type Props = {
   messages: ChatMessage[];
+  isStreaming?: boolean;
 };
 
-export function ChatMessageList({ messages }: Props) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+export function ChatMessageList({ messages, isStreaming = false }: Props) {
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  const scrollSignature = useMemo(
+    () =>
+      messages
+        .map((message) => `${message.id}:${message.content.length}`)
+        .join("|"),
+    [messages],
+  );
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
+    bottomRef.current?.scrollIntoView({
+      behavior: isStreaming ? "auto" : "smooth",
+      block: "end",
+    });
+  }, [scrollSignature, isStreaming]);
 
   return (
-    <div 
-      ref={scrollRef}
-      className="flex-1 overflow-y-auto px-4 pt-4 pb-8 space-y-6 scroll-smooth"
-    >
+    <div className="px-4 pt-4 pb-8 space-y-6">
       {messages.map((message) => {
         const isUser = message.role === "user";
         const isPendingAssistant =
@@ -45,7 +52,7 @@ export function ChatMessageList({ messages }: Props) {
                   }`}
                 >
                   <p>{message.content}</p>
-                  
+
                   {message.document && (
                     <div className="flex flex-row items-center bg-white dark:bg-slate-800 rounded-xl px-3 py-2 mt-3 border border-slate-200 dark:border-slate-700 select-none">
                       <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mr-3 shrink-0">
@@ -68,7 +75,7 @@ export function ChatMessageList({ messages }: Props) {
                 <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center shrink-0 mt-1">
                   <Sparkles size={18} className="text-blue-600" />
                 </div>
-                
+
                 <div className="flex-1 pt-1 min-w-0">
                   {isPendingAssistant ? (
                     <TypingBubble />
@@ -81,6 +88,7 @@ export function ChatMessageList({ messages }: Props) {
           </div>
         );
       })}
+      <div ref={bottomRef} aria-hidden className="h-px w-full shrink-0" />
     </div>
   );
 }

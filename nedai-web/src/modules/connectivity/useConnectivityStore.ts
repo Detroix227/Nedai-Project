@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 
+import { SERVER_ORIGIN } from '@/lib/env';
+
 interface ConnectivityState {
   isOnline: boolean;
   isChecking: boolean;
@@ -21,8 +23,8 @@ export const useConnectivityStore = create<ConnectivityState>((set) => ({
     set({ isChecking: true });
     try {
       // 2. Try a simple HEAD request to the server (faster than GET)
-      const response = await fetch(`${import.meta.env.VITE_SERVER_ORIGIN}/health`, {
-        method: 'HEAD',
+      const response = await fetch(`${SERVER_ORIGIN}/health`, {
+        method: 'GET',
         cache: 'no-store',
         // Short timeout: if the server is so slow it doesn't respond in 5s, 
         // we might as well use local mode on desktop, but on web we'll stay optimistic.

@@ -15,6 +15,25 @@ import { streamLocalMessage } from "@/modules/chat/chat.local.api";
 
 const EMPTY_ARRAY: any[] = [];
 
+// Holds the current stream's abort function. Stored outside the store to avoid serialization issues.
+let currentAbortFn: (() => void) | null = null;
+let resolveActiveSend: (() => void) | null = null;
+let pendingStopRestoreText: string | null = null;
+
+function removeLastUserAssistantExchange(messages: ChatMessage[]) {
+  const next = [...messages];
+
+  if (next.length > 0 && next[next.length - 1]?.role === "assistant") {
+    next.pop();
+  }
+
+  if (next.length > 0 && next[next.length - 1]?.role === "user") {
+    next.pop();
+  }
+
+  return next;
+}
+
 type PersistedChatStore = Partial<Pick<ChatStore, "activeThreadId">>;
 
 type ChatStore = {
@@ -32,6 +51,9 @@ type ChatStore = {
   selectThread: (threadId: string) => Promise<void>;
   startFreshChat: () => void;
   sendMessage: (payload: SendChatMessagePayload) => Promise<void>;
+  stopGeneration: () => void;
+  composerRestoreText: string | null;
+  clearComposerRestore: () => void;
   clearChatHistory: () => Promise<void>;
   deleteChat: (chatId: string) => Promise<void>;
   renameChat: (chatId: string, title: string) => Promise<void>;
@@ -147,6 +169,8 @@ export const useChatStore = create<ChatStore>()(
       messagesByChatId: {},
       loadedChatIds: [],
       contextUsageByChatId: {},
+      composerRestoreText: null,
+      clearComposerRestore: () => set({ composerRestoreText: null }),
       loadChats: async () => {
         set({
           status: "loading",
@@ -256,6 +280,7 @@ export const useChatStore = create<ChatStore>()(
           return;
         }
 
+        pendingStopRestoreText = trimmed;
         const activeThreadId = get().activeThreadId;
         const optimisticChatId = activeThreadId ?? "__draft__";
         const timestamp = Date.now();
@@ -307,6 +332,7 @@ export const useChatStore = create<ChatStore>()(
         useSyncStore.getState().startSync();
 
         return new Promise<void>(async (resolve, reject) => {
+          resolveActiveSend = resolve;
           const token = requireAccessToken();
           let realChatId: string | null = null;
           let realAssistantMessageId: string | null = null;
@@ -315,7 +341,7 @@ export const useChatStore = create<ChatStore>()(
 
           // --- OFFLINE / LOCAL PIVOT (Desktop Only) ---
           if (!isOnline && window.electronAPI) {
-            await streamLocalMessage(
+            const abortLocal = await streamLocalMessage(
               { content: trimmed },
               (event) => {
                 if (event.type === "chunk") {
@@ -325,15 +351,22 @@ export const useChatStore = create<ChatStore>()(
                       m.id === optimisticAssistantMessage.id ? { ...m, content: streamingContent } : m
                     ),
                   }));
+                } else if (event.type === "done") {
+                  pendingStopRestoreText = null;
+                  set({ status: "idle", errorMessage: null });
+                  currentAbortFn = null;
+                  resolveActiveSend = null;
+                  useSyncStore.getState().markSynced();
+                  resolve();
                 }
-              },
-              () => resolve()
+              }
             );
+            currentAbortFn = abortLocal;
             return;
           }
 
           // --- CLOUD MODE (Web and Online Desktop) ---
-          ChatApi.streamMessage(
+          const abortCloud = ChatApi.streamMessage(
             token,
             {
               ...(activeThreadId ? { chatId: activeThreadId } : {}),
@@ -407,10 +440,14 @@ export const useChatStore = create<ChatStore>()(
                   },
                 }));
               } else if (event.type === "done") {
+                pendingStopRestoreText = null;
                 set({ status: "idle", errorMessage: null });
+                resolveActiveSend = null;
                 useSyncStore.getState().markSynced();
                 resolve();
               } else if (event.type === "error") {
+                pendingStopRestoreText = null;
+                resolveActiveSend = null;
                 reject(new Error(event.message || "Streaming failed"));
               }
             },
@@ -456,10 +493,49 @@ export const useChatStore = create<ChatStore>()(
                 };
               });
               useSyncStore.getState().markError(errorMessage);
+              resolveActiveSend = null;
               reject(error);
             },
           );
+          currentAbortFn = abortCloud;
         });
+      },
+      stopGeneration: () => {
+        const restoreText = pendingStopRestoreText ?? "";
+        pendingStopRestoreText = null;
+        const threadId = get().activeThreadId;
+
+        if (currentAbortFn) {
+          currentAbortFn();
+          currentAbortFn = null;
+        }
+
+        set((state) => {
+          if (threadId) {
+            const existingMessages = state.messagesByChatId[threadId] ?? [];
+
+            return {
+              status: "idle",
+              errorMessage: null,
+              composerRestoreText: restoreText,
+              messagesByChatId: {
+                ...state.messagesByChatId,
+                [threadId]: removeLastUserAssistantExchange(existingMessages),
+              },
+            };
+          }
+
+          return {
+            status: "idle",
+            errorMessage: null,
+            composerRestoreText: restoreText,
+            draftMessages: removeLastUserAssistantExchange(state.draftMessages),
+          };
+        });
+
+        resolveActiveSend?.();
+        resolveActiveSend = null;
+        useSyncStore.getState().markSynced();
       },
       clearChatHistory: async () => {
         set({

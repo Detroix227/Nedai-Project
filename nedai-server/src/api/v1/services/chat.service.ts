@@ -567,7 +567,6 @@ RULES:
         model: this.chatModel,
         generationConfig: {
           temperature: 0.2,
-          maxOutputTokens: 800,
         },
       });
 

@@ -101,24 +101,40 @@ export function streamMessage(
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (value) {
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n\n");
+          buffer = lines.pop() ?? "";
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n\n");
-        buffer = lines.pop() ?? "";
-
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (trimmed.startsWith("data: ")) {
-            const data = trimmed.slice(6);
-            if (data) {
-              try {
-                const event = JSON.parse(data) as StreamEvent;
-                onEvent(event);
-              } catch (e) {
-                console.error("Failed to parse SSE data:", data);
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith("data: ")) {
+              const data = trimmed.slice(6);
+              if (data) {
+                try {
+                  const event = JSON.parse(data) as StreamEvent;
+                  onEvent(event);
+                } catch (e) {
+                  console.error("Failed to parse SSE data:", data);
+                }
               }
             }
+          }
+        }
+
+        if (done) break;
+      }
+
+      buffer += decoder.decode();
+      const trailing = buffer.trim();
+      if (trailing.startsWith("data: ")) {
+        const data = trailing.slice(6);
+        if (data) {
+          try {
+            const event = JSON.parse(data) as StreamEvent;
+            onEvent(event);
+          } catch (e) {
+            console.error("Failed to parse SSE data:", data);
           }
         }
       }
