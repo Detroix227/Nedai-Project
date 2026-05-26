@@ -24,6 +24,8 @@ type Props = {
   documentSuggestionStatus?: DocumentSuggestionStatus;
   onSelectDocument?: (document: DocumentSummary) => void;
   className?: string;
+  brainMode?: 'cloud' | 'local';
+  onToggleBrainMode?: () => void;
 };
 
 function getDocumentStatusDescription(document: DocumentSummary) {
@@ -56,6 +58,8 @@ export function ChatInput({
   documentSuggestionStatus = "idle",
   onSelectDocument,
   className = "",
+  brainMode: _brainMode,
+  onToggleBrainMode: _onToggleBrainMode,
 }: Props) {
   const hasSendableText = value.trim().length > 0 && !disabled && !isGenerating;
   const hasSuggestions = documentSuggestions.length > 0;

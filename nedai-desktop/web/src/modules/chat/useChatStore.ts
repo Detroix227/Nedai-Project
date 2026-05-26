@@ -12,6 +12,7 @@ import type {
 import { useSyncStore } from "@/modules/sync/useSyncStore";
 import { useConnectivityStore } from "@/modules/connectivity/useConnectivityStore";
 import { streamLocalMessage } from "@/modules/chat/chat.local.api";
+import * as ChatApiExtra from "@/modules/chat/chat.api";
 
 const EMPTY_ARRAY: any[] = [];
 
@@ -51,6 +52,7 @@ type ChatStore = {
   selectThread: (threadId: string) => Promise<void>;
   startFreshChat: () => void;
   sendMessage: (payload: SendChatMessagePayload) => Promise<void>;
+  editMessage: (messageId: string, newContent: string) => Promise<void>;
   stopGeneration: () => void;
   composerRestoreText: string | null;
   clearComposerRestore: () => void;
@@ -499,6 +501,145 @@ export const useChatStore = create<ChatStore>()(
                   ),
                 };
               });
+              useSyncStore.getState().markError(errorMessage);
+              pendingStopRestoreText = null;
+              resolveActiveSend = null;
+              reject(error);
+            },
+          );
+          currentAbortFn = abortCloud;
+        });
+      },
+      editMessage: async (messageId: string, newContent: string) => {
+        const token = requireAccessToken();
+        const activeThreadId = get().activeThreadId;
+        if (!activeThreadId) return;
+
+        const existingMessages = get().messagesByChatId[activeThreadId] ?? [];
+        // Find the index of the message being edited
+        const editedIdx = existingMessages.findIndex((m) => m.id === messageId);
+        if (editedIdx === -1) return;
+
+        const timestamp = Date.now();
+        // Immediately update the edited message text locally and prune later messages
+        const prunedMessages = existingMessages
+          .slice(0, editedIdx + 1)
+          .map((m) => (m.id === messageId ? { ...m, content: newContent } : m));
+
+        // Create optimistic assistant placeholder
+        const optimisticAssistantId = `temp-assistant-${timestamp}`;
+        const optimisticAssistant: import('@/modules/contracts').ChatMessage = {
+          id: optimisticAssistantId,
+          chatId: activeThreadId,
+          role: "assistant",
+          content: "",
+          createdAt: new Date(timestamp + 1).toISOString(),
+          deliveryState: "pending",
+        };
+
+        set((state) => ({
+          status: "sending" as const,
+          errorMessage: null,
+          messagesByChatId: {
+            ...state.messagesByChatId,
+            [activeThreadId]: [...prunedMessages, optimisticAssistant],
+          },
+        }));
+        useSyncStore.getState().startSync();
+
+        pendingStopRestoreText = newContent;
+
+        const isOnline = useConnectivityStore.getState().isOnline;
+        const brainMode = get().brainMode;
+
+        // LOCAL / OFFLINE path
+        if ((brainMode === 'local' || !isOnline) && window.electronAPI) {
+          return new Promise<void>(async (resolve) => {
+            resolveActiveSend = resolve;
+            let streamingContent = "";
+            const abortLocal = await streamLocalMessage(
+              { content: newContent },
+              (event) => {
+                if (event.type === "chunk") {
+                  streamingContent += event.content;
+                  set((state) => ({
+                    messagesByChatId: {
+                      ...state.messagesByChatId,
+                      [activeThreadId]: (state.messagesByChatId[activeThreadId] ?? []).map((m) =>
+                        m.id === optimisticAssistantId ? { ...m, content: streamingContent } : m
+                      ),
+                    },
+                  }));
+                } else if (event.type === "done") {
+                  pendingStopRestoreText = null;
+                  set({ status: "idle", errorMessage: null });
+                  currentAbortFn = null;
+                  resolveActiveSend = null;
+                  useSyncStore.getState().markSynced();
+                  resolve();
+                }
+              }
+            );
+            currentAbortFn = abortLocal;
+          });
+        }
+
+        // CLOUD path
+        return new Promise<void>((resolve, reject) => {
+          resolveActiveSend = resolve;
+          let realAssistantMessageId: string | null = null;
+          let streamingContent = "";
+
+          const abortCloud = ChatApiExtra.streamEditMessage(
+            token,
+            messageId,
+            newContent,
+            (event) => {
+              if (event.type === "init") {
+                realAssistantMessageId = event.assistantMessage.id;
+                set((state) => ({
+                  activeThreadId: event.chat.id,
+                  threads: mergeThread(state.threads, event.chat),
+                  messagesByChatId: {
+                    ...state.messagesByChatId,
+                    [event.chat.id]: [
+                      ...prunedMessages,
+                      { ...event.assistantMessage, content: "" },
+                    ],
+                  },
+                  loadedChatIds: state.loadedChatIds.includes(event.chat.id)
+                    ? state.loadedChatIds
+                    : [...state.loadedChatIds, event.chat.id],
+                }));
+                useSyncStore.getState().setChatCount(get().threads.length);
+              } else if (event.type === "chunk" && realAssistantMessageId) {
+                streamingContent += event.content;
+                const chatId = activeThreadId;
+                const assistantMsgId = realAssistantMessageId;
+                const content = streamingContent;
+                set((state) => ({
+                  messagesByChatId: {
+                    ...state.messagesByChatId,
+                    [chatId]: (state.messagesByChatId[chatId] ?? []).map((m) =>
+                      m.id === assistantMsgId ? { ...m, content } : m
+                    ),
+                  },
+                }));
+              } else if (event.type === "done") {
+                pendingStopRestoreText = null;
+                set({ status: "idle", errorMessage: null });
+                resolveActiveSend = null;
+                useSyncStore.getState().markSynced();
+                resolve();
+              } else if (event.type === "error") {
+                pendingStopRestoreText = null;
+                resolveActiveSend = null;
+                reject(new Error(event.message || "Edit stream failed"));
+              }
+            },
+            (error) => {
+              const errorMessage = handleChatError(error);
+              set({ status: "error" as const, errorMessage });
               useSyncStore.getState().markError(errorMessage);
               pendingStopRestoreText = null;
               resolveActiveSend = null;

@@ -21,12 +21,24 @@ export function AppShell({
     // Initial check
     void checkConnection();
 
+    // Instant offline/online event listeners
+    const handleConnectivityChange = () => {
+      void checkConnection();
+    };
+
+    window.addEventListener("online", handleConnectivityChange);
+    window.addEventListener("offline", handleConnectivityChange);
+
     // Set up 30-second heartbeat
     const interval = setInterval(() => {
       void checkConnection();
     }, 30000);
 
-    return () => clearInterval(interval);
+    return () => {
+      window.removeEventListener("online", handleConnectivityChange);
+      window.removeEventListener("offline", handleConnectivityChange);
+      clearInterval(interval);
+    };
   }, [checkConnection]);
 
   return (
