@@ -85,14 +85,18 @@ async function ingestFile(filePath) {
 async function queryHenry(queryText, limit = 3) {
   if (!table) return "";
 
-  const queryVector = await getEmbedding(queryText);
-  const results = await table.search(queryVector).limit(limit).execute();
-  
-  if (results.length === 0) return "";
+  try {
+    const queryVector = await getEmbedding(queryText);
+    const results = await table.search(queryVector).limit(limit).execute();
+    
+    if (!results || typeof results.map !== 'function' || results.length === 0) return "";
 
-  // Formatting for your "According to the..." requirement
-  const context = results.map(r => `[Source: ${r.source}] ${r.text}`).join('\n---\n');
-  return `CONTEXT FROM LOCAL DOCUMENTS:\n${context}`;
+    const context = results.map(r => `[Source: ${r.source}] ${r.text}`).join('\n---\n');
+    return `CONTEXT FROM LOCAL DOCUMENTS:\n${context}`;
+  } catch (e) {
+    console.error('[Henry Query Error]', e);
+    return "";
+  }
 }
 
 async function autoIngestHenryDocs(userDataPath) {
