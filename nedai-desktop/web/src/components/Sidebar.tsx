@@ -12,7 +12,6 @@ import {
   ShieldAlert,
   Moon,
   Sun,
-  Database,
 } from "lucide-react";
 import { useChatStore } from "@/modules/chat/useChatStore";
 import { useUIStore } from "@/modules/ui/useUIStore";
@@ -33,12 +32,6 @@ const STUDY_TOOLS = [
     label: "Knowledge Vault",
     href: "/knowledge-vault",
     icon: FolderOpen,
-  },
-  {
-    key: "local-vault",
-    label: "Local Vault",
-    href: "/local-vault",
-    icon: Database,
   },
   {
     key: "timetable",

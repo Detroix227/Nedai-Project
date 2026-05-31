@@ -14,7 +14,6 @@ import SettingsScreen from './app/(app)/settings';
 import AdminDashboard from './app/(app)/admin';
 import ChangePasswordScreen from './app/(app)/change-password';
 import NotificationsScreen from './app/(app)/notifications';
-import LocalVaultScreen from './app/(app)/local-vault';
 import { useAuthStore } from './modules/auth/useAuthStore';
 import './index.css';
 
@@ -50,7 +49,6 @@ function App() {
           <Route path="/settings" element={<SettingsScreen />} />
           <Route path="/change-password" element={<ChangePasswordScreen />} />
           <Route path="/notifications" element={<NotificationsScreen />} />
-          <Route path="/local-vault" element={<LocalVaultScreen />} />
           <Route path="/admin" element={<AdminDashboard />} />
         </Route>
 

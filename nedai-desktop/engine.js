@@ -93,4 +93,78 @@ async function queryHenry(queryText, limit = 3) {
   return `CONTEXT FROM LOCAL DOCUMENTS:\n${context}`;
 }
 
-module.exports = { initEngine, ingestFile, queryHenry };
+async function autoIngestHenryDocs(userDataPath) {
+  const henryDocsPath = path.resolve(path.join(__dirname, 'data', 'raw_pdfs'));
+  
+  if (!(await fs.pathExists(henryDocsPath))) {
+    console.log(`[Henry Auto-Ingest] Henry documents path not found at: ${henryDocsPath}`);
+    return;
+  }
+
+  console.log(`[Henry Auto-Ingest] Scanning documents in: ${henryDocsPath}`);
+  
+  const metadataPath = path.join(userDataPath, 'henry_vdb', 'ingested_metadata.json');
+  let metadata = {};
+  if (await fs.pathExists(metadataPath)) {
+    try {
+      metadata = await fs.readJson(metadataPath);
+    } catch (e) {
+      console.error('[Henry Auto-Ingest] Failed to read metadata file, rebuilding...', e);
+    }
+  }
+
+  const filesToIngest = [];
+  async function traverse(currentPath) {
+    const entries = await fs.readdir(currentPath);
+    for (const entry of entries) {
+      const fullPath = path.join(currentPath, entry);
+      const stat = await fs.stat(fullPath);
+      if (stat.isDirectory()) {
+        await traverse(fullPath);
+      } else {
+        const ext = path.extname(entry).toLowerCase();
+        if (ext === '.pdf' || ext === '.docx' || ext === '.doc') {
+          const relPath = path.relative(henryDocsPath, fullPath);
+          filesToIngest.push({
+            fullPath,
+            relPath,
+            mtime: stat.mtimeMs
+          });
+        }
+      }
+    }
+  }
+
+  try {
+    await traverse(henryDocsPath);
+  } catch (err) {
+    console.error('[Henry Auto-Ingest] Traversal error:', err);
+    return;
+  }
+  
+  console.log(`[Henry Auto-Ingest] Found ${filesToIngest.length} candidate documents.`);
+
+  let ingestedCount = 0;
+  for (const file of filesToIngest) {
+    const lastIngestedMtime = metadata[file.relPath];
+    if (lastIngestedMtime === undefined || lastIngestedMtime !== file.mtime) {
+      try {
+        console.log(`[Henry Auto-Ingest] Ingesting new/modified file: ${file.relPath}`);
+        await ingestFile(file.fullPath);
+        metadata[file.relPath] = file.mtime;
+        ingestedCount++;
+      } catch (err) {
+        console.error(`[Henry Auto-Ingest] Failed to ingest ${file.relPath}:`, err);
+      }
+    }
+  }
+
+  if (ingestedCount > 0) {
+    await fs.writeJson(metadataPath, metadata, { spaces: 2 });
+    console.log(`[Henry Auto-Ingest] Completed: Ingested ${ingestedCount} files.`);
+  } else {
+    console.log('[Henry Auto-Ingest] All documents are already up-to-date.');
+  }
+}
+
+module.exports = { initEngine, ingestFile, queryHenry, autoIngestHenryDocs };

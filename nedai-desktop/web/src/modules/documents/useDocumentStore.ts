@@ -114,6 +114,16 @@ export const useDocumentStore = create<DocumentStore>()(
             },
           });
 
+          // Sync file locally if running in desktop Electron
+          if (window.electronAPI && (uploadFile as any).path) {
+            try {
+              console.log("[Desktop Local Sync] Ingesting uploaded file locally:", (uploadFile as any).path);
+              await window.electronAPI.ingestFile((uploadFile as any).path);
+            } catch (localErr) {
+              console.error("[Desktop Local Sync] Local ingestion failed:", localErr);
+            }
+          }
+
           await get().loadDocuments(token);
           set({ uploadProgress: 0, status: "idle" });
         } catch (error) {

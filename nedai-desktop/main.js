@@ -3,7 +3,7 @@ const path = require('path');
 const { exec, spawn } = require('child_process');
 const isDev = process.env.NODE_ENV === 'development';
 
-const { initEngine, ingestFile, queryHenry } = require('./engine');
+const { initEngine, ingestFile, queryHenry, autoIngestHenryDocs } = require('./engine');
 
 // Register the custom protocol
 if (process.defaultApp) {
@@ -126,7 +126,12 @@ function createWindow() {
   });
 
   // Initialize the Local Brain (Henry)
-  initEngine(app.getPath('userData')).then(() => {
+  initEngine(app.getPath('userData')).then(async () => {
+    try {
+      await autoIngestHenryDocs(app.getPath('userData'));
+    } catch (err) {
+      console.error('[Henry Auto-Ingest Error]', err);
+    }
     bootstrapModels(mainWindow);
   }).catch(console.error);
 
