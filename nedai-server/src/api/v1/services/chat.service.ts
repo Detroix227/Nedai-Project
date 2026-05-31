@@ -123,6 +123,28 @@ const getCurrentDateTimeString = () => {
   }
 };
 
+const getLagosPeriodOfDay = () => {
+  try {
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Africa/Lagos",
+      hour: "numeric",
+      hour12: false
+    });
+    const hour = parseInt(formatter.format(new Date()), 10);
+    
+    if (hour >= 5 && hour < 12) return "Morning (daylight)";
+    if (hour >= 12 && hour < 17) return "Afternoon (daylight)";
+    if (hour >= 17 && hour < 21) return "Evening (sunset/dusk)";
+    return "Night/Late Night (dark outside)";
+  } catch (e) {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) return "Morning";
+    if (hour >= 12 && hour < 17) return "Afternoon";
+    if (hour >= 17 && hour < 21) return "Evening";
+    return "Night/Late Night";
+  }
+};
+
 async function getLocalWeather() {
   try {
     const res = await fetch("https://wttr.in/Lagos?format=%c+%t+%C", {
@@ -524,7 +546,7 @@ STYLE & FORMATTING RULES (CAPTIVATING & CHATGPT-LIKE):
       },
       {
         role: "system" as const,
-        content: `Real-time Context:\n- Current Date & Time: ${getCurrentDateTimeString()}\n- Local Weather (Lagos): ${await getLocalWeather()}\n\nNote: Use this real-time info to make the user feel comfortable, greet them warmly depending on the time of day, and show awareness of their environment when appropriate.`,
+        content: `Real-time Context:\n- Current Date & Time: ${getCurrentDateTimeString()}\n- Period of Day: ${getLagosPeriodOfDay()}\n- Local Weather (Lagos): ${await getLocalWeather()}\n\nNote: Use this real-time info to make the user feel comfortable, greet them warmly depending on the time of day, and show awareness of their environment when appropriate.`,
       },
       // Hybrid chat context: recent messages + semantically relevant RAG results
       ...(await buildHybridChatContext(userId, chat.id, data.content, 5, 3)),

@@ -27,6 +27,13 @@ export async function streamLocalMessage(
         
         Real-time Context:
         - Current Date & Time: ${new Date().toLocaleString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: true })}
+        - Period of Day: ${(() => {
+          const hour = new Date().getHours();
+          if (hour >= 5 && hour < 12) return "Morning (daylight)";
+          if (hour >= 12 && hour < 17) return "Afternoon (daylight)";
+          if (hour >= 17 && hour < 21) return "Evening (sunset/dusk)";
+          return "Night/Late Night (dark outside)";
+        })()}
         - Local Weather Info: Offline (Weather data unavailable offline)
         
         Note: Use this real-time info to make the user feel comfortable, greet them warmly depending on the time of day, and show awareness of their environment when appropriate.
