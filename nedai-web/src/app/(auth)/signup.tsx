@@ -79,6 +79,8 @@ export default function SignupScreen() {
 
       if (isDesktopRedirect && token) {
         window.location.href = `nedai://auth?token=${token}`;
+        setTimeout(() => window.close(), 500);
+        return;
       } else {
         navigate("/chat");
       }
@@ -120,6 +122,8 @@ export default function SignupScreen() {
 
       if (isDesktopRedirect && token) {
         window.location.href = `nedai://auth?token=${token}`;
+        setTimeout(() => window.close(), 500);
+        return;
       } else {
         navigate("/chat");
       }

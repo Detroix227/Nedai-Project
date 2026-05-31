@@ -10,6 +10,7 @@ const electronBuild = process.env.ELECTRON_BUILD === '1'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: electronBuild ? './' : '/',
   server: {
     proxy: {
       '/api': {

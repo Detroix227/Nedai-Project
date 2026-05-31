@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import IntroScreen from './app/(auth)/intro';
 import LoginScreen from './app/(auth)/login';
 import SignupScreen from './app/(auth)/signup';
@@ -15,9 +15,14 @@ import ChangePasswordScreen from './app/(app)/change-password';
 import NotificationsScreen from './app/(app)/notifications';
 import './index.css';
 
+// Electron loads via file:// protocol where BrowserRouter can't match routes.
+// HashRouter uses URL hashes (#/login) which work with any protocol.
+const isElectron = typeof window !== 'undefined' && !!window.electronAPI;
+const Router = isElectron ? HashRouter : BrowserRouter;
+
 function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
         {/* Public Route */}
         <Route path="/" element={<IntroScreen />} />
@@ -41,7 +46,7 @@ function App() {
         {/* Catch-all: any unknown path → /intro */}
         <Route path="*" element={<Navigate to="/intro" replace />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
 
