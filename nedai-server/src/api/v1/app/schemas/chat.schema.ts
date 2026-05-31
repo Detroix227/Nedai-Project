@@ -20,3 +20,23 @@ export const sendMessageSchema = z
 
 export type ChatParams = z.infer<typeof chatParamsSchema>;
 export type SendMessageInput = z.infer<typeof sendMessageSchema>;
+
+export const messageParamsSchema = z
+  .object({
+    messageId: z.string().uuid("Message ID must be a valid UUID"),
+  })
+  .strict();
+
+export const editMessageSchema = z
+  .object({
+    content: z
+      .string()
+      .trim()
+      .min(1, "Content is required")
+      .max(8000, "Content must be 8000 characters or fewer"),
+  })
+  .strict();
+
+export type MessageParams = z.infer<typeof messageParamsSchema>;
+export type EditMessageInput = z.infer<typeof editMessageSchema>;
+
