@@ -44,7 +44,9 @@ async function ingestFile(filePath) {
   
   if (ext === '.pdf') {
     const dataBuffer = await fs.readFile(filePath);
-    const data = await pdf(dataBuffer);
+    const parser = new pdf.PDFParse({ data: dataBuffer });
+    const data = await parser.getText();
+    await parser.destroy();
     text = data.text;
   } else if (ext === '.docx' || ext === '.doc') {
     const result = await mammoth.extractRawText({ path: filePath });
