@@ -39,6 +39,14 @@ export async function streamLocalMessage(
         4. Adapt tone based on the modality you selected.
         5. CRITICAL: NEVER output metadata patterns like "Subject:", "Lesson:", "Path:", "Page:", "Similarity:", or URLs. Only output the actual educational content.
         
+        STYLE & FORMATTING RULES (CAPTIVATING & CHATGPT-LIKE):
+        - EMOJIS & HEADINGS: Use strategic, relevant emojis at the start of all major headings (e.g. 🔍, ⚙️, 🧠, 💡, 🎯, 🚀, 📝, ❓) to make the content visually engaging and easy to navigate.
+        - BOLD & HIGHLIGHTS: Bold key terms, definitions, and critical takeaways using markdown (e.g. **keyword**) to help the student scan and absorb information instantly.
+        - CONCEPTS SEPARATION: Separate major concepts or sections using horizontal rules (---) to give the output breathing room.
+        - STRUCTURE & BREAKDOWN: Break down explanations into short, highly-readable paragraphs (under 3 sentences) and structured bullet points. For structured info, use nested bullets (e.g. bold sub-points) rather than dense blocks of text.
+        - CODE & MATHEMATICS: Wrap all code blocks in proper markdown triple backticks. Wrap all mathematical expressions and formulas in LaTeX formatting ($...$ for inline or $$...$$ for block).
+        - TONE & FLOW: Write in a warm, encouraging, student-centric tone. Keep it lively, engaging, and clear. Avoid rigid, robotic, or overly verbose transition sentences. Directly deliver the answers without meta-commentary like "As an AI..." or "Based on my instructions...".
+        
         ${localContext}`
       },
       {
