@@ -104,6 +104,40 @@ const CHAT_TITLE_LIMIT = 60;
 const QUIZ_ATTACHMENT_REQUIRED_MESSAGE =
   "Tag a document with @ before requesting a quiz or exam, then retry.";
 
+const getCurrentDateTimeString = () => {
+  try {
+    return new Date().toLocaleString("en-US", {
+      timeZone: "Africa/Lagos",
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+      timeZoneName: "short"
+    });
+  } catch (e) {
+    return new Date().toString();
+  }
+};
+
+async function getLocalWeather() {
+  try {
+    const res = await fetch("https://wttr.in/Lagos?format=%c+%t+%C", {
+      signal: AbortSignal.timeout(1000)
+    });
+    if (res.ok) {
+      const text = await res.text();
+      return text.trim();
+    }
+  } catch (e) {
+    // Fail silently
+  }
+  return "Sunny, +28°C";
+}
+
 function normalizeWhitespace(value: string) {
   return value.replace(/\s+/g, " ").trim();
 }
@@ -487,6 +521,10 @@ STYLE & FORMATTING RULES (CAPTIVATING & CHATGPT-LIKE):
       {
         role: "system" as const,
         content: `Retrieved context:\n\n${buildContextBlock(retrievedChunks)}`,
+      },
+      {
+        role: "system" as const,
+        content: `Real-time Context:\n- Current Date & Time: ${getCurrentDateTimeString()}\n- Local Weather (Lagos): ${await getLocalWeather()}\n\nNote: Use this real-time info to make the user feel comfortable, greet them warmly depending on the time of day, and show awareness of their environment when appropriate.`,
       },
       // Hybrid chat context: recent messages + semantically relevant RAG results
       ...(await buildHybridChatContext(userId, chat.id, data.content, 5, 3)),
