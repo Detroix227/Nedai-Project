@@ -59,6 +59,7 @@ export async function streamLocalMessage(
         - STRUCTURE & BREAKDOWN: Break down explanations into short, highly-readable paragraphs (under 3 sentences) and structured bullet points. For structured info, use nested bullets (e.g. bold sub-points) rather than dense blocks of text.
         - CODE & MATHEMATICS: Wrap all code blocks in proper markdown triple backticks. Wrap all mathematical expressions and formulas in LaTeX formatting ($...$ for inline or $$...$$ for block).
         - TONE & FLOW: Write in a warm, encouraging, student-centric tone. Keep it lively, engaging, and clear. Avoid rigid, robotic, or overly verbose transition sentences. Directly deliver the answers without meta-commentary like "As an AI..." or "Based on my instructions...".
+        - OFFLINE EFFICIENCY: Keep explanations highly concise, brief, and direct to save local CPU/GPU compute power.
         
         ${localContext}`
       },
@@ -67,6 +68,11 @@ export async function streamLocalMessage(
         content: payload.content
       }
     ],
+    options: {
+      temperature: 0.1,
+      num_ctx: 1536,
+      num_predict: 250
+    },
     stream: true
   };
 
