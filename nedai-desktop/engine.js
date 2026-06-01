@@ -72,6 +72,11 @@ async function ingestFile(filePath) {
     });
   }
 
+  if (records.length === 0) {
+    console.log(`[Henry] No valid text chunks found in: ${path.basename(filePath)}. Skipping vector database insertion.`);
+    return 0;
+  }
+
   if (table) {
     await table.add(records);
   } else {
