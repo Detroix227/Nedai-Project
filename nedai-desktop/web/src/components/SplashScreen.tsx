@@ -1,16 +1,21 @@
 import { Loader2, Download } from 'lucide-react';
 import { useAuthStore } from '@/modules/auth/useAuthStore';
+import { SetupWizard } from './SetupWizard';
 
 export function SplashScreen() {
   const status = useAuthStore((state) => state.bootstrapStatus);
   const progress = useAuthStore((state) => state.bootstrapProgress);
 
+  // Render Setup Wizard if setup is ongoing or an error occurred
+  if (status === 'pulling' || status === 'initializing' || status === 'error-no-ollama' || status === 'error-pull-failed') {
+    return <SetupWizard />;
+  }
+
   const getStatusText = () => {
     switch (status) {
-      case 'pulling': return 'Downloading Local Brain...';
-      case 'initializing': return 'Starting Henry...';
       case 'ready': return 'Ready!';
-      case 'error-pull-failed': return 'Download failed. Check connection.';
+      case 'model-warming': return 'Warming up local AI model...';
+      case 'model-ready': return 'Model Ready!';
       default: return 'Initializing...';
     }
   };
@@ -20,7 +25,7 @@ export function SplashScreen() {
       <div className="flex flex-col items-center mb-24">
         <div className="w-40 h-40 bg-[#0F1E21] rounded-3xl p-5 flex justify-center items-center mb-6 shadow-xl shadow-slate-200">
           <img 
-            src="nedai-symbol.png" 
+            src="nedai-symbol-v3.png" 
             alt="NedAI Logo" 
             className="w-full h-full object-contain scale-125"
           />

@@ -1,0 +1,14 @@
+Started at 17/06/2026  0:21:42.07 
+
+> nedai-desktop@1.0.0 start:prod
+> cross-env NODE_ENV=production electron .
+
+
+[Henry] Loading embedding model...
+[Henry Auto-Ingest] Scanning documents in: c:\Users\Calvin\OneDrive\Documents 1\400 level\Nedia-project\nedai-desktop\data\raw_pdfs
+[Henry Auto-Ingest] Found 395 candidate documents.
+[Henry Auto-Ingest] All documents are already up-to-date.
+[Bootstrapper] Checking for Phi-3 Mini via HTTP API...
+[Bootstrapper] Phi-3 Mini found via HTTP API. Starting warm-up...
+[Bootstrapper] Warming up Phi-3 Mini model in memory...
+[Bootstrapper] Model warm-up complete. NedAI is ready!

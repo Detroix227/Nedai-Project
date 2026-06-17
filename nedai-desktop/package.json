@@ -7,8 +7,33 @@
     "dev": "cross-env NODE_ENV=development electron .",
     "start": "electron .",
     "start:prod": "cross-env NODE_ENV=production electron .",
-    "build:web": "cross-env ELECTRON_BUILD=1 npm --prefix ../nedai-web run build",
+    "build:web": "npm --prefix web run build",
+    "dist": "electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "build": {
+    "appId": "com.nedai.desktop",
+    "productName": "NedAI",
+    "directories": {
+      "output": "dist-installers"
+    },
+    "files": [
+      "main.js",
+      "engine.js",
+      "preload.js",
+      "web/dist/**/*",
+      "data/**/*",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "web/dist/nedai-symbol-v3.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "NedAI"
+    }
   },
   "keywords": [],
   "author": "",
@@ -16,7 +41,8 @@
   "type": "commonjs",
   "devDependencies": {
     "cross-env": "^10.1.0",
-    "electron": "^42.0.1"
+    "electron": "^42.0.1",
+    "electron-builder": "^26.15.3"
   },
   "dependencies": {
     "@lancedb/lancedb": "^0.27.2",

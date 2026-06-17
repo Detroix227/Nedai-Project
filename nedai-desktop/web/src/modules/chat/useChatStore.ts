@@ -355,19 +355,86 @@ export const useChatStore = create<ChatStore>()(
               (event) => {
                 if (event.type === "chunk") {
                   streamingContent += event.content;
-                  set((state) => ({
-                    draftMessages: state.draftMessages.map((m) =>
-                      m.id === optimisticAssistantMessage.id ? { ...m, content: streamingContent } : m
-                    ),
-                  }));
+                  set((state) => {
+                    if (activeThreadId) {
+                      return {
+                        messagesByChatId: {
+                          ...state.messagesByChatId,
+                          [activeThreadId]: (state.messagesByChatId[activeThreadId] ?? []).map((m) =>
+                            m.id === optimisticAssistantMessage.id ? { ...m, content: streamingContent } : m
+                          ),
+                        },
+                      };
+                    }
+                    return {
+                      draftMessages: state.draftMessages.map((m) =>
+                        m.id === optimisticAssistantMessage.id ? { ...m, content: streamingContent } : m
+                      ),
+                    };
+                  });
                 } else if (event.type === "done") {
                   pendingStopRestoreText = null;
-                  set({ status: "idle", errorMessage: null });
+                  set((state) => {
+                    if (activeThreadId) {
+                      return {
+                        status: "idle",
+                        errorMessage: null,
+                        messagesByChatId: {
+                          ...state.messagesByChatId,
+                          [activeThreadId]: (state.messagesByChatId[activeThreadId] ?? []).map((m) =>
+                            m.id === optimisticAssistantMessage.id || m.id === optimisticUserMessage.id
+                              ? { ...m, deliveryState: undefined }
+                              : m
+                          ),
+                        },
+                      };
+                    }
+                    return {
+                      status: "idle",
+                      errorMessage: null,
+                      draftMessages: state.draftMessages.map((m) =>
+                        m.id === optimisticAssistantMessage.id || m.id === optimisticUserMessage.id
+                          ? { ...m, deliveryState: undefined }
+                          : m
+                      ),
+                    };
+                  });
                   currentAbortFn = null;
                   resolveActiveSend = null;
                   useSyncStore.getState().markSynced();
                   resolve();
                 }
+              },
+              (err) => {
+                pendingStopRestoreText = null;
+                const errorMessage = err.message || "Streaming failed";
+                set((state) => {
+                  if (activeThreadId) {
+                    const existingMessages = state.messagesByChatId[activeThreadId] ?? [];
+                    const withoutAssistant = existingMessages.filter(m => m.id !== optimisticAssistantMessage.id);
+                    return {
+                      status: "error" as const,
+                      errorMessage,
+                      messagesByChatId: {
+                        ...state.messagesByChatId,
+                        [activeThreadId]: withoutAssistant.map(m =>
+                          m.id === optimisticUserMessage.id ? { ...m, deliveryState: "failed" } : m
+                        ),
+                      },
+                    };
+                  }
+                  const withoutAssistant = state.draftMessages.filter(m => m.id !== optimisticAssistantMessage.id);
+                  return {
+                    status: "error" as const,
+                    errorMessage,
+                    draftMessages: withoutAssistant.map(m =>
+                      m.id === optimisticUserMessage.id ? { ...m, deliveryState: "failed" } : m
+                    ),
+                  };
+                });
+                currentAbortFn = null;
+                resolveActiveSend = null;
+                reject(err);
               }
             );
             currentAbortFn = abortLocal;
@@ -572,7 +639,16 @@ export const useChatStore = create<ChatStore>()(
                   }));
                 } else if (event.type === "done") {
                   pendingStopRestoreText = null;
-                  set({ status: "idle", errorMessage: null });
+                  set((state) => ({
+                    status: "idle",
+                    errorMessage: null,
+                    messagesByChatId: {
+                      ...state.messagesByChatId,
+                      [activeThreadId]: (state.messagesByChatId[activeThreadId] ?? []).map((m) =>
+                        m.id === optimisticAssistantId ? { ...m, deliveryState: undefined } : m
+                      ),
+                    },
+                  }));
                   currentAbortFn = null;
                   resolveActiveSend = null;
                   useSyncStore.getState().markSynced();

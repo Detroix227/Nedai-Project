@@ -19,6 +19,7 @@ import './index.css';
 
 function App() {
   const refreshProfile = useAuthStore((state) => state.refreshProfile);
+  const bootstrapSession = useAuthStore((state) => state.bootstrapSession);
 
   useEffect(() => {
     // Listen for auth tokens from the desktop shell (Deep Linking)
@@ -28,7 +29,10 @@ function App() {
         refreshProfile(token);
       });
     }
-  }, [refreshProfile]);
+
+    // Initialize the bootstrap session to listen for electron bootstrap events
+    bootstrapSession();
+  }, [refreshProfile, bootstrapSession]);
 
   return (
     <HashRouter>

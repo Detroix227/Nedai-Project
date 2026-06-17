@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const { exec, spawn } = require('child_process');
+const http = require('http');
 const isDev = process.env.NODE_ENV === 'development';
 
 const { initEngine, ingestFile, queryHenry, autoIngestHenryDocs } = require('./engine');
@@ -51,60 +52,128 @@ if (!gotTheLock) {
   });
 }
 
+// Warm up the model by sending a tiny keepalive request so the first user message
+// is fast instead of incurring a ~60 second cold-start delay.
+function warmUpModel(window) {
+  console.log('[Bootstrapper] Warming up Phi-3 Mini model in memory...');
+  window.webContents.send('bootstrap-status', 'model-warming');
+
+  const warmPayload = JSON.stringify({
+    model: 'phi3:mini',
+    prompt: 'hi',
+    stream: false,
+    options: { num_predict: 1 },
+    keep_alive: '10m'
+  });
+
+  const req = http.request({
+    hostname: '127.0.0.1',
+    port: 11434,
+    path: '/api/generate',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(warmPayload)
+    }
+  }, (res) => {
+    res.resume(); // drain response
+    res.on('end', () => {
+      console.log('[Bootstrapper] Model warm-up complete. NedAI is ready!');
+      window.webContents.send('bootstrap-status', 'model-ready');
+    });
+  });
+
+  req.on('error', (err) => {
+    console.warn('[Bootstrapper] Warm-up request failed (non-critical):', err.message);
+    // Still mark as ready so the user isn't stuck
+    window.webContents.send('bootstrap-status', 'model-ready');
+  });
+
+  req.write(warmPayload);
+  req.end();
+}
+
 // Bootstrapper: Ensure local models are ready
 async function bootstrapModels(window) {
   return new Promise((resolve) => {
-    console.log('[Bootstrapper] Checking for Phi-3 Mini...');
+    console.log('[Bootstrapper] Checking for Phi-3 Mini via HTTP API...');
     
-    // Check if phi3 is already pulled
-    exec('ollama list', (err, stdout) => {
-      if (err) {
-        console.error('[Bootstrapper] Ollama not found or not running.');
-        window.webContents.send('bootstrap-status', 'error-no-ollama');
-        return resolve(false);
-      }
+    const req = http.request({
+      hostname: '127.0.0.1',
+      port: 11434,
+      path: '/api/tags',
+      method: 'GET',
+      timeout: 5000
+    }, (res) => {
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          const hasPhi3 = json.models && json.models.some(m => m.name.includes('phi3') || m.model.includes('phi3'));
+          
+          if (hasPhi3) {
+            console.log('[Bootstrapper] Phi-3 Mini found via HTTP API. Starting warm-up...');
+            window.webContents.send('bootstrap-status', 'ready');
+            warmUpModel(window);
+            return resolve(true);
+          } else {
+            // Model missing, start pulling
+            console.log('[Bootstrapper] Phi-3 Mini missing. Pulling now...');
+            window.webContents.send('bootstrap-status', 'pulling');
+            
+            const pullProcess = spawn('ollama', ['pull', 'phi3:mini']);
+            
+            pullProcess.stdout.on('data', (data) => {
+              const output = data.toString();
+              const match = output.match(/(\d+)%/);
+              if (match) {
+                window.webContents.send('bootstrap-progress', parseInt(match[1]));
+              }
+            });
 
-      if (stdout.includes('phi3')) {
-        console.log('[Bootstrapper] Phi-3 Mini found.');
-        window.webContents.send('bootstrap-status', 'ready');
-        return resolve(true);
-      }
-
-      // Model missing, start pulling
-      console.log('[Bootstrapper] Phi-3 Mini missing. Pulling now...');
-      window.webContents.send('bootstrap-status', 'pulling');
-      
-      const pullProcess = spawn('ollama', ['pull', 'phi3:mini']);
-      
-      pullProcess.stdout.on('data', (data) => {
-        const output = data.toString();
-        // Ollama sends progress to stdout or stderr depending on version/terminal
-        // Look for percentages like "50%"
-        const match = output.match(/(\d+)%/);
-        if (match) {
-          window.webContents.send('bootstrap-progress', parseInt(match[1]));
-        }
-      });
-
-      pullProcess.stderr.on('data', (data) => {
-        const output = data.toString();
-        const match = output.match(/(\d+)%/);
-        if (match) {
-          window.webContents.send('bootstrap-progress', parseInt(match[1]));
-        }
-      });
-      
-      pullProcess.on('close', (code) => {
-        if (code === 0) {
-          console.log('[Bootstrapper] Phi-3 Mini pulled successfully.');
-          window.webContents.send('bootstrap-status', 'ready');
-          resolve(true);
-        } else {
-          window.webContents.send('bootstrap-status', 'error-pull-failed');
+            pullProcess.stderr.on('data', (data) => {
+              const output = data.toString();
+              const match = output.match(/(\d+)%/);
+              if (match) {
+                window.webContents.send('bootstrap-progress', parseInt(match[1]));
+              }
+            });
+            
+            pullProcess.on('close', (code) => {
+              if (code === 0) {
+                console.log('[Bootstrapper] Phi-3 Mini pulled successfully.');
+                window.webContents.send('bootstrap-status', 'ready');
+                warmUpModel(window);
+                resolve(true);
+              } else {
+                window.webContents.send('bootstrap-status', 'error-pull-failed');
+                resolve(false);
+              }
+            });
+          }
+        } catch (e) {
+          console.error('[Bootstrapper] Failed to parse Ollama response:', e);
+          window.webContents.send('bootstrap-status', 'error-no-ollama');
           resolve(false);
         }
       });
     });
+
+    req.on('error', (err) => {
+      console.error('[Bootstrapper] Ollama not found or not running:', err.message);
+      window.webContents.send('bootstrap-status', 'error-no-ollama');
+      resolve(false);
+    });
+
+    req.on('timeout', () => {
+      req.destroy();
+      console.error('[Bootstrapper] Ollama connection timed out.');
+      window.webContents.send('bootstrap-status', 'error-no-ollama');
+      resolve(false);
+    });
+
+    req.end();
   });
 }
 
@@ -142,6 +211,7 @@ function createWindow() {
   } else {
     // In production, load the built files
     mainWindow.loadFile(path.join(__dirname, 'web/dist/index.html'));
+    mainWindow.webContents.openDevTools();
   }
 
   // Ensure external links open in the default browser

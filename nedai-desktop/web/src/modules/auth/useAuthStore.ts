@@ -122,7 +122,10 @@ export const useAuthStore = create<AuthStore>()(
           (window as any).electronAPI.onBootstrapStatus((status: string) => {
             console.log('[Desktop] Bootstrap status:', status);
             set({ bootstrapStatus: status });
-            if (status === 'ready') {
+            // Mark bootstrapped on 'ready' so the app is usable while the model warms up.
+            // 'model-warming' = model loading into RAM (~30–60s on first launch).
+            // 'model-ready'   = model is hot; first user message will be fast.
+            if (status === 'ready' || status === 'model-warming' || status === 'model-ready') {
               set({ bootstrapped: true });
             }
           });

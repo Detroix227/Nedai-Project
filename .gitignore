@@ -50,3 +50,7 @@ coverage/
 # React Native
 *.ipa
 *.apk
+
+# Desktop installers and setups
+**/dist-installers/
+**/public/NedAI-Setup.exe

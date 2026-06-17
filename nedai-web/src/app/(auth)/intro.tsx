@@ -1,5 +1,5 @@
 import { Link, Navigate } from 'react-router-dom';
-import { Sparkles, BrainCircuit, CalendarDays, GraduationCap, ChevronRight, Sun, Moon } from 'lucide-react';
+import { Sparkles, BrainCircuit, CalendarDays, GraduationCap, ChevronRight, Sun, Moon, Download } from 'lucide-react';
 import { useEffect } from 'react';
 import { useAuthStore } from '@/modules/auth/useAuthStore';
 import { useUIStore } from '@/modules/ui/useUIStore';
@@ -48,6 +48,14 @@ export default function IntroScreen() {
               )}
             </button>
             
+            <a 
+              href="https://github.com/Detroix227/Nedai-Project/releases/download/v1.0.0/NedAI.Setup.1.0.0.exe" 
+              download
+              className="text-slate-600 dark:text-slate-300 font-semibold hover:text-slate-900 dark:hover:text-white transition px-2 sm:px-4 py-2 text-sm sm:text-base flex items-center gap-1.5"
+            >
+              <Download size={16} />
+              <span>Download App</span>
+            </a>
             <Link 
               to="/login" 
               className="text-slate-600 dark:text-slate-300 font-semibold hover:text-slate-900 dark:hover:text-white transition px-2 sm:px-4 py-2 text-sm sm:text-base"
@@ -75,12 +83,21 @@ export default function IntroScreen() {
           <p className="text-lg sm:text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl leading-relaxed mb-8 sm:mb-12 font-medium px-2 sm:px-0">
             Your personal AI-powered academic assistant. Automate your schedule, store your knowledge, and study smarter.
           </p>
-          <Link 
-            to="/signup" 
-            className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-bold px-6 sm:px-8 py-3 sm:py-4 rounded-full flex items-center gap-2 transition transform hover:scale-105 shadow-xl text-base sm:text-lg"
-          >
-            Get Started for Free <ChevronRight size={18} className="sm:w-5 sm:h-5" strokeWidth={3} />
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link 
+              to="/signup" 
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 sm:px-8 py-3.5 sm:py-4 rounded-full flex items-center gap-2 transition transform hover:scale-105 shadow-xl text-base sm:text-lg"
+            >
+              Get Started for Free <ChevronRight size={18} className="sm:w-5 sm:h-5" strokeWidth={3} />
+            </Link>
+            <a 
+              href="https://github.com/Detroix227/Nedai-Project/releases/download/v1.0.0/NedAI.Setup.1.0.0.exe" 
+              download
+              className="bg-slate-900 dark:bg-slate-800 text-white hover:bg-slate-800 dark:hover:bg-slate-700 font-bold px-6 sm:px-8 py-3.5 sm:py-4 rounded-full flex items-center gap-2 transition transform hover:scale-105 border border-slate-700/50 shadow-xl text-base sm:text-lg"
+            >
+              <Download size={18} className="sm:w-5 sm:h-5" strokeWidth={3} /> Download for Windows
+            </a>
+          </div>
         </section>
 
         {/* Detailed Sections */}
@@ -146,12 +163,21 @@ export default function IntroScreen() {
         {/* Footer CTA */}
         <section className="bg-slate-50 dark:bg-slate-950 py-20 sm:py-32 text-center px-4 sm:px-6">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-6 sm:mb-8 tracking-tight">Ready to upgrade your workflow?</h2>
-          <Link 
-            to="/signup" 
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 sm:px-10 py-3 sm:py-5 rounded-full transition transform hover:scale-105 shadow-xl text-lg sm:text-xl"
-          >
-            Create Your Free Account
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-lg mx-auto">
+            <Link 
+              to="/signup" 
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 sm:px-10 py-3.5 sm:py-4.5 rounded-full transition transform hover:scale-105 shadow-xl text-lg sm:text-xl"
+            >
+              Create Your Free Account
+            </Link>
+            <a 
+              href="https://github.com/Detroix227/Nedai-Project/releases/download/v1.0.0/NedAI.Setup.1.0.0.exe" 
+              download
+              className="bg-slate-900 dark:bg-slate-800 text-white hover:bg-slate-800 dark:hover:bg-slate-700 font-bold px-8 sm:px-10 py-3.5 sm:py-4.5 rounded-full transition transform hover:scale-105 border border-slate-700/50 shadow-xl text-lg sm:text-xl"
+            >
+              <Download size={20} className="inline mr-2" /> Download Desktop App
+            </a>
+          </div>
         </section>
         
         {/* Footer */}

@@ -5,6 +5,8 @@ import { MarkdownMessage } from "@/components/MarkdownMessage";
 import { TypingBubble } from "@/components/TypingBubble";
 import type { ChatMessage } from "@/modules/contracts";
 import { useChatStore } from "@/modules/chat/useChatStore";
+import { useAuthStore } from "@/modules/auth/useAuthStore";
+import { useConnectivityStore } from "@/modules/connectivity/useConnectivityStore";
 
 type Props = {
   messages: ChatMessage[];
@@ -174,6 +176,11 @@ function UserMessageBubble({
 
 export function ChatMessageList({ messages, isStreaming = false }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null);
+  const bootstrapStatus = useAuthStore((state) => state.bootstrapStatus);
+  const bootstrapProgress = useAuthStore((state) => state.bootstrapProgress);
+  const brainMode = useChatStore((state) => state.brainMode);
+  const isOnline = useConnectivityStore((state) => state.isOnline);
+  const isLocal = (brainMode === 'local' || !isOnline) && !!window.electronAPI;
 
   const scrollSignature = useMemo(
     () =>
@@ -192,6 +199,21 @@ export function ChatMessageList({ messages, isStreaming = false }: Props) {
 
   return (
     <div className="px-4 pt-4 pb-8 space-y-6">
+      {/* Model warm-up banner — visible in local mode when model is loading or just became ready */}
+      {isLocal && bootstrapStatus === "model-warming" && (
+        <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-amber-50/70 dark:bg-amber-900/15 border border-amber-200/60 dark:border-amber-700/30 text-xs text-amber-700 dark:text-amber-300 animate-fade-in">
+          <span className="inline-block w-3.5 h-3.5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin shrink-0" />
+          <span>
+            <strong>Loading offline AI into memory…</strong> First launch takes 30–60 seconds. Subsequent messages will be fast ⚡
+          </span>
+        </div>
+      )}
+      {isLocal && bootstrapStatus === "model-ready" && (
+        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-50/70 dark:bg-emerald-900/15 border border-emerald-200/60 dark:border-emerald-700/30 text-xs text-emerald-700 dark:text-emerald-300 animate-fade-in">
+          <span>✅</span>
+          <span><strong>NedAI offline brain is warmed up and ready.</strong> Responses will be fast.</span>
+        </div>
+      )}
       {messages.map((message) => {
         const isUser = message.role === "user";
         const isPendingAssistant =
@@ -214,7 +236,53 @@ export function ChatMessageList({ messages, isStreaming = false }: Props) {
 
                 <div className="flex-1 pt-1 min-w-0">
                   {isPendingAssistant ? (
-                    <TypingBubble />
+                    isLocal ? (
+                      bootstrapStatus === "pulling" ? (
+                        <div className="flex flex-col gap-2 p-4 bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl border border-blue-200/50 dark:border-blue-800/30 max-w-sm">
+                          <div className="flex items-center justify-between text-xs font-bold text-blue-600 dark:text-blue-400">
+                            <span>Downloading local brain model...</span>
+                            <span>{bootstrapProgress}%</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div className="h-full bg-blue-600 transition-all duration-300" style={{ width: `${bootstrapProgress}%` }} />
+                          </div>
+                        </div>
+                      ) : bootstrapStatus === "error-no-ollama" ? (
+                        <div className="flex flex-col gap-1.5 p-4 bg-rose-50/50 dark:bg-rose-950/10 border border-rose-200/50 dark:border-rose-900/20 rounded-2xl max-w-sm">
+                          <p className="text-sm font-semibold text-rose-600 dark:text-rose-400">⚠️ Ollama is not running or not installed.</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">Please start Ollama to enable offline features.</p>
+                        </div>
+                      ) : bootstrapStatus === "model-warming" ? (
+                        <div className="flex flex-col gap-2 p-4 bg-amber-50/50 dark:bg-amber-900/10 rounded-2xl border border-amber-200/50 dark:border-amber-800/30 max-w-sm">
+                          <div className="flex items-center gap-2 text-xs font-bold text-amber-600 dark:text-amber-400">
+                            <span className="inline-block w-3 h-3 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                            <span>Loading offline AI into memory…</span>
+                          </div>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            First launch takes <strong>30–60 seconds</strong>. Subsequent messages will be fast ⚡
+                          </p>
+                          <div className="w-full h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div className="h-full bg-amber-400 rounded-full animate-pulse" style={{ width: '100%' }} />
+                          </div>
+                        </div>
+                      ) : bootstrapStatus === "initializing" ? (
+                        <div className="flex flex-col gap-1.5">
+                          <TypingBubble />
+                          <span className="text-xs text-slate-400 dark:text-slate-500 animate-pulse font-medium">
+                            Initializing local brain...
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-1.5">
+                          <TypingBubble />
+                          <span className="text-xs text-slate-400 dark:text-slate-500 animate-pulse font-medium">
+                            {bootstrapStatus === "model-ready" ? "NedAI is thinking…" : "Warming up local AI model…"}
+                          </span>
+                        </div>
+                      )
+                    ) : (
+                      <TypingBubble />
+                    )
                   ) : (
                     <MarkdownMessage content={message.content} />
                   )}

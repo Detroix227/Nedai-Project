@@ -1,7 +1,8 @@
-import { History } from "lucide-react";
+import { History, Cloud, Cpu, WifiOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/modules/auth/useAuthStore";
 import { useConnectivityStore } from "@/modules/connectivity/useConnectivityStore";
+import { useChatStore } from "@/modules/chat/useChatStore";
 
 export function Header({
   title,
@@ -15,6 +16,8 @@ export function Header({
   const displayName = user?.fullName || user?.email || "NedAI User";
   const initials = displayName.slice(0, 1).toUpperCase();
   const isOnline = useConnectivityStore((state) => state.isOnline);
+  const brainMode = useChatStore((state) => state.brainMode);
+  const toggleBrainMode = useChatStore((state) => state.toggleBrainMode);
   
   const handleProfileClick = () => {
     navigate("/profile");
@@ -43,6 +46,33 @@ export function Header({
           >
             <History size={16} className="text-slate-500 dark:text-slate-400" strokeWidth={2} />
             <span className="ml-2 text-[13px] font-semibold text-slate-500 dark:text-slate-400">History</span>
+          </button>
+        )}
+
+        {/* Brain Mode Toggle */}
+        {window.electronAPI && (
+          <button
+            onClick={isOnline ? toggleBrainMode : undefined}
+            disabled={!isOnline}
+            className={`flex flex-row items-center px-3.5 py-2 rounded-full border shadow-sm transition-all duration-200 ${
+              !isOnline
+                ? "bg-rose-50/50 dark:bg-rose-950/10 border-rose-200/50 dark:border-rose-900/20 text-rose-500 dark:text-rose-400 cursor-not-allowed opacity-80"
+                : brainMode === "local"
+                  ? "bg-purple-50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/30"
+                  : "bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+            }`}
+            title={!isOnline ? "Forced to Local mode while offline" : `Switch to ${brainMode === 'cloud' ? 'Local' : 'Cloud'} Brain`}
+          >
+            {!isOnline ? (
+              <WifiOff size={16} className="text-rose-500" strokeWidth={2} />
+            ) : brainMode === "local" ? (
+              <Cpu size={16} className="text-purple-500" strokeWidth={2} />
+            ) : (
+              <Cloud size={16} className="text-blue-500" strokeWidth={2} />
+            )}
+            <span className="ml-2 text-[13px] font-bold">
+              {!isOnline ? "Local Only" : brainMode === "local" ? "Local Brain" : "Cloud Brain"}
+            </span>
           </button>
         )}
 
