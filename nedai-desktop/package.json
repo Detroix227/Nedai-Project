@@ -14,6 +14,14 @@
   "build": {
     "appId": "com.nedai.desktop",
     "productName": "NedAI",
+    "npmRebuild": false,
+    "asar": true,
+    "asarUnpack": [
+      "**/node_modules/onnxruntime-node/**/*",
+      "**/node_modules/@lancedb/**/*",
+      "**/node_modules/sharp/**/*",
+      "**/node_modules/@napi-rs/canvas/**/*"
+    ],
     "directories": {
       "output": "dist-installers"
     },
@@ -27,7 +35,7 @@
     ],
     "win": {
       "target": "nsis",
-      "icon": "web/dist/nedai-symbol-v3.png"
+      "icon": "web/dist/nedai-symbol-v3.ico"
     },
     "nsis": {
       "oneClick": false,
