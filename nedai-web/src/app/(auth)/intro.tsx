@@ -28,7 +28,7 @@ export default function IntroScreen() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
             <img 
-              src="/nedai-text-logo.png" 
+              src="nedai-text-logo.png" 
               alt="NedAI Logo" 
               className="w-12 sm:w-16 h-8 sm:h-10 object-contain"
             />

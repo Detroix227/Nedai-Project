@@ -192,7 +192,7 @@ export function Sidebar() {
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <img src="/nedai-symbol-v3.png" alt="NedAI" className="w-8 h-8 object-contain" />
+                  <img src="nedai-symbol-v3.png" alt="NedAI" className="w-8 h-8 object-contain" />
                   <span className={`absolute -bottom-0.5 -right-0.5 block h-2 w-2 rounded-full ring-1 ring-white dark:ring-slate-900 ${
                     isOnline ? 'bg-emerald-500' : 'bg-rose-500'
                   }`} />
